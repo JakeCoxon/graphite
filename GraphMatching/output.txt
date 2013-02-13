@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns/graphml"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml">
+<key id="y" for="node">
+<default>0</default>
+</key>
+<key id="x" for="node">
+<default>0</default>
+</key>
+<graph edgedefault="directed">
+<node id="com.jakemadethis.graph.Vertex@35549f94">
+<data key="y">-155.63218688964844</data>
+<data key="x">53.687469482421875</data>
+</node>
+<node id="com.jakemadethis.graph.Vertex@4c5e176f">
+<data key="y">-92.57628631591797</data>
+<data key="x">-21.351709365844727</data>
+</node>
+<node id="com.jakemadethis.graph.Vertex@351e1e67">
+<data key="y">4.628334999084473</data>
+<data key="x">125.77950286865234</data>
+</node>
+<node id="com.jakemadethis.graph.Vertex@50c4fe76">
+<data key="y">18.933734893798828</data>
+<data key="x">-131.98191833496094</data>
+</node>
+<node id="com.jakemadethis.graph.Vertex@423e5d1">
+<data key="y">52.45294189453125</data>
+<data key="x">-91.12158203125</data>
+</node>
+<node id="com.jakemadethis.graph.Vertex@4bbd7848">
+<data key="y">-47.27946090698242</data>
+<data key="x">-105.4977035522461</data>
+</node>
+<hyperedge >
+<endpoint node="com.jakemadethis.graph.Vertex@4bbd7848"/>
+<endpoint node="com.jakemadethis.graph.Vertex@423e5d1"/>
+</hyperedge>
+</graph>
+</graphml>

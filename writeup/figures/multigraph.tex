@@ -1,0 +1,12 @@
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \node[vertex] (a)    {};
+    \node[vertex] (b) [right=of a]  {};
+    \node[vertex] (c) [right=of b]  {};
+    \path[->] (a) edge (b)
+              (b) edge [bend left=20] (c) 
+                  edge [bend right=20] (c);
+  \end{tikzpicture}
+  \caption{A directed multigraph}
+\end{figure}

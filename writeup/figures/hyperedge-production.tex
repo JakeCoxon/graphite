@@ -1,0 +1,33 @@
+\begin{figure}[H]
+  \centering
+  
+  \begin{tikzpicture}
+
+    \node[] (lbl) [] {$a: A$};
+
+
+    \node[] (arrow1) [right=of lbl] {$\to$};
+
+
+    \node[vertex] (a) [right=of arrow1] {} node[below=0mm of a,font=\tiny,inner sep=1pt]{1};
+    \node[hyperedge] (hyp1) [right=of a] {A};
+    \node[vertex] (b) [right=of hyp1] {};
+    \node[hyperedge] (hyp2) [right=of b] {A};
+    \node[vertex] (c) [right=of hyp2] {} node[below=0mm of c,font=\tiny,inner sep=1pt]{2};
+
+    \path[-] (hyp1) edge node[tentacle]{} (a)
+                   edge node[tentacle]{} (b);
+
+    \path[-] (hyp2) edge node[tentacle]{} (b)
+                   edge node[tentacle]{} (c);
+
+    %\node[vertex] (a) [right=of arrow1] {} node[below=0mm of a,font=\tiny,inner sep=1pt]{1};
+    %\node[vertex] (b) [below right=1cm of a] {};
+    %\node[vertex] (c) [above right=1cm of b] {} node[below=0mm of c,font=\tiny,inner sep=1pt]{2};
+
+    %\path[->] (a) edge (b)
+    %              edge (c)
+    %          (b) edge (c);
+  \end{tikzpicture}
+  
+\end{figure}

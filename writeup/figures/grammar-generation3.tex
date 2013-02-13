@@ -1,0 +1,75 @@
+\begin{figure}[!h]
+  \centering
+  \begin{tikzpicture}[level distance=0.5cm,level/.style={sibling distance=0.5cm}]
+
+    \matrix[column sep=1cm]
+    {
+      \node[vertex] {}
+        child {node[vertex] {}
+          child {node[vertex] {}
+            child {node[vertex] {}}
+          }
+          child {node[vertex] {}
+            child {node[vertex] {}}
+            child {node[vertex] {}}
+          }
+        }
+        child {node[vertex] {}};
+    &
+      \node[vertex] {};
+    &
+      \node[vertex] {}
+        child {node[vertex] {}
+          child {node[vertex] {}}
+          child {node[vertex] {}}
+        }
+        child {node[vertex] {}};
+    &
+      \node[vertex] {}
+        child {node[vertex] {}
+          child {node[vertex] {}}
+            child {node[vertex] {}
+            child {node[vertex] {}}
+          }
+        };
+    &
+      \node[vertex] {}
+        child {node[vertex] {}
+          child {node[vertex] {}
+            child {node[vertex] {}
+              child {node[vertex] {}
+                child {node[vertex] {}}
+                child {node[vertex] {}}
+              }
+              child {node[vertex] {}}
+            }
+            child {node[vertex] {}}
+          }
+        };
+    &
+      \node[vertex] {}
+        child {node[vertex] {}
+          child {node[vertex] {}}
+        };
+    &
+      \node[vertex] {}
+        child {node[vertex] {}
+          child {node[vertex] {}}
+          child {node[vertex] {}}
+        }
+        child {node[vertex] {}
+          child {node[vertex] {}
+            child {node[vertex] {}
+              child {node[vertex] {}}
+              child {node[vertex] {}
+                child {node[vertex] {}}
+              }
+            }
+          }
+        };
+    \\
+    };
+
+  \end{tikzpicture}
+
+\end{figure}

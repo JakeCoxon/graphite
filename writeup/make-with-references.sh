@@ -1,0 +1,1 @@
+pdflatex project.tex && bibtex project && pdflatex project.tex && ./make.sh

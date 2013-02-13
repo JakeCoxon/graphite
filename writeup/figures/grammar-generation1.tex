@@ -1,0 +1,29 @@
+\begin{figure}[!h]
+  \centering
+  \begin{tikzpicture}
+
+    \matrix[column sep=2cm]
+    {
+    \node[vertex]     (lefta) [label=1] {};
+    \node             (arrow) [right=of lefta] {$\underset{r_1}{\Rightarrow}$};
+    \node[vertex]     (a)     [right=of arrow,label=1] {};
+    \node[vertex]     (b)     [below=of a] {};
+
+    \path[-] (a) edge (b);
+    &
+
+    \node[vertex]     (lefta) [label=1] {};
+    \node             (arrow) [right=of lefta] {$\underset{r_2}{\Rightarrow}$};
+    \node[vertex]     (a)     [right=of arrow,label=1] {};
+    \node[vertex]     (b)     [node distance=1cm and 0.5cm,below left=of a] {};
+    \node[vertex]     (c)     [node distance=1cm and 0.5cm,below right=of a] {};
+
+    \path[-] (a) edge (b)
+                 edge (c);
+    \\
+    };
+
+  \end{tikzpicture}
+  \caption{Binary tree grammar}
+
+\end{figure}

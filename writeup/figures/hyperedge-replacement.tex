@@ -1,0 +1,48 @@
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+
+    \node (lbl) {$H$:};
+    \node[vertex,right=of lbl] (a) {};
+    \node[hyperedge] (hyp) [right=of a] {$e$};
+    \node[vertex] (b) [right=of hyp] {};
+    \node[vertex] (c) [right=of b] {};
+
+
+    \path[->] (a) edge [bend left=50] (c)
+              (b) edge (c);
+
+    \path[-] (hyp) edge node[tentacle]{$1$} (a)
+                   edge node[tentacle]{$2$} (b);
+
+  \end{tikzpicture} \\[0.5cm]
+  
+  \begin{tikzpicture}
+
+    \node (lbl) {$R$:};
+    \node[vertex] (a) [right=of lbl] {} node[below=0mm of a,font=\tiny,inner sep=1pt]{1};
+    \node[vertex] (b) [below right=1cm of a] {};
+    \node[vertex] (c) [above right=1cm of b] {} node[below=0mm of c,font=\tiny,inner sep=1pt]{2};
+
+    \path[->] (a) edge (b)
+                  edge (c)
+              (b) edge (c);
+  \end{tikzpicture} \\[0.5cm]
+  
+  \begin{tikzpicture}
+
+    \node (lbl) {$H[e/R]$:};
+    \node[vertex,right=of lbl] (a) {};
+    \node[vertex] (b) [below right=1cm of a] {};
+    \node[vertex] (c) [above right=1cm of b] {};
+    \node[vertex] (d) [right=of c] {};
+
+    \path[->] (a) edge [bend left=50] (d)
+                  edge (b)
+                  edge (c)
+              (b) edge (c)
+              (c) edge (d);
+
+  \end{tikzpicture}
+  \caption{Hyperedge replacement}
+\end{figure}
