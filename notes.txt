@@ -1,23 +1,10 @@
-Restrict pattern replacement to edge-replacement or hyper edge replacement
 
-Think about:
-choose a rule then choose a position of the rule in the graph
-OR
-choose a (rule + position in the graph)
-
-labeled nodes, edges?
-
-where clauses
-
-hyperedges are directed?
-3-hyperedge match 4-hyperedge?
-
-hyperedges = non-terminals?
-
-matching hyperedges = factorial
 
 
 Handbook of theortical computer science
 Formal models and semantics
 volume b
 chapter  5
+
+
+

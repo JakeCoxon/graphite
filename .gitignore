@@ -1,4 +1,9 @@
 **/bin/**
+*.jar
+*.log
+writeup/project.pdf
 .DS_Store
 *.class
 literature/*
+*-src.zip
+.cache
