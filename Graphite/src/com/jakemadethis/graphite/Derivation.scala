@@ -13,7 +13,7 @@ object Derivation {
 class Derivation[T](val nonTerminals: List[T], val terminalSize: Int) {
   def head = nonTerminals.head
   
-  def nonTerminalSize = nonTerminals.size
+  //def nonTerminalSize = nonTerminals.size
   def isTerminal = nonTerminals.isEmpty
   def nonTerminalSet = MultiSet(nonTerminals)
   

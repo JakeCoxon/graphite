@@ -58,14 +58,14 @@ object App {
 
     
     val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-        val start = CharDerivation("A")
+    val start = CharDerivation("A")
         
     time {
       
       
         
       for (x <- 0 to 100) {
-        println(new StringGenerator(randomizer, start, 20).makeString)
+        println(randomizer.generate(start, 20, new StringGenerator(_)).makeString)
       }
     }
     

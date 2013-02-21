@@ -2,28 +2,13 @@ package com.jakemadethis.graphite;
 //import scala.collection.mutable.Map
 import scala.collection.mutable.ArraySeq
 
+abstract class Grammar[K, D <: Derivation[K]](map : Map[K, Seq[D]]) extends collection.immutable.Map[K, Seq[D]] {
 
-abstract class Grammar[K, D <: Derivation[K]](map : Map[K, Seq[D]]) {
-
-//  def count(nt: Int, prodId: Int, ntc: Int) : Int = {
-//    array(nt)(prodId).count { ntc == _ }
-//  }
-
-  def foreach[U](f : ((K, Seq[D])) => U) = map.foreach(f)
-  //def terminalSize(seq: Seq[T]) = seq.count(isTerminal _)
-  //def terminalSize(key: K, prodId: Int) : Int = terminalSize(map(key)(prodId))
+  def iterator = map.iterator
+  def get(key : K) = map.get(key)
+  def + [B1 >: Seq[D]](kv: (K, B1)) = throw new UnsupportedOperationException()
+  def -(key: K) = throw new UnsupportedOperationException()
   
-  //def string(nt: K, prod : Int) = map(nt)(prod)
-  //def numProductions(nt: K) = map(nt).size
-  
-  //def apply(nt: T) = map(key(nt))
-  def apply(nt: K) = map(nt)
-  def apply(nt: K, prod: Int) = map(nt)(prod)
-  //def get(nt: T) = map.get(key(nt))
-  //def key(nt: T) : K
-  //def isNonTerminal(t: T) : Boolean = map.contains(key(t))
-  //final def isTerminal(t: T) : Boolean = !isNonTerminal(t)
-  val size = map.size
 }
 
 

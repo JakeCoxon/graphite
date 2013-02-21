@@ -92,57 +92,51 @@ class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K,
         if (rnd < v) return i; rnd -= v
       }
     }
-    return -1
+    return -1 // todo: When does this happen?
   }
-  
-  def generateFromStart(startString : D, len : Int)(f: D => Unit) : Option[Derivation[K]] = 
-    generate(startString, len)(f)
     
-  def generate(startString : Derivation[K], len : Int)(f : D => Unit) : Option[Derivation[K]] = {
+  def generate[G <: Generator[K, D]]
+      (startString : D, len : Int, factory : D => G) : G = {
     
-    var string = startString
+    var string : Derivation[K] = startString
+    val generator : G = factory(startString)
     
     while (!string.isTerminal) {
-      val vals = grammar(string.head).map { 
-        probability(string, string.head, _, len)
-      }
+      val vals = grammar(string.head).map(probability(string, string.head, _, len))
+      
       val prodId = 
         if (vals.size == 1) 0 
         else pick(vals)
         
-      if (prodId == -1) return None
+      if (prodId == -1) throw new Error("There are no availible derivations")
       
       val derivation = grammar(string.head)(prodId)
       
-      f(derivation)
+      generator.derive(string.head, derivation)
       string = string.derive(derivation)
     }
-    Some(string)
+    generator
   }
   
 }
 
-abstract class Generator[K, D <: Derivation[K]](randomizer: GrammarRandomizer[K, D], startString : D, len : Int) {
-  def generate { 
-    randomizer.generate(startString, len)(derive _)
-  }
-  def derive(derivation : D)
+abstract class Generator[K, D <: Derivation[K]] {
+  def derive(nonTerminal : K, derivation : D)
 }
 
-class StringGenerator(randomizer : GrammarRandomizer[Char, CharDerivation], start : CharDerivation, len : Int) 
-  extends Generator(randomizer, start, len) {
+class StringGenerator(start : CharDerivation) extends Generator[Char, CharDerivation] {
   
   var string = List[Char]()
 
-  derive(start)
+  derive(0, start)
   
-  def derive(der : CharDerivation) {
+  def derive(c : Char, der : CharDerivation) {
     val pos = string.indices.find { string(_).isUpper }.getOrElse(0)
     string = string.take(pos) ::: der.string.toList ::: string.drop(pos+1)
   }
   
   
   def makeString() : String = {
-    super.generate; string.mkString
+    string.mkString
   }
 }
