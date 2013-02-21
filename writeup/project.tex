@@ -229,30 +229,113 @@ Introduction should go here
   The figure below shows an example of the system applied to the same grammar with the number of vertices bound $\leq 10$.
   \input{figures/grammar-generation3}
 
+
   \subsubsection{Improvement on Ranjan's Approach}
 
-  It is likely that the reason Ranjan's approach happens in two stages is a workaround to GP which has a very simple instruction set. By changing the method keep a sequence of morphisms, we can improve it a bit.
+    It is likely that the reason Ranjan's approach happens in two stages is a workaround to GP which has a very simple instruction set. By changing the method keep a sequence of morphisms, we can improve it a bit.
 
-  \begin{itemize}
-  \item Let $d$ be a sequence of all isomorphic graph morphisms to $G$ for each rule in the grammar.
-  \item Pick a random integer $1 \leq r \leq \#d$ and apply rule $d_r$ to the graph $G$.
-  \item Update the sequence $d$
-  \item Repeat loop until some condition
-  \end{itemize}
+    \begin{itemize}
+    \item Let $d$ be a sequence of all isomorphic graph morphisms to $G$ for each rule in the grammar.
+    \item Pick a random integer $1 \leq r \leq \#d$ and apply rule $d_r$ to the graph $G$.
+    \item Update the sequence $d$
+    \item Repeat loop until some condition
+    \end{itemize}
 
-  This method is a more general version of Ranjan's approach and there are no restrictions of the grammar. However, the implementation of this method is very expensive to compute since matching morphisms is not trivial.
+    This method is a more general version of Ranjan's approach and there are no restrictions of the grammar. However, the implementation of this method is very expensive to compute since matching morphisms is not trivial.
 
-  Another method is to use what we know about hypergraph languages. Below is a new method that works on hypergraphs. It keeps a sequence of available non-terminals and picks one at random. It then chooses a random rule that can be applied to this location and applies it the the graph. Using a sequence of non-terminals instead of graph morphisms gives a better computational speed since the lookup of non-terminals in a graph is a constant time operation.
+    Another method is to use what we know about hypergraph languages. Below is a new method that works on hypergraphs. It keeps a sequence of available non-terminals and picks one at random. It then chooses a random rule that can be applied to this location and applies it the the graph. Using a sequence of non-terminals instead of graph morphisms gives a better computational speed since the lookup of non-terminals in a graph is a constant time operation.
 
-  \begin{itemize}
-  \item Let $G$ be the start graph. Let $d$ be a sequence of all the non-terminal hyperedges in $G$
-  \item Begin loop
-  \item Pick a random integer $1 \leq l \leq \#d$.
-  \item Get the set of all valid rules on this edge. $r = \{\textrm{All rules $\langle x \to R \rangle$ where $x = lbl_F(d_l)$\}}$
-  \item Pick another random integer $1 \leq m \leq \#r$ and apply the rule $r_m$ to the graph $G$.
-  \item Remove the non-terminal $d_l$ from $d$ and add all the non-terminals in the replaced graph $R$.
-  \item Repeat loop
-  \end{itemize}
+    \begin{itemize}
+    \item Let $G$ be the start graph. Let $d$ be a sequence of all the non-terminal hyperedges in $G$
+    \item Begin loop
+    \item Pick a random integer $1 \leq l \leq \#d$.
+    \item Get the set of all valid rules on this edge. $r = \{\textrm{All rules $\langle x \to R \rangle$ where $x = lbl_F(d_l)$\}}$
+    \item Pick another random integer $1 \leq m \leq \#r$ and apply the rule $r_m$ to the graph $G$.
+    \item Remove the non-terminal $d_l$ from $d$ and add all the non-terminals in the replaced graph $R$.
+    \item Repeat loop
+    \end{itemize}
+
+  \subsection{Generation of Uniform Random Strings}
+
+  Thie previous approach has a major downside that some terminal graphs have a far larger probability of occuring than others. Consider the string grammar $S \to a | Sa$, we can see here that the string $a$ has the probability $0.5$ of being produced and \emph{every} other terminal graph combined has the remaining probability of $0.5$. The same is true for graph grammars. A better option would be to choose terminal graphs with uniform randomness.
+
+  The paper by Timothy Hickey and Jacques Cohen titled `Uniform Random Generation of Strings in a Context-Free Language' describes a method of picking strings uniformly. If the method can be constructed for strings we may be able to use the same method for graphs.
+
+  The paper explains the meaning of producing strings uniformly - \emph{``Consider the set of all strings of length $n$ in the language. A uniform random generator is one which will produce strings from this set with equal probability.''} It is noted that the probability of which disjunct is used at each step in a derivation depends on the previous steps. This is different to the naive approach of choosing a derivation with equal probability and not taking into account the current state.
+
+  Firstly some notation is introducted. Let $G = \langle V, \Sigma, P, N_1 \rangle$ be an unamigious cycle-free context-free grammar containing no $\epsilon$-productions where $V = N \cup \Sigma$, $N = {N_1,\dots,N_r}$ is the nonterminal vocabulary, $\Sigma$ is the set of terminals, $N_1$ is the start symbol, and the set of productions is the following.
+  \[P = \left\{\pi_{ij} : N_i \to \alpha_{aj} | i = 1,\dots,r, j = 1, \dots,s_i \right\}\]
+
+  Choosing a string $\beta_{k+1}$ from a previous string $\beta{k}$ involves rewriting the leftmost nonterminal in $\beta_k$ using one of the productions in $P$. if $N_i$ is the leftmost nonterminal in $B_k$, there are $s_i$ different choices for $\beta_{k+1}$. The idea of the method is to generate random strings of length $n$ by determining the probabilties $p_{ij}(\beta, n)$. These probabilities must be chosen so that every string of length $n$ has an equal probability.
+
+  Let $g_\beta(n)$ denote the number of terminal strings of length $n$ that can be derived from a sentential form $\beta$ and $\gamma$ be the result of applying $\pi_{ij}$ to $\beta$ in a leftmost derivation. The probability that must be assigned to $\pi_{ij}$ is:
+  \[
+  p_{ij}(\beta, n) = \frac{g_\gamma(n)}{g_\beta(n)}
+  \]
+  A terminal string of length $n$ derived from the concatenation of two strings $\beta_1$, $\beta_2$ is the concatenation of two terminal strings whose lengths sum to $n$. The number of these terminal strings is the following.
+  \[
+  g_{\beta_1\beta_2}(n) = \sum_{n_1+n_2=n}g_{\beta_1}(n_1)g_{\beta_2}(n_2)
+  \]
+  This is in the form of a convolution $(g_{\beta_1} * g_{\beta_2})(n)$ which is defined as:
+  \[
+  (g_1 * g_2)(n) = \sum_{n_1+n_2=n}g_1(n_1)g_2(n_2) = \sum_{k=0}^{n} g_1(k)g_2(n-k)
+  \]
+  With the notation $g^{(k)}$ to denote the convolution of a function $g$ with itself $k$ times. The paper then shows the the associativity and commutativity properties of this convolution, as well as an `identity' function $\delta_k$ which is proved $\delta_0 * g = g$ and $g^{(0)} = \delta_0$
+  \[
+  \delta_k(n) = \left\{\begin{aligned}
+    1, \quad & n = k\\
+    0, \quad & n \neq k
+  \end{aligned}\right.
+  \]
+
+
+  We can now define a function that calculates the number of terminal strings given a vector of nonterminals. This function is $f(t, a)$ for $a = (a_1,\dots,a_r)$ which corresponds to how many $N_1,\dots,N_r$ to count.
+  \[
+  f(t, a) = \left((g_{N_1}^{(a_1)}) * \hdots * (g_{N_r}^{(a_r)})\right)(t)
+  \]
+  Hickey and Cohen go on to show how this function can be rewritten as the following recurence
+  \[
+  f(t,a) = \sum_{j=1}^{s_i}f(t-T(\alpha_{ij}), a+A(\alpha_{ij})-A(N_i)), \quad\mathrm{if}\ a_i \neq 0
+  \]
+
+  Let $T(\beta)$ be the number of terminals in $\beta$ and let $A(\beta) = (A_1(\beta),\dots,A_r(\beta))$ be the vecotr whose $i$th component is the number of occurences of $N_i$. Then the function counting terminal strings from a string $\beta$ is the following.
+  \[
+  g_\beta(n) = f(n-T(\beta), A(\beta))
+  \]
+
+  Using this function we can rewrite the probability that production $\pi_{ij}$ will be used:
+  \[
+  p_{ij}(\beta, n) = \frac{f(n - T(\gamma), A(\gamma))}{f(n-T(\beta), A(\beta))} = \frac{f(n-T(\beta)-T(\alpha_{ij}),A(\beta)-A(N_i)+A(\alpha_{ij}))}{f(n-T(\beta),A(\beta))}
+  \]
+
+  The function $g_{N_i}$ can now be simplified.
+  \begin{align*}
+  g_{N_i}(t) &= f(t, A(N_i)) \\
+  &= \sum_{j=1}^{s_i} f(t-T(\alpha_{ij}), A(\alpha_{ij})) \\
+  &= \sum_{j=1}^{s_i} \left(g_{N_1}^{(\alpha_{ij})} * \hdots * g_{N_r}^{(\alpha_{rj})}\right)(t - T(\alpha_{ij})) \\
+  \mathrm{with}\ g_{N_i}(t) &= 0\ \mathrm{if}\ t \leq 0
+  \end{align*}
+
+  This equation expresses $g(t)$ in terms of the values of $g_{N_i}(t')(1 \leq t' < t, 1 \leq i \leq r)$ so we can precompute the values $g_{N_i}(t)(1 \leq t \leq n, 1 \leq i \leq r)$ to speed up the generation of strings.
+
+  \subsubsection{Example}
+
+    Consider the following unambiguous context-free grammar that generates balances parentheses.
+    \begin{align*}
+    G_0 &= ({N_1, N_2, (, )}, {(, )}, P, N_1) \\
+    P : \pi_{11} &: N_1 \to (N_1 \\
+        \pi_{21} &: N_2 \to N_1 N_2 \\
+        \pi_{22} &: N_2 \to\ )
+    \end{align*}
+
+    The method will compute the values of $g_{N_1}$ and $g_{N_2}$ for $1 \leq t \leq n$ using the formulas
+    \begin{align*}
+    g_{N_1}(t) &= g_{N_1}(t-1) \\
+    g_{N_2}(t) &= (g_{N_1} * g_{N_2})(t) + (g_{N_1}^{(0)} * g_{N_2}^{(0)})(t-1) = (g_{N_1} * g_{N_2})(t) + \delta_0(t-1)
+    \end{align*}
+
+    \input{figures/uniformstrings-example.tex}
+    
 \bibliography{references}{}
 \bibliographystyle{plain}
 

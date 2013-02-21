@@ -11,3 +11,5 @@
 \contentsline {subsection}{\numberline {2.5}Ranjan's Approach}{8}{subsection.2.5}
 \contentsline {paragraph}{}{9}{section*.2}
 \contentsline {subsubsection}{\numberline {2.5.1}Improvement on Ranjan's Approach}{10}{subsubsection.2.5.1}
+\contentsline {subsection}{\numberline {2.6}Generation of Uniform Random Strings}{11}{subsection.2.6}
+\contentsline {subsubsection}{\numberline {2.6.1}Example}{12}{subsubsection.2.6.1}
