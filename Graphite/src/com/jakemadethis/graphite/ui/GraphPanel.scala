@@ -9,8 +9,8 @@ import java.awt.Dimension
 import edu.uci.ics.jung.algorithms.layout.FRLayout
 import edu.uci.ics.jung.graph.Hypergraph
 import edu.uci.ics.jung.graph.Graph
-import com.jakemadethis.graph.visualization.MyGraphMouse
-import com.jakemadethis.graph.visualization.HyperedgePickSupport
+import com.jakemadethis.graphite.visualization.MyGraphMouse
+import com.jakemadethis.graphite.visualization.HyperedgePickSupport
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller
 import org.apache.commons.collections15.functors.ConstantTransformer
 import java.awt.geom.Ellipse2D
@@ -18,14 +18,14 @@ import org.apache.commons.collections15.functors.TruePredicate
 import edu.uci.ics.jung.graph.util.Context
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer
 import java.awt.Color
-import com.jakemadethis.graph.visualization.MultiPickableVertexPaint
+import com.jakemadethis.graphite.visualization.MultiPickableVertexPaint
 import java.awt.event.ItemEvent
 import java.awt.event.ItemListener
-import com.jakemadethis.graph.visualization.BasicHypergraphRenderer
-import com.jakemadethis.graph.visualization.HyperedgeLabelRenderer
+import com.jakemadethis.graphite.visualization.BasicHypergraphRenderer
+import com.jakemadethis.graphite.visualization.HyperedgeLabelRenderer
 import org.apache.commons.collections15.Predicate
-import com.jakemadethis.graph.visualization.HyperedgeRenderer
-import com.jakemadethis.graph.visualization.EdgeLayout
+import com.jakemadethis.graphite.visualization.HyperedgeRenderer
+import com.jakemadethis.graphite.visualization.EdgeLayout
 import java.awt.Point
 import org.apache.commons.collections15.Transformer
 
