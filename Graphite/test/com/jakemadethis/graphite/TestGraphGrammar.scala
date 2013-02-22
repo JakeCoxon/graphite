@@ -15,7 +15,12 @@ object TestGraphGrammar {
   
   def newGraph : Hypergraph[Vertex,Hyperedge] = new OrderedHypergraph[Vertex,Hyperedge]()
   
-  def main(args : Array[String]) {
+  var hasSetup = false
+  var randomizer : GrammarRandomizer[String, HypergraphDerivation] = null
+  var startder : HypergraphDerivation = null
+  
+  def setup() {
+    hasSetup = true
     val g1 = {
       val g = newGraph
       val v1 = new Vertex()
@@ -81,17 +86,27 @@ object TestGraphGrammar {
       }
       
     }
-
+  
     
-    val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-    val startder = new HypergraphDerivation(start)
+    randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
+    startder = new HypergraphDerivation(start)
+  }
+  
+  def main(args : Array[String]) {
+    
         
     Time {
       for (x <- 0 to 10) {
-        printgraph(randomizer.generate(startder, 21, new HypergraphGenerator(_, new OrderedHypergraph())).graph)
+        printgraph(genGraph)
       }
     }
     
+  }
+  
+  
+  def genGraph() = {
+    if (!hasSetup) setup()
+    randomizer.generate(startder, 21, new HypergraphGenerator(_, new OrderedHypergraph())).graph
   }
   
   def printgraph(g : Hypergraph[Vertex, Hyperedge]) {
