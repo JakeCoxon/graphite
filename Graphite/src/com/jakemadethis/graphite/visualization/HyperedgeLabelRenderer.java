@@ -7,7 +7,7 @@
  *
  * Created on Aug 23, 2005
  */
-package com.jakemadethis.graph.visualization;
+package com.jakemadethis.graphite.visualization;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

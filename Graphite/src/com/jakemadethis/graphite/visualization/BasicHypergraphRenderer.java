@@ -1,9 +1,9 @@
-package com.jakemadethis.graph.visualization;
+package com.jakemadethis.graphite.visualization;
 
 import java.awt.Color;
 import java.util.ConcurrentModificationException;
 
-import com.jakemadethis.graph.visualization.HyperedgeRenderer;
+import com.jakemadethis.graphite.visualization.HyperedgeRenderer;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;

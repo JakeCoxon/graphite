@@ -1,4 +1,4 @@
-package com.jakemadethis.graph.visualization;
+package com.jakemadethis.graphite.visualization;
 
 import java.awt.event.InputEvent;
 

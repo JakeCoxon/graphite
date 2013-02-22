@@ -1,4 +1,4 @@
-package com.jakemadethis.graph.visualization;
+package com.jakemadethis.graphite.visualization;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.VisualizationServer;
