@@ -10,14 +10,22 @@ import scala.collection.JavaConversions._
 import edu.uci.ics.jung.graph.Hypergraph
 import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
+import com.jakemadethis.graphite.visualization.VisualEdge
+import com.jakemadethis.graphite.visualization.VisualItem
+import com.jakemadethis.graphite.visualization.VisualVertex
+import com.jakemadethis.graphite.visualization.VisualFakeVertex
+
 
 class GraphFrame extends JFrame {
   
   implicit def convertFunctionToAction(f : => Unit) : ActionListener = new ActionListener() {
     def actionPerformed(e : ActionEvent) = f
   }
+
+  var graph : Hypergraph[VisualItem, VisualEdge] = null
   val graphpanel = new GraphPanel()
-  def setGraph(g : Hypergraph[Vertex,Hyperedge]) = {
+  def setGraph(g : Hypergraph[VisualItem, VisualEdge]) = {
+    graph = g
     graphpanel.setGraph(g)
   }
   
@@ -27,19 +35,32 @@ class GraphFrame extends JFrame {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     setBackground(Color.WHITE)
     setSize(new Dimension(200, 10))
-    add(GButton("OK"))
+    add(new GButton("OK"))
   }
   
   val main = new JPanel() {
     
-    val cards = new JPanel(new CardLayout());
+    val cards = new JPanel(new CardLayout())
     val menubar = new JPanel() {
-      setBackground(Color.DARK_GRAY);
-      add(GButton("Test1"));
-      add(GButton("Test2"));
+      setBackground(Color.DARK_GRAY)
+      add(new GButton("Add Vertex") {
+        addActionListener({
+          graph.addVertex(new VisualVertex(new Vertex()))
+          graphpanel.visualization.repaint()
+        } : Unit)
+      })
+      add(new GButton("Add Edge") {
+        addActionListener({
+          val v1 = new VisualFakeVertex()
+          val v2 = new VisualFakeVertex()
+          graph.addVertex(v1); graph.addVertex(v2)
+          graph.addEdge(new VisualEdge(new Hyperedge("A", true)), Seq(v1, v2))
+          graphpanel.visualization.repaint()
+        } : Unit)
+      })
     }
     
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
   
     cards.add("Hi", graphpanel)
     

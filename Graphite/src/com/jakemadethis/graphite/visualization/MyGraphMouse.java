@@ -15,15 +15,14 @@ public class MyGraphMouse<V, E> extends PluggableGraphMouse {
   protected GraphMousePlugin translatingPlugin;
 	final private float out;
 	final private float in;
-	private HoverGraphMousePlugin<V, E> hoverPlugin;
   
-	public MyGraphMouse(PickedState<V> hoverVertexState, PickedState<E> hoverEdgeState) {
+	public MyGraphMouse() {
 		in = 1.1f;
 		out = 1/1.1f;
 		//pickingPlugin = new PickingGraphMousePlugin<V,E>(InputEvent.BUTTON1_MASK, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK);
     add(new SinglePickingGraphMousePlugin<V, E>(InputEvent.BUTTON1_MASK, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK));
 		add(new BoxPickingGraphMousePlugin<V, E>(0, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK));
-		add(new HoverGraphMousePlugin<V, E>(hoverVertexState, hoverEdgeState));
+		//add(new HoverGraphMousePlugin<V, E>(hoverVertexState, hoverEdgeState));
     translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
     scalingPlugin = new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0, in, out);
     
