@@ -13,8 +13,10 @@ import com.jakemadethis.graphite.graph.GraphExtensions._
 import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin
 import edu.uci.ics.jung.visualization.control.ScalingGraphMousePlugin
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl
+import com.jakemadethis.graphite.visualization.HoverMousePlugin
+import com.jakemadethis.graphite.visualization.HoverSupport
 
-class GraphMouseHandler extends PluggableGraphMouse {
+class GraphMouseHandler(hoverSupport : HoverSupport[VisualItem, VisualEdge]) extends PluggableGraphMouse {
   val in = 1.1f;
   val out = 1/1.1f;
     
@@ -32,6 +34,8 @@ class GraphMouseHandler extends PluggableGraphMouse {
     def vertexDropped(graph : Hypergraph[VisualItem, VisualEdge], drag : VisualItem, drop : VisualItem) =
       graph.merge(drag, drop)
   })
+  
+  add(new HoverMousePlugin[VisualItem, VisualEdge](hoverSupport))
 
   val translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK)
   val scalingPlugin = new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0, in, out)

@@ -33,6 +33,7 @@ import com.jakemadethis.graphite.ui.VisualEdge
 import com.jakemadethis.graphite.visualization.MouseDropPlugin
 import com.jakemadethis.graphite.ui.VisualFakeVertex
 import com.jakemadethis.graphite.graph.GraphExtensions._
+import com.jakemadethis.graphite.visualization.HoverSupport
 import com.jakemadethis.graphite.visualization.BasicEdgeLayout
 
 class GraphPanel extends JPanel {
@@ -50,8 +51,9 @@ class GraphPanel extends JPanel {
     // create visualization viewer
     visualization = new VisualizationViewer[VisualItem, VisualEdge](glayout, new Dimension(500, 500)) {
       
+      val hoverSupport = new HoverSupport[VisualItem, VisualEdge]()
       
-      setGraphMouse(new GraphMouseHandler());
+      setGraphMouse(new GraphMouseHandler(hoverSupport));
       setPickSupport(new HyperedgePickSupport[VisualItem, VisualEdge](this));
       
       getRenderContext().setEdgeLabelTransformer(new Transformer[VisualEdge, String]() {
