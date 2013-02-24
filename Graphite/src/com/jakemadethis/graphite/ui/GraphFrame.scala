@@ -8,9 +8,14 @@ import java.awt.Dimension
 import com.jakemadethis.graphite.graph._
 import scala.collection.JavaConversions._
 import edu.uci.ics.jung.graph.Hypergraph
+import java.awt.event.ActionListener
+import java.awt.event.ActionEvent
 
 class GraphFrame extends JFrame {
   
+  implicit def convertFunctionToAction(f : => Unit) : ActionListener = new ActionListener() {
+    def actionPerformed(e : ActionEvent) = f
+  }
   val graphpanel = new GraphPanel()
   def setGraph(g : Hypergraph[Vertex,Hyperedge]) = {
     graphpanel.setGraph(g)
@@ -41,6 +46,18 @@ class GraphFrame extends JFrame {
     add(menubar);
     add(cards);
   }
+  
+  val menu = new JMenuBar() {
+    add(new JMenu("File") {
+      add(new JMenuItem("Load Grammar..."))
+      add(new JMenuItem("Save Grammar..."))
+    })
+    add(new JMenu("Tools") {
+      add(new JMenuItem("Add Vertex"))
+      add(new JMenuItem("Add Hyperedge"))
+    })
+  }
+  setJMenuBar(menu)
   
   
   getContentPane().add(sidebar, BorderLayout.WEST);
