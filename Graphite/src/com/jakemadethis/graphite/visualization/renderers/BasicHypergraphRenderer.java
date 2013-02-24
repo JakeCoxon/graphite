@@ -1,9 +1,10 @@
-package com.jakemadethis.graphite.visualization;
+package com.jakemadethis.graphite.visualization.renderers;
 
 import java.awt.Color;
 import java.util.ConcurrentModificationException;
 
-import com.jakemadethis.graphite.visualization.HyperedgeRenderer;
+import com.jakemadethis.graphite.visualization.EdgeLayout;
+import com.jakemadethis.graphite.visualization.renderers.HyperedgeRenderer;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;

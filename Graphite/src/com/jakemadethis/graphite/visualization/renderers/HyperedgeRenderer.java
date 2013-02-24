@@ -1,4 +1,4 @@
-package com.jakemadethis.graphite.visualization;
+package com.jakemadethis.graphite.visualization.renderers;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -25,6 +25,8 @@ import javax.swing.JComponent;
 
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.functors.TruePredicate;
+
+import com.jakemadethis.graphite.visualization.EdgeLayout;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;

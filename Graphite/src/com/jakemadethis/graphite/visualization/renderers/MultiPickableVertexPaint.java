@@ -9,7 +9,7 @@
 * "license.txt" or
 * http://jung.sourceforge.net/license.txt for a description.
 */
-package com.jakemadethis.graphite.visualization;
+package com.jakemadethis.graphite.visualization.renderers;
 
 import java.awt.Paint;
 

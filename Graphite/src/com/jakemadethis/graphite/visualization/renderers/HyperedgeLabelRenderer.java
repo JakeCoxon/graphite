@@ -7,7 +7,7 @@
  *
  * Created on Aug 23, 2005
  */
-package com.jakemadethis.graphite.visualization;
+package com.jakemadethis.graphite.visualization.renderers;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.functors.TruePredicate;
+
+import com.jakemadethis.graphite.visualization.EdgeLayout;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;

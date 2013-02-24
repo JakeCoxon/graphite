@@ -19,13 +19,13 @@ import org.apache.commons.collections15.functors.TruePredicate
 import edu.uci.ics.jung.graph.util.Context
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer
 import java.awt.Color
-import com.jakemadethis.graphite.visualization.MultiPickableVertexPaint
+import com.jakemadethis.graphite.visualization.renderers.MultiPickableVertexPaint
 import java.awt.event.ItemEvent
 import java.awt.event.ItemListener
-import com.jakemadethis.graphite.visualization.BasicHypergraphRenderer
-import com.jakemadethis.graphite.visualization.HyperedgeLabelRenderer
+import com.jakemadethis.graphite.visualization.renderers.BasicHypergraphRenderer
+import com.jakemadethis.graphite.visualization.renderers.HyperedgeLabelRenderer
 import org.apache.commons.collections15.Predicate
-import com.jakemadethis.graphite.visualization.HyperedgeRenderer
+import com.jakemadethis.graphite.visualization.renderers.HyperedgeRenderer
 import com.jakemadethis.graphite.visualization.EdgeLayout
 import java.awt.Point
 import org.apache.commons.collections15.Transformer
