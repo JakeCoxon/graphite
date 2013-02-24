@@ -1,0 +1,33 @@
+\section{Design}
+
+\subsection{Language}
+  The language and platform that the program runs on needs to be considered. Since the author's main operating system is Apple Mac OSX and the university's main operating systems are Microsoft Windows and Linux then it is required that the language chosen will run on these three operating systems.
+
+  \subsubsection{The Java Virtual Machine}
+    The first obvious choice is the \emph{Java} system by Sun Microsystems in 1991 and now Oracle Corporation since 2009. Java is a cross-platform runtime environment which runs on over 1.1 billion desktop computers worldwide\footnote{http://www.java.com/en/about/}.
+
+    Java achieves cross-platform by using a virtual machine called Java Virtual Machine or JVM. Java programs are written and compiled into Java bytecode which can be subsequently run on any JVM implementation. JVM implementations exist on all major operating systems and Mac OSX bundles a JVM with installation.
+
+    Other than the excellent cross-platform support, the JVM has more advantages. The Java runtime has great built-in graphical user interface library called Swing which can be used to create interfaces that will work on each operating system. This is good for the program created for this project since it provides a unified interface.
+
+    The maturity and widespread use of the JVM leads to many highly used third-party libraries. Many different graph libraries exist that will be considered later.
+
+    The fact that the Java system is used by billions of devides ensures that support for the JVM will continue into the future. This is important for users such as myself that wish to devote time into building an application and want that application to continue to work in many years to come.
+
+    The speed of the JVM has increased over the years due to many optimisation techniques such as Just-in-time compilation and HotSpot which analyses a programs performance and optimised frequently excecuted code paths. Another technique is garbage collection which attempts to reclaim memory that is no longer in use by the program.
+
+    Programs that involve computationally expensive procedures---such as this project---it is beneficial that the program can distribute computations across multiple cores of a computer. This is only possible if the runtime environment supports concurrency. Java has been designed to support concurrency by having built-in constructs for threading. 
+
+    \paragraph{}
+
+    \textbf{Java} is also the name of the main programming language that is supported by the Java runtime. It has a similar style to the popular languages C/C++ but currently lacks in certain modern language features to aid development. The Java Virtual Machine runs Java bytecode which means third-party languages are being developed for it such as Groovy, Clojure and Kotlin. In fact, any language can be compiled to Java bytecode as long as it can be internally expressed as Java bytecode. Some examples include JavaScript as Rhino, Python as Jython and Ruby as JRuby.
+
+    \textbf{Scala} is such a language that has been developed to run on the JVM. Scala first appeared in 2003 and has been a popular choice over Java for a number of reasons.
+    Scala has all the positive aspects of running on the JVM as well as improved syntax, type inference, pattern matching, operator overloading. These features help to improve expressiveness.
+
+    Scala also has many functional characteristics such as anonymous functions and closures as first-class citizens, immutable data structures, map/filter/fold methods. These features are a huge benefit over Java especially when implementing mathematical concepts as this project does.
+
+\subsection{External Libraries}
+  JUNG
+
+\subsection{File Representation}
