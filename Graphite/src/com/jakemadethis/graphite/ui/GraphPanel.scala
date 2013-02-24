@@ -63,11 +63,13 @@ class GraphPanel extends JPanel {
       
       
       val gm = new MyGraphMouse[VisualItem, VisualEdge]()
-      gm.add(new MouseDropPlugin[VisualItem, VisualEdge](
-          {a => a.isInstanceOf[VisualFakeVertex]}, {a => !a.isInstanceOf[VisualFakeVertex]}) {
-        def vertexDropped(drag : VisualItem, drop : VisualItem) {
+      gm.add(new MouseDropPlugin[VisualItem, VisualEdge]() {
+        def dragFilter(graph : Hypergraph[VisualItem, VisualEdge], drag : VisualItem) =
+          drag.isInstanceOf[VisualFakeVertex]
+        def dropFilter(graph : Hypergraph[VisualItem, VisualEdge], drop : VisualItem) = 
+          !drop.isInstanceOf[VisualFakeVertex]
+        def vertexDropped(graph : Hypergraph[VisualItem, VisualEdge], drag : VisualItem, drop : VisualItem) =
           graph.merge(drag, drop)
-        }
       })
       setGraphMouse(gm);
       setPickSupport(new HyperedgePickSupport[VisualItem, VisualEdge](this));
