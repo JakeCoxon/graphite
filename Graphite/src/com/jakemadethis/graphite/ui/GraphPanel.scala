@@ -33,6 +33,7 @@ import com.jakemadethis.graphite.ui.VisualEdge
 import com.jakemadethis.graphite.visualization.MouseDropPlugin
 import com.jakemadethis.graphite.ui.VisualFakeVertex
 import com.jakemadethis.graphite.graph.GraphExtensions._
+import com.jakemadethis.graphite.visualization.BasicEdgeLayout
 
 class GraphPanel extends JPanel {
   var visualization : VisualizationViewer[VisualItem, VisualEdge] = null
@@ -44,18 +45,7 @@ class GraphPanel extends JPanel {
     val glayout = 
             new FRLayout[VisualItem, VisualEdge](pseudoGraph, new Dimension(500, 500))
             
-    val edgeLayout = new EdgeLayout[VisualEdge]() {
-      def getEdgeLocation(e : VisualEdge) : Point = {
-        val es = glayout.getGraph().getIncidentVertices(e)
-        if (es.size == 2) {
-          val iterator = graph.getIncidentVertices(e).iterator();
-          val p1 = glayout.transform(iterator.next());
-          val p2 = glayout.transform(iterator.next());
-          return new Point(((p1.getX() + p2.getX())/2).asInstanceOf[Int], ((p1.getY() + p2.getY())/2).asInstanceOf[Int]);
-        }
-        new Point(0,0)
-      }
-    }
+    val edgeLayout = new BasicEdgeLayout[VisualItem, VisualEdge](glayout)
     
     // create visualization viewer
     visualization = new VisualizationViewer[VisualItem, VisualEdge](glayout, new Dimension(500, 500)) {
