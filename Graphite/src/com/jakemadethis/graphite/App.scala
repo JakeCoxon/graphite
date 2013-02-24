@@ -6,9 +6,9 @@ import com.jakemadethis.graphite.ui.GraphFrame
 import com.jakemadethis.graphite.graph._
 import scala.collection.JavaConversions._
 import javax.swing.UIManager
-import com.jakemadethis.graphite.visualization.VisualItem
-import com.jakemadethis.graphite.visualization.VisualEdge
-import com.jakemadethis.graphite.visualization.VisualVertex
+import com.jakemadethis.graphite.ui.VisualItem
+import com.jakemadethis.graphite.ui.VisualEdge
+import com.jakemadethis.graphite.ui.VisualVertex
 
 
 

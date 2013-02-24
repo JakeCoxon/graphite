@@ -1,4 +1,4 @@
-package com.jakemadethis.graphite.visualization
+package com.jakemadethis.graphite.ui
 
 import com.jakemadethis.graphite.graph.Vertex
 import com.jakemadethis.graphite.graph.Hyperedge

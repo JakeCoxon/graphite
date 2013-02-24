@@ -10,10 +10,10 @@ import scala.collection.JavaConversions._
 import edu.uci.ics.jung.graph.Hypergraph
 import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
-import com.jakemadethis.graphite.visualization.VisualEdge
-import com.jakemadethis.graphite.visualization.VisualItem
-import com.jakemadethis.graphite.visualization.VisualVertex
-import com.jakemadethis.graphite.visualization.VisualFakeVertex
+import com.jakemadethis.graphite.ui.VisualEdge
+import com.jakemadethis.graphite.ui.VisualItem
+import com.jakemadethis.graphite.ui.VisualVertex
+import com.jakemadethis.graphite.ui.VisualFakeVertex
 
 
 class GraphFrame extends JFrame {

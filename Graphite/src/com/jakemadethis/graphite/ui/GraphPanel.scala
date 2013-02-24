@@ -10,7 +10,6 @@ import java.awt.Dimension
 import edu.uci.ics.jung.algorithms.layout.FRLayout
 import edu.uci.ics.jung.graph.Hypergraph
 import edu.uci.ics.jung.graph.Graph
-import com.jakemadethis.graphite.visualization.MyGraphMouse
 import com.jakemadethis.graphite.visualization.HyperedgePickSupport
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller
 import org.apache.commons.collections15.functors.ConstantTransformer
@@ -29,10 +28,10 @@ import com.jakemadethis.graphite.visualization.renderers.HyperedgeRenderer
 import com.jakemadethis.graphite.visualization.EdgeLayout
 import java.awt.Point
 import org.apache.commons.collections15.Transformer
-import com.jakemadethis.graphite.visualization.VisualItem
-import com.jakemadethis.graphite.visualization.VisualEdge
+import com.jakemadethis.graphite.ui.VisualItem
+import com.jakemadethis.graphite.ui.VisualEdge
 import com.jakemadethis.graphite.visualization.MouseDropPlugin
-import com.jakemadethis.graphite.visualization.VisualFakeVertex
+import com.jakemadethis.graphite.ui.VisualFakeVertex
 import com.jakemadethis.graphite.graph.GraphExtensions._
 
 class GraphPanel extends JPanel {
@@ -62,16 +61,7 @@ class GraphPanel extends JPanel {
     visualization = new VisualizationViewer[VisualItem, VisualEdge](glayout, new Dimension(500, 500)) {
       
       
-      val gm = new MyGraphMouse[VisualItem, VisualEdge]()
-      gm.add(new MouseDropPlugin[VisualItem, VisualEdge]() {
-        def dragFilter(graph : Hypergraph[VisualItem, VisualEdge], drag : VisualItem) =
-          drag.isInstanceOf[VisualFakeVertex]
-        def dropFilter(graph : Hypergraph[VisualItem, VisualEdge], drop : VisualItem) = 
-          !drop.isInstanceOf[VisualFakeVertex]
-        def vertexDropped(graph : Hypergraph[VisualItem, VisualEdge], drag : VisualItem, drop : VisualItem) =
-          graph.merge(drag, drop)
-      })
-      setGraphMouse(gm);
+      setGraphMouse(new GraphMouseHandler());
       setPickSupport(new HyperedgePickSupport[VisualItem, VisualEdge](this));
       
       getRenderContext().setEdgeLabelTransformer(new Transformer[VisualEdge, String]() {
