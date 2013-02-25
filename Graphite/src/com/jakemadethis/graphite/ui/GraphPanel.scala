@@ -90,12 +90,13 @@ class GraphPanel extends JPanel {
       
       getRenderer().setEdgeLabelRenderer(lr);
       
-      val r = new HyperedgeRenderer[VisualItem, VisualEdge](edgeLayout)
-      r.setDrawAsHyperedge(new Predicate[Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]]() {
-        def evaluate(c : Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]) = true
-      })
-      
-      getRenderer().setEdgeRenderer(r)
+//      val r = new HyperedgeRenderer[VisualItem, VisualEdge](edgeLayout)
+//      r.setDrawAsHyperedge(new Predicate[Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]]() {
+//        def evaluate(c : Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]) = true
+//      })
+//      
+//      getRenderer().setEdgeRenderer(r)
+      getRenderer().setEdgeRenderer(new EdgeRenderer(edgeLayout))
     }
     
     add(visualization)
