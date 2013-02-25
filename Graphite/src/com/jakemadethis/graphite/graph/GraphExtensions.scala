@@ -10,6 +10,7 @@ object GraphExtensions {
 class GraphExtensions[V, E](graph : Hypergraph[V,E]) {
   def merge(prevV : V, newV : V) {
     val edges = graph.getIncidentEdges(prevV)
+    if (edges == null) return
     edges.foreach { edge => 
       val newIncidents = graph.getIncidentVertices(edge).map(a => if (a == prevV) newV else a)
       graph.removeEdge(edge)
