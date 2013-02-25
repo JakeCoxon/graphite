@@ -87,5 +87,5 @@ class GraphFrame extends JFrame {
   
   
   setVisible(true)
-  setSize(500,400)
+  setSize(800,600)
 }
