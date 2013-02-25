@@ -81,6 +81,8 @@ class GraphPanel extends JPanel {
     
       setRenderer(new BasicHypergraphRenderer[VisualItem, VisualEdge]())
       
+      getRenderer().setVertexRenderer(new VertexRenderer())
+      
       val lr = new HyperedgeLabelRenderer[VisualItem, VisualEdge](edgeLayout)
       lr.setDrawPredicate(new Predicate[Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]]() {
         def evaluate(c : Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]) = true
