@@ -9,24 +9,35 @@ import edu.uci.ics.jung.visualization.VisualizationViewer
 import java.awt.Point
 import java.awt.Rectangle
 import edu.uci.ics.jung.graph.Hypergraph
+import java.awt.event.MouseMotionListener
 
 abstract class MouseDropPlugin[V,E]()
-extends AbstractGraphMousePlugin(0) with MouseListener {
+extends AbstractGraphMousePlugin(0) with MouseListener with MouseMotionListener {
   
   def dragFilter(graph : Hypergraph[V,E], dragged : V) : Boolean
   def dropFilter(graph : Hypergraph[V,E], dropped : V) : Boolean
   
   def vertexDropped(graph : Hypergraph[V,E], dragged : V, dropped : V)
   
-  def mouseReleased(e : MouseEvent) {
+  protected var dragVertex : Option[V] = None
+  protected var dropVertex : Option[V] = None
+  
+  def mouseMoved(e : MouseEvent) {
+    
+  }
+  def mouseDragged(e : MouseEvent) {
+    
+    if (dragVertex.isEmpty) return
+    
     val vv = e.getSource().asInstanceOf[VisualizationViewer[V, E]]
     val pickSupport = vv.getPickSupport()
     val pickedVertexState = vv.getPickedVertexState()
-    val layout = vv.getGraphLayout()
-    if (pickedVertexState.getPicked().size() != 1) return
-    val draggingVertex = pickedVertexState.getPicked().iterator().next() 
     
-    if (dragFilter(layout.getGraph(), draggingVertex)) {
+    dropVertex = None
+    
+    val layout = vv.getGraphLayout()
+    
+    if (dragFilter(layout.getGraph(), dragVertex.get)) {
         
       val vs = pickSupport.getVertices(layout, 
           new Rectangle(
@@ -34,16 +45,31 @@ extends AbstractGraphMousePlugin(0) with MouseListener {
               e.getPoint.getY().asInstanceOf[Int]-10, 
               20, 
               20)
-      ).filterNot(_ == draggingVertex).filter(dropFilter(layout.getGraph(),_))
+      ).filterNot(_ == dragVertex.get).filter(dropFilter(layout.getGraph(),_))
       
-      if (vs.size > 0) {
-        vertexDropped(layout.getGraph(), draggingVertex, vs.head)
-      }
+      dropVertex = vs.headOption
     }
+  }
+  
+  def mouseReleased(e : MouseEvent) {
+    val vv = e.getSource().asInstanceOf[VisualizationViewer[V, E]]
+    val layout = vv.getGraphLayout()
+    dropVertex.foreach(v =>
+        vertexDropped(layout.getGraph(), dragVertex.get, v))
+    dragVertex = None
+    dropVertex = None
+  }
+
+  def mousePressed(e : MouseEvent) {
+    val vv = e.getSource().asInstanceOf[VisualizationViewer[V, E]]
+    val pickSupport = vv.getPickSupport()
+    val pickedVertexState = vv.getPickedVertexState()
+    
+    dragVertex = if (pickedVertexState.getPicked().size() != 1) None 
+      else Some(pickedVertexState.getPicked().iterator().next())
   }
   
   def mouseClicked(e : MouseEvent) {}
   def mouseEntered(e : MouseEvent) {}
   def  mouseExited(e : MouseEvent) {}
-  def mousePressed(e : MouseEvent) {}
 }
