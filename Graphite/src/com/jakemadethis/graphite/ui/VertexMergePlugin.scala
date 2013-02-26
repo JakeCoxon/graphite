@@ -15,8 +15,8 @@ class VertexMergePlugin extends MouseDropPlugin[VisualItem, VisualEdge] {
   
   override def mouseDragged(e : MouseEvent) {
     super.mouseDragged(e)
-    println(dropVertex.isDefined)
-    dropVertex.foreach {v =>
+
+    dropVertex.foreach { v =>
       val vv = e.getSource().asInstanceOf[VisualizationViewer[VisualItem, VisualEdge]]
       val layout = vv.getGraphLayout()
       layout.setLocation(dragVertex.get, layout.transform(v))

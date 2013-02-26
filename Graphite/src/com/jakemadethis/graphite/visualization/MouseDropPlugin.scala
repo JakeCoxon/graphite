@@ -10,6 +10,7 @@ import java.awt.Point
 import java.awt.Rectangle
 import edu.uci.ics.jung.graph.Hypergraph
 import java.awt.event.MouseMotionListener
+import java.awt.geom.Rectangle2D
 
 abstract class MouseDropPlugin[V,E]()
 extends AbstractGraphMousePlugin(0) with MouseListener with MouseMotionListener {
@@ -68,6 +69,18 @@ extends AbstractGraphMousePlugin(0) with MouseListener with MouseMotionListener 
     dragVertex = if (pickedVertexState.getPicked().size() != 1) None 
       else Some(pickedVertexState.getPicked().iterator().next())
   }
+  
+  private def getHovers(e : MouseEvent) : Traversable[V] = {
+    val vv = e.getSource().asInstanceOf[VisualizationViewer[V, E]]
+    val pickSupport = vv.getPickSupport()
+    val pickedVertexState = vv.getPickedVertexState()
+    val pickedEdgeState = vv.getPickedEdgeState()
+    if (pickSupport != null && pickedVertexState != null) {
+      val layout = vv.getGraphLayout()
+      pickSupport.getVertices(layout, new Rectangle2D.Double(e.getX()-10, e.getY()-10, 20, 20))
+    } else List()
+  }
+
   
   def mouseClicked(e : MouseEvent) {}
   def mouseEntered(e : MouseEvent) {}
