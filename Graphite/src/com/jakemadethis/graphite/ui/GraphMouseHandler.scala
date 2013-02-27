@@ -16,10 +16,11 @@ import com.jakemadethis.graphite.visualization.HoverMousePlugin
 import com.jakemadethis.graphite.visualization.HoverSupport
 import com.jakemadethis.graphite.visualization.PickerMousePlugin
 
-class GraphMouseHandler(hoverSupport : HoverSupport[VisualItem, VisualEdge]) extends PluggableGraphMouse {
+class GraphMouseHandler() extends PluggableGraphMouse {
   val in = 1.1f;
   val out = 1/1.1f;
   
+  add(new HoverMousePlugin())
   add(new PickerMousePlugin())
 //  add(new VertexMergePlugin())
 //    

@@ -11,8 +11,10 @@ import edu.uci.ics.jung.visualization.Layer
 import java.awt.Paint
 import java.awt.AlphaComposite
 import edu.uci.ics.jung.visualization.VisualizationViewer
+import com.jakemadethis.graphite.visualization.HoverSupport
+import scala.collection.JavaConversions._
 
-class VertexRenderer(vv : VisualizationViewer[VisualItem,VisualEdge]) extends Renderer.Vertex[VisualItem, VisualEdge] {
+class VertexRenderer(vv : VisualizationViewer[VisualItem,VisualEdge] with HoverSupport[VisualItem,VisualEdge]) extends Renderer.Vertex[VisualItem, VisualEdge] {
   def paintVertex(rc: RenderContext[VisualItem,VisualEdge], layout : Layout[VisualItem,VisualEdge], v : VisualItem) {
     val p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))
     val x = p.getX()
@@ -22,7 +24,14 @@ class VertexRenderer(vv : VisualizationViewer[VisualItem,VisualEdge]) extends Re
       circle(rc, x, y, 7, new Color(1f, 0f, 0f, 0.5f))
     } else {
       val pickedVertexState = vv.getPickedVertexState()
-      val c = if (pickedVertexState.isPicked(v)) Color.GREEN.darker() else Color.BLACK
+      val hoverVertexState = vv.getHoverVertexState()
+      val hovered = hoverVertexState.getPicked().size > 0 && hoverVertexState.getPicked().last == v
+      val c = if (pickedVertexState.isPicked(v)) 
+          Color.GREEN.darker() 
+        else if (hovered)
+          Color.GREEN.darker().darker() 
+        else
+          Color.BLACK
       circle(rc, x, y, 10, c)
     }
     
