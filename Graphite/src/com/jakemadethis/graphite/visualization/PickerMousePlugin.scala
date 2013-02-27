@@ -17,7 +17,7 @@ class PickerMousePlugin[V,E] extends AbstractGraphMousePlugin(0)
   val SINGLE_SELECT = InputEvent.BUTTON1_MASK
   val MULTI_SELECT = InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK
 
-  var hoveredVertices : Traversable[V] = List()
+  var hoveredVertices : collection.immutable.Iterable[V] = List()
   var downPoint : Point = null
   def getHoveredVertices = hoveredVertices
   def getHoveredVertex = hoveredVertices.headOption
@@ -62,7 +62,7 @@ class PickerMousePlugin[V,E] extends AbstractGraphMousePlugin(0)
     val pickedEdgeState = vv.getPickedEdgeState()
     if (pickSupport != null) {
       val layout = vv.getGraphLayout()
-      hoveredVertices = pickSupport.getVertices(layout, new Rectangle(e.getX()-10, e.getY()-10, 20, 20))
+      hoveredVertices = List() ++ pickSupport.getVertices(layout, new Rectangle(e.getX()-10, e.getY()-10, 20, 20))
     }
   }
   def mouseDragged(e : MouseEvent) = mouseMoved(e)
