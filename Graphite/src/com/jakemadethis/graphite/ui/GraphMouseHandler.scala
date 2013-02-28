@@ -24,8 +24,8 @@ class GraphMouseHandler() extends PluggableGraphMouse {
   add(new HoverMousePlugin())
   add(new PickerMousePlugin())
   
+  add(new VertexMergePlugin())
   add(new DraggingMousePlugin())
-//  add(new VertexMergePlugin())
 //    
 //  add(new SinglePickingGraphMousePlugin[VisualItem, VisualEdge]
 //      (InputEvent.BUTTON1_MASK, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK))
