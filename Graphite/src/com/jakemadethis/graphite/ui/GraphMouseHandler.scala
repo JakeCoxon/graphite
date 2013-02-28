@@ -15,6 +15,7 @@ import edu.uci.ics.jung.visualization.control.CrossoverScalingControl
 import com.jakemadethis.graphite.visualization.HoverMousePlugin
 import com.jakemadethis.graphite.visualization.HoverSupport
 import com.jakemadethis.graphite.visualization.PickerMousePlugin
+import com.jakemadethis.graphite.visualization.DraggingMousePlugin
 
 class GraphMouseHandler() extends PluggableGraphMouse {
   val in = 1.1f;
@@ -22,6 +23,8 @@ class GraphMouseHandler() extends PluggableGraphMouse {
   
   add(new HoverMousePlugin())
   add(new PickerMousePlugin())
+  
+  add(new DraggingMousePlugin())
 //  add(new VertexMergePlugin())
 //    
 //  add(new SinglePickingGraphMousePlugin[VisualItem, VisualEdge]
