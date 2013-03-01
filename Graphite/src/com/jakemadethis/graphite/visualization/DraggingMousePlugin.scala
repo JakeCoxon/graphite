@@ -20,13 +20,12 @@ class DraggingMousePlugin[V,E] extends AbstractGraphMousePlugin(0) with MouseMot
     val trans = vv.getRenderContext().getMultiLayerTransformer()
     val pickedVertexState = vv.getPickedVertexState()
     
-    pickedVertexState.getPicked().foreach { vertex =>
-      val offset = offsets(vertex)
+    offsets.foreach { case(vertex, offset) =>
       val newP = new Point2D.Double(e.getX() - offset.getX(), e.getY() - offset.getY())
       
       layout.setLocation(vertex, trans.transform(Layer.LAYOUT, newP))
     }
-    if (pickedVertexState.getPicked().size > 0) e.consume()
+    if (offsets.size > 0) e.consume()
   }
 
   def mouseMoved(e: MouseEvent) {
@@ -34,16 +33,18 @@ class DraggingMousePlugin[V,E] extends AbstractGraphMousePlugin(0) with MouseMot
   }
   
   def mousePressed(e : MouseEvent) {
-    val vv = e.getSource().asInstanceOf[VisualizationViewer[V,E]]
+    val vv = e.getSource().asInstanceOf[VisualizationViewer[V,E] with HoverSupport[V,E]]
     val layout = vv.getGraphLayout()
     val trans = vv.getRenderContext().getMultiLayerTransformer()
     val pickedVertexState = vv.getPickedVertexState()
+    val hoverVertexState = vv.getHoverVertexState()
     
-    offsets = pickedVertexState.getPicked().map { vertex =>
-      val vp = trans.inverseTransform(Layer.LAYOUT, layout.transform(vertex));
-      vertex -> new Point2D.Double(e.getX() - vp.getX(), e.getY() - vp.getY())
-    }.toMap
-    
+    offsets = if (hoverVertexState.getPicked().size > 0) {
+      pickedVertexState.getPicked().map { vertex =>
+        val vp = trans.inverseTransform(Layer.LAYOUT, layout.transform(vertex));
+        vertex -> new Point2D.Double(e.getX() - vp.getX(), e.getY() - vp.getY())
+      }.toMap
+    } else Map()
     if (offsets.size > 0) e.consume()
   }
   
