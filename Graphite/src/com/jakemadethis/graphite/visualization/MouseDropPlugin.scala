@@ -29,6 +29,10 @@ extends AbstractGraphMousePlugin(0) with MouseListener with MouseMotionListener 
   }
   
   def mouseReleased(e : MouseEvent) {
+    ifDrop(e)(vertexDropped)
+  }
+  
+  protected def ifDrop(e : MouseEvent)(f : (VisualizationServer[V,E], V, V) => Unit) {
     val vv = e.getSource().asInstanceOf[VisualizationViewer[V, E] with HoverSupport[V,E]]
     val pickSupport = vv.getPickSupport()
     val pickedVertexState = vv.getPickedVertexState()
@@ -46,7 +50,7 @@ extends AbstractGraphMousePlugin(0) with MouseListener with MouseMotionListener 
         v != dragged && dropFilter(layout.getGraph(), v)
       }
       
-      dropped.foreach { vertexDropped(vv, dragged, _) }
+      dropped.foreach { f(vv, dragged, _) }
     }
   }
 

@@ -14,6 +14,14 @@ class VertexMergePlugin extends MouseDropPlugin[VisualItem, VisualEdge] {
   def dropFilter(graph : Hypergraph[VisualItem, VisualEdge], drop : VisualItem) = 
     !drop.isInstanceOf[VisualFakeVertex]
   
+  override def mouseDragged(e : MouseEvent) {
+    ifDrop(e) { (vv, drag, drop) =>
+      val layout = vv.getGraphLayout()
+      layout.setLocation(drag, layout.transform(drop))
+      e.consume()
+    }
+  }
+  
   def vertexDropped(vs : VisualizationServer[VisualItem, VisualEdge], drag : VisualItem, drop : VisualItem) = {
     vs.getGraphLayout().getGraph().merge(drag, drop)
     vs.repaint()
