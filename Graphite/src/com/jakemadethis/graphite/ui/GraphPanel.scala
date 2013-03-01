@@ -49,11 +49,10 @@ class GraphPanel extends JPanel {
     val edgeLayout = new BasicEdgeLayout[VisualItem, VisualEdge](glayout)
     
     // create visualization viewer
-    visualization = new VisualizationViewer[VisualItem, VisualEdge](glayout, new Dimension(500, 500)) {
+    visualization = new VisualizationViewer[VisualItem, VisualEdge](glayout, new Dimension(500, 500)) 
+        with HoverSupport[VisualItem, VisualEdge] {
       
-      val hoverSupport = new HoverSupport[VisualItem, VisualEdge]()
-      
-      setGraphMouse(new GraphMouseHandler(hoverSupport));
+      setGraphMouse(new GraphMouseHandler());
       setPickSupport(new HyperedgePickSupport[VisualItem, VisualEdge](this));
       
       getRenderContext().setEdgeLabelTransformer(new Transformer[VisualEdge, String]() {
@@ -81,7 +80,7 @@ class GraphPanel extends JPanel {
     
       setRenderer(new BasicHypergraphRenderer[VisualItem, VisualEdge]())
       
-      getRenderer().setVertexRenderer(new VertexRenderer())
+      getRenderer().setVertexRenderer(new VertexRenderer(this))
       
       val lr = new HyperedgeLabelRenderer[VisualItem, VisualEdge](edgeLayout)
       lr.setDrawPredicate(new Predicate[Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]]() {
