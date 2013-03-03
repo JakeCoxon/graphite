@@ -9,6 +9,7 @@ import javax.swing.UIManager
 import com.jakemadethis.graphite.ui.VisualItem
 import com.jakemadethis.graphite.ui.VisualEdge
 import com.jakemadethis.graphite.ui.VisualVertex
+import java.io.FileReader
 
 
 
@@ -24,9 +25,12 @@ object App {
               
     val frame = new GraphFrame()
     
-    val graph = new OrderedHypergraph[VisualItem, VisualEdge]()
-    graph.addVertex(new VisualVertex(new Vertex()))
-    frame.setGraph(graph)
+//    val graph = new OrderedHypergraph[VisualItem, VisualEdge]()
+//    graph.addVertex(new VisualVertex(new Vertex()))
+    val graphLoader = new GraphiteLoader(new FileReader("data/grammar.xml"))
+    val graphs = graphLoader.readGraphs
+    println(graphs)
+    frame.setGraph(graphs.head)
     frame.setVisible(true)
     
   }

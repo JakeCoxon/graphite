@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns/graphml"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml">
+<key id="label" for="hyperedge"><default>?</default></key>
+<key id="label" for="graph"><default>?</default></key>
+<graph edgedefault="directed">
+<node id="1"></node>
+<node id="2"></node>
+<node id="3"></node>
+<node id="4"></node>
+<node id="5"></node>
+<node id="6"></node>
+<hyperedge>
+<data key="label">B</data>
+<endpoint node="1"/>
+<endpoint node="3"/>
+<endpoint node="4"/>
+</hyperedge>
+
+<edge source="3" target="2"/>
+<edge source="1" target="2"/>
+</graph>
+<graph edgedefault="directed">
+<node id="1"></node>
+<node id="2"></node>
+<node id="3"></node>
+<node id="4"></node>
+<node id="5"></node>
+<node id="6"></node>
+<hyperedge>
+<data key="label">B</data>
+<endpoint node="1"/>
+<endpoint node="3"/>
+<endpoint node="4"/>
+</hyperedge>
+
+<edge source="3" target="2"/>
+<edge source="1" target="2"/>
+</graph>
+</graphml>

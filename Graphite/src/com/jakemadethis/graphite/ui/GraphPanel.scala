@@ -35,6 +35,8 @@ import com.jakemadethis.graphite.ui.VisualFakeVertex
 import com.jakemadethis.graphite.graph.GraphExtensions._
 import com.jakemadethis.graphite.visualization.HoverSupport
 import com.jakemadethis.graphite.visualization.BasicEdgeLayout
+import edu.uci.ics.jung.algorithms.layout.StaticLayout
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
 
 class GraphPanel extends JPanel {
   var visualization : VisualizationViewer[VisualItem, VisualEdge] = null
@@ -43,8 +45,9 @@ class GraphPanel extends JPanel {
     if (visualization != null) remove(visualization)
     val pseudoGraph = graph.asInstanceOf[Graph[VisualItem, VisualEdge]];
     
-    val glayout = 
-            new FRLayout[VisualItem, VisualEdge](pseudoGraph, new Dimension(500, 500))
+//    val glayout = 
+//            new FRLayout[VisualItem, VisualEdge](pseudoGraph, new Dimension(500, 500))
+    val glayout = new StaticLayout[VisualItem, VisualEdge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
             
     val edgeLayout = new BasicEdgeLayout[VisualItem, VisualEdge](glayout)
     
@@ -66,7 +69,7 @@ class GraphPanel extends JPanel {
       //  getPickedVertexState(), Color.cyan, hoverVertexState, Color.cyan.darker(), Color.black));
       //v.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<V>(hoverVertexState, Color.black, Color.yellow));
   
-      getModel().getRelaxer().setSleepTime(10);
+      //getModel().getRelaxer().setSleepTime(10);
       
       getRenderContext().getPickedVertexState().addItemListener(new ItemListener() {
         def itemStateChanged(e : ItemEvent) {
