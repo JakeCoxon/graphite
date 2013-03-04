@@ -18,4 +18,4 @@ class Edge(override val label:String, override val isTerminal:Boolean) extends H
   override def copy = new Edge(label, isTerminal)
 }
 
-class ExtGraph[V,E](val graph : Hypergraph[V,E], val externalNodes : Seq[V])
+//class ExtGraph[V,E](val graph : Hypergraph[V,E], val externalNodes : Seq[V])

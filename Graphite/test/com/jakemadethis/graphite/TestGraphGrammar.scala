@@ -33,7 +33,7 @@ object TestGraphGrammar {
       g.addVertex(v3)
       g.addEdge(e1, Seq(v1, v2))
       g.addEdge(e2, Seq(v2, v3))
-      new ExtGraph(g, Seq(v1, v3))
+      new HypergraphDerivation(g, Seq(v1, v3), "A")
     }
     val g2 = {
       val g = newGraph
@@ -47,7 +47,7 @@ object TestGraphGrammar {
       g.addVertex(v3)
       g.addEdge(e1, Seq(v1, v2))
       g.addEdge(e2, Seq(v2, v3))
-      new ExtGraph(g, Seq(v1, v3))
+      new HypergraphDerivation(g, Seq(v1, v3), "B")
     }
     val g3 = {
       val g = newGraph
@@ -57,7 +57,7 @@ object TestGraphGrammar {
       g.addVertex(v1)
       g.addVertex(v2)
       g.addEdge(e1, Seq(v1, v2))
-      new ExtGraph(g, Seq(v1, v2))
+      new HypergraphDerivation(g, Seq(v1, v2), "B")
     }
     val start = {
       val g = newGraph
@@ -67,13 +67,10 @@ object TestGraphGrammar {
       g.addVertex(v1)
       g.addVertex(v2)
       g.addEdge(e1, Seq(v1, v2))
-      new ExtGraph(g, Seq())
+      new HypergraphDerivation(g, Seq(), null)
     }
     
-    val grammar = new HypergraphGrammar(Map(
-      "A" -> Seq(new HypergraphDerivation(g1)),
-      "B" -> Seq(new HypergraphDerivation(g2), new HypergraphDerivation(g3)))
-    )
+    val grammar = HypergraphGrammar(g1, g2, g3)
     
     val enumerator = Time {
       new GrammarEnumerator(grammar)
@@ -89,7 +86,7 @@ object TestGraphGrammar {
   
     
     randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-    startder = new HypergraphDerivation(start)
+    startder = start
   }
   
   def main(args : Array[String]) {

@@ -4,21 +4,28 @@ import com.jakemadethis.graphite._
 import edu.uci.ics.jung.graph.Hypergraph
 
 private object graphutil {
-  def nonTerminalStrings(ext : ExtGraph[Vertex, Hyperedge]) = {
-    ext.graph.getEdges().filter(_.isNonTerminal).map(_.label).toList
+  def nonTerminalStrings(graph : Hypergraph[Vertex, Hyperedge]) = {
+    graph.getEdges().filter(_.isNonTerminal).map(_.label).toList
   }
-  def terminalSize(ext : ExtGraph[Vertex, Hyperedge]) = {
-    ext.graph.getEdges().count(_.isTerminal) + ext.graph.getVertexCount() - ext.externalNodes.size
+  def terminalSize(graph : Hypergraph[Vertex, Hyperedge], externalNodes : Seq[Vertex]) = {
+    graph.getEdges().count(_.isTerminal) + graph.getVertexCount() - externalNodes.size
   }
 }
 
 
-class HypergraphDerivation(val ext : ExtGraph[Vertex, Hyperedge]) 
-  extends Derivation(graphutil.nonTerminalStrings(ext), graphutil.terminalSize(ext)) {
-  def graph = ext.graph
-  def externalNodes = ext.externalNodes
+class HypergraphDerivation(val graph : Hypergraph[Vertex, Hyperedge], val externalNodes : Seq[Vertex], val label : String) 
+  extends Derivation(graphutil.nonTerminalStrings(graph), graphutil.terminalSize(graph, externalNodes)) {
 }
-  
+
+object HypergraphGrammar {
+  def apply(seq : HypergraphDerivation*) : HypergraphGrammar = apply(seq)
+  def apply(seq : TraversableOnce[HypergraphDerivation]) = {
+    val map = seq.foldLeft(Map[String, Seq[HypergraphDerivation]]()) { (result, a) => 
+      result + (a.label -> (result.getOrElse(a.label, Seq()) :+ a))
+    }
+    new HypergraphGrammar(map)
+  }
+}
 class HypergraphGrammar(map : Map[String, Seq[HypergraphDerivation]]) extends StringGrammar(map)
 
 class HypergraphGenerator(start : HypergraphDerivation, val graph : Hypergraph[Vertex, Hyperedge]) 
