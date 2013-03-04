@@ -18,7 +18,6 @@ import org.apache.commons.collections15.functors.TruePredicate
 import edu.uci.ics.jung.graph.util.Context
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer
 import java.awt.Color
-import com.jakemadethis.graphite.visualization.renderers.MultiPickableVertexPaint
 import java.awt.event.ItemEvent
 import java.awt.event.ItemListener
 import com.jakemadethis.graphite.visualization.renderers.BasicHypergraphRenderer
@@ -47,13 +46,6 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends JPanel {
     getRenderContext().setEdgeLabelTransformer(new Transformer[Hyperedge, String]() {
       def transform(e : Hyperedge) = e.label
     })
-    //getRenderContext().setVertexShapeTransformer(new ConstantTransformer(
-    //      new Ellipse2D.Float(-8,-8,16,16)));
-    //getRenderContext().setEdgeArrowPredicate(TruePredicate.getInstance());
-    //getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer[Hyperedge](hoverEdgeState, Color.gray, Color.cyan));
-    //getRenderContext().setVertexFillPaintTransformer(new MultiPickableVertexPaint[Vertex](
-    //  getPickedVertexState(), Color.cyan, hoverVertexState, Color.cyan.darker(), Color.black));
-    //v.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<V>(hoverVertexState, Color.black, Color.yellow));
 
     //getModel().getRelaxer().setSleepTime(10);
     
@@ -78,12 +70,6 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends JPanel {
     
     getRenderer().setEdgeLabelRenderer(lr);
     
-//      val r = new HyperedgeRenderer[Vertex, Hyperedge](edgeLayout)
-//      r.setDrawAsHyperedge(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
-//        def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
-//      })
-//      
-//      getRenderer().setEdgeRenderer(r)
     getRenderer().setEdgeRenderer(new EdgeRenderer())
   }
   
