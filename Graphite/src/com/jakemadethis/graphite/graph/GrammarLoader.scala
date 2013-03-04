@@ -10,9 +10,9 @@ import edu.uci.ics.jung.io.graphml.EdgeMetadata
 import edu.uci.ics.jung.io.graphml.HyperEdgeMetadata
 import edu.uci.ics.jung.io.GraphIOException
 import java.io.Reader
+import collection.JavaConversions._
 
-class GraphiteLoader(reader : Reader) {
-  
+class GrammarLoader(reader : Reader) {
   
   val graphTransformer = new Transformer[GraphMetadata, Hypergraph[Vertex, Hyperedge]]() {
     def transform(g : GraphMetadata) = new OrderedHypergraph()
@@ -30,15 +30,19 @@ class GraphiteLoader(reader : Reader) {
   val graphreader = new GraphMLReader2(reader, 
       graphTransformer, vertexTransformer, edgeTransformer, hyperedgeTransformer)
   
-  def readGraph() = graphreader.readGraph()
-  def readGraphs() = {
-    var list = List[Hypergraph[Vertex, Hyperedge]]()
-    try {
-      while(true) { list = graphreader.readGraph() :: list }
-    } catch {
-      case ex : GraphIOException => null
-    }
-    list
+  // read graphs
+  try {
+    while(true) { graphreader.readGraph() }
+  } catch {
+    case ex : GraphIOException => null
   }
+  
+  val derivations = graphreader.getGraphMLDocument().getGraphMetadata().map { meta =>
+    val label = meta.getProperty("label")
+    println(label)
+    new HypergraphDerivation(meta.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]], Seq(), label)
+  }
+  
+  def grammar = HypergraphGrammar(derivations)
   
 }
