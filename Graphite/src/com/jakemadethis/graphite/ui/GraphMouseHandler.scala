@@ -4,11 +4,8 @@ import edu.uci.ics.jung.visualization.control.PluggableGraphMouse
 import com.jakemadethis.graphite.visualization.SinglePickingGraphMousePlugin
 import com.jakemadethis.graphite.visualization.BoxPickingGraphMousePlugin
 import com.jakemadethis.graphite.visualization.MouseDropPlugin
-import com.jakemadethis.graphite.ui.VisualItem
-import com.jakemadethis.graphite.ui.VisualEdge
 import edu.uci.ics.jung.graph.Hypergraph
 import java.awt.event.InputEvent
-import com.jakemadethis.graphite.ui.VisualFakeVertex
 import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin
 import edu.uci.ics.jung.visualization.control.ScalingGraphMousePlugin
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl
@@ -27,14 +24,14 @@ class GraphMouseHandler() extends PluggableGraphMouse {
   add(new VertexMergePlugin())
   add(new DraggingMousePlugin())
 //    
-//  add(new SinglePickingGraphMousePlugin[VisualItem, VisualEdge]
+//  add(new SinglePickingGraphMousePlugin[Vertex, Hyperedge]
 //      (InputEvent.BUTTON1_MASK, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK))
 //  
-//  add(new BoxPickingGraphMousePlugin[VisualItem, VisualEdge]
+//  add(new BoxPickingGraphMousePlugin[Vertex, Hyperedge]
 //      (0, InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK))
 //  
 //  
-//  add(new HoverMousePlugin[VisualItem, VisualEdge](hoverSupport))
+//  add(new HoverMousePlugin[Vertex, Hyperedge](hoverSupport))
 
   val translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK)
   val scalingPlugin = new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0, in, out)

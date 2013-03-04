@@ -10,10 +10,6 @@ import scala.collection.JavaConversions._
 import edu.uci.ics.jung.graph.Hypergraph
 import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
-import com.jakemadethis.graphite.ui.VisualEdge
-import com.jakemadethis.graphite.ui.VisualItem
-import com.jakemadethis.graphite.ui.VisualVertex
-import com.jakemadethis.graphite.ui.VisualFakeVertex
 
 
 class GraphFrame extends JFrame {
@@ -22,9 +18,9 @@ class GraphFrame extends JFrame {
     def actionPerformed(e : ActionEvent) = f
   }
 
-  var graph : Hypergraph[VisualItem, VisualEdge] = null
+  var graph : Hypergraph[Vertex, Hyperedge] = null
   val graphpanel = new GraphPanel()
-  def setGraph(g : Hypergraph[VisualItem, VisualEdge]) = {
+  def setGraph(g : Hypergraph[Vertex, Hyperedge]) = {
     graph = g
     graphpanel.setGraph(g)
   }
@@ -45,16 +41,16 @@ class GraphFrame extends JFrame {
       setBackground(Color.DARK_GRAY)
       add(new GButton("Add Vertex") {
         addActionListener({
-          graph.addVertex(new VisualVertex(new Vertex()))
+          graph.addVertex(new Vertex())
           graphpanel.visualization.repaint()
         } : Unit)
       })
       add(new GButton("Add Edge") {
         addActionListener({
-          val v1 = new VisualFakeVertex()
-          val v2 = new VisualFakeVertex()
+          val v1 = new FakeVertex()
+          val v2 = new FakeVertex()
           graph.addVertex(v1); graph.addVertex(v2)
-          graph.addEdge(new VisualEdge(new Hyperedge("A", true)), Seq(v1, v2))
+          graph.addEdge(new Hyperedge("A", true), Seq(v1, v2))
           graphpanel.visualization.repaint()
         } : Unit)
       })

@@ -1,6 +1,5 @@
 package com.jakemadethis.graphite.visualization
 
-import com.jakemadethis.graphite.ui.VisualEdge
 import edu.uci.ics.jung.visualization.layout.PersistentLayout.Point
 import edu.uci.ics.jung.algorithms.layout.Layout
 import java.awt.geom.Point2D

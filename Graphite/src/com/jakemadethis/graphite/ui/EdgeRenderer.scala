@@ -10,15 +10,17 @@ import edu.uci.ics.jung.visualization.Layer
 import com.jakemadethis.graphite.visualization.EdgeLayout
 import java.awt.BasicStroke
 import edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport
+import com.jakemadethis.graphite.graph.Hyperedge
+import com.jakemadethis.graphite.graph.Vertex
 
-class EdgeRenderer(edgeLayout : EdgeLayout[VisualEdge]) extends Renderer.Edge[VisualItem, VisualEdge] {
-  def paintEdge(rc : RenderContext[VisualItem, VisualEdge], layout : Layout[VisualItem, VisualEdge], edge : VisualEdge) {
+class EdgeRenderer(edgeLayout : EdgeLayout[Hyperedge]) extends Renderer.Edge[Vertex, Hyperedge] {
+  def paintEdge(rc : RenderContext[Vertex, Hyperedge], layout : Layout[Vertex, Hyperedge], edge : Hyperedge) {
     val gd = rc.getGraphicsContext()
     val oldPaint = gd.getPaint()
     
     gd.setPaint(Color.BLACK)
     
-    val graph = layout.getGraph().asInstanceOf[Hypergraph[VisualItem,VisualEdge]]
+    val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
     
     val points = graph.getIncidentVertices(edge).map { v => 
       rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))

@@ -28,10 +28,7 @@ import com.jakemadethis.graphite.visualization.renderers.HyperedgeRenderer
 import com.jakemadethis.graphite.visualization.EdgeLayout
 import java.awt.Point
 import org.apache.commons.collections15.Transformer
-import com.jakemadethis.graphite.ui.VisualItem
-import com.jakemadethis.graphite.ui.VisualEdge
 import com.jakemadethis.graphite.visualization.MouseDropPlugin
-import com.jakemadethis.graphite.ui.VisualFakeVertex
 import com.jakemadethis.graphite.graph.GraphExtensions._
 import com.jakemadethis.graphite.visualization.HoverSupport
 import com.jakemadethis.graphite.visualization.BasicEdgeLayout
@@ -39,33 +36,33 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
 
 class GraphPanel extends JPanel {
-  var visualization : VisualizationViewer[VisualItem, VisualEdge] = null
+  var visualization : VisualizationViewer[Vertex, Hyperedge] = null
     
-  def setGraph(graph : Hypergraph[VisualItem, VisualEdge]) {
+  def setGraph(graph : Hypergraph[Vertex, Hyperedge]) {
     if (visualization != null) remove(visualization)
-    val pseudoGraph = graph.asInstanceOf[Graph[VisualItem, VisualEdge]];
+    val pseudoGraph = graph.asInstanceOf[Graph[Vertex, Hyperedge]];
     
 //    val glayout = 
-//            new FRLayout[VisualItem, VisualEdge](pseudoGraph, new Dimension(500, 500))
-    val glayout = new StaticLayout[VisualItem, VisualEdge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
+//            new FRLayout[Vertex, Hyperedge](pseudoGraph, new Dimension(500, 500))
+    val glayout = new StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
             
-    val edgeLayout = new BasicEdgeLayout[VisualItem, VisualEdge](glayout)
+    val edgeLayout = new BasicEdgeLayout[Vertex, Hyperedge](glayout)
     
     // create visualization viewer
-    visualization = new VisualizationViewer[VisualItem, VisualEdge](glayout, new Dimension(500, 500)) 
-        with HoverSupport[VisualItem, VisualEdge] {
+    visualization = new VisualizationViewer[Vertex, Hyperedge](glayout, new Dimension(500, 500)) 
+        with HoverSupport[Vertex, Hyperedge] {
       
       setGraphMouse(new GraphMouseHandler());
-      setPickSupport(new HyperedgePickSupport[VisualItem, VisualEdge](this));
+      setPickSupport(new HyperedgePickSupport[Vertex, Hyperedge](this));
       
-      getRenderContext().setEdgeLabelTransformer(new Transformer[VisualEdge, String]() {
-        def transform(e : VisualEdge) = e.edge.label
+      getRenderContext().setEdgeLabelTransformer(new Transformer[Hyperedge, String]() {
+        def transform(e : Hyperedge) = e.label
       })
       //getRenderContext().setVertexShapeTransformer(new ConstantTransformer(
       //      new Ellipse2D.Float(-8,-8,16,16)));
       //getRenderContext().setEdgeArrowPredicate(TruePredicate.getInstance());
-      //getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer[VisualEdge](hoverEdgeState, Color.gray, Color.cyan));
-      //getRenderContext().setVertexFillPaintTransformer(new MultiPickableVertexPaint[VisualItem](
+      //getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer[Hyperedge](hoverEdgeState, Color.gray, Color.cyan));
+      //getRenderContext().setVertexFillPaintTransformer(new MultiPickableVertexPaint[Vertex](
       //  getPickedVertexState(), Color.cyan, hoverVertexState, Color.cyan.darker(), Color.black));
       //v.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<V>(hoverVertexState, Color.black, Color.yellow));
   
@@ -73,7 +70,7 @@ class GraphPanel extends JPanel {
       
       getRenderContext().getPickedVertexState().addItemListener(new ItemListener() {
         def itemStateChanged(e : ItemEvent) {
-          val v = e.getItem().asInstanceOf[VisualItem]
+          val v = e.getItem().asInstanceOf[Vertex]
           visualization.getGraphLayout().lock(v, e.getStateChange() == ItemEvent.SELECTED)
         }
       })
@@ -81,20 +78,20 @@ class GraphPanel extends JPanel {
       //v.addKeyListener(gm.getModeKeyListener());
       setFocusable(true);
     
-      setRenderer(new BasicHypergraphRenderer[VisualItem, VisualEdge]())
+      setRenderer(new BasicHypergraphRenderer[Vertex, Hyperedge]())
       
       getRenderer().setVertexRenderer(new VertexRenderer(this))
       
-      val lr = new HyperedgeLabelRenderer[VisualItem, VisualEdge](edgeLayout)
-      lr.setDrawPredicate(new Predicate[Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]]() {
-        def evaluate(c : Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]) = true
+      val lr = new HyperedgeLabelRenderer[Vertex, Hyperedge](edgeLayout)
+      lr.setDrawPredicate(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
+        def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
       })
       
       getRenderer().setEdgeLabelRenderer(lr);
       
-//      val r = new HyperedgeRenderer[VisualItem, VisualEdge](edgeLayout)
-//      r.setDrawAsHyperedge(new Predicate[Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]]() {
-//        def evaluate(c : Context[Hypergraph[VisualItem, VisualEdge], VisualEdge]) = true
+//      val r = new HyperedgeRenderer[Vertex, Hyperedge](edgeLayout)
+//      r.setDrawAsHyperedge(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
+//        def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
 //      })
 //      
 //      getRenderer().setEdgeRenderer(r)

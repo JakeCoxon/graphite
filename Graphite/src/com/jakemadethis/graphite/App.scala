@@ -6,9 +6,6 @@ import com.jakemadethis.graphite.ui.GraphFrame
 import com.jakemadethis.graphite.graph._
 import scala.collection.JavaConversions._
 import javax.swing.UIManager
-import com.jakemadethis.graphite.ui.VisualItem
-import com.jakemadethis.graphite.ui.VisualEdge
-import com.jakemadethis.graphite.ui.VisualVertex
 import java.io.FileReader
 
 
@@ -25,7 +22,7 @@ object App {
               
     val frame = new GraphFrame()
     
-//    val graph = new OrderedHypergraph[VisualItem, VisualEdge]()
+//    val graph = new OrderedHypergraph[Vertex, Hyperedge]()
 //    graph.addVertex(new VisualVertex(new Vertex()))
     val graphLoader = new GraphiteLoader(new FileReader("data/grammar.xml"))
     val graphs = graphLoader.readGraphs

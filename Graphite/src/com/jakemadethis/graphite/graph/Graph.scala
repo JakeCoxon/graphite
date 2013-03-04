@@ -10,6 +10,8 @@ object NonTerminalEdge {
 class Vertex(val label:String="") {
   def copy = new Vertex(label)
 }
+class FakeVertex extends Vertex {}
+
 class Hyperedge(val label: String, val isTerminal:Boolean) {
   def isNonTerminal = !isTerminal
   def copy = new Hyperedge(label, isTerminal)

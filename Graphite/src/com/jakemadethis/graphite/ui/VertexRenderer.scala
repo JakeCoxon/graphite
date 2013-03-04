@@ -13,14 +13,17 @@ import java.awt.AlphaComposite
 import edu.uci.ics.jung.visualization.VisualizationViewer
 import com.jakemadethis.graphite.visualization.HoverSupport
 import scala.collection.JavaConversions._
+import com.jakemadethis.graphite.graph.Vertex
+import com.jakemadethis.graphite.graph.Hyperedge
+import com.jakemadethis.graphite.graph.FakeVertex
 
-class VertexRenderer(vv : VisualizationViewer[VisualItem,VisualEdge] with HoverSupport[VisualItem,VisualEdge]) extends Renderer.Vertex[VisualItem, VisualEdge] {
-  def paintVertex(rc: RenderContext[VisualItem,VisualEdge], layout : Layout[VisualItem,VisualEdge], v : VisualItem) {
+class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSupport[Vertex,Hyperedge]) extends Renderer.Vertex[Vertex, Hyperedge] {
+  def paintVertex(rc: RenderContext[Vertex,Hyperedge], layout : Layout[Vertex,Hyperedge], v : Vertex) {
     val p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))
     val x = p.getX()
     val y = p.getY()
         
-    if (v.isInstanceOf[VisualFakeVertex]) {
+    if (v.isInstanceOf[FakeVertex]) {
       circle(rc, x, y, 7, new Color(1f, 0f, 0f, 0.5f))
     } else {
       val pickedVertexState = vv.getPickedVertexState()
@@ -37,7 +40,7 @@ class VertexRenderer(vv : VisualizationViewer[VisualItem,VisualEdge] with HoverS
     
   }
   
-  private def circle(rc : RenderContext[VisualItem, VisualEdge], x : Double, y : Double, r : Double, paint : Paint) {
+  private def circle(rc : RenderContext[Vertex, Hyperedge], x : Double, y : Double, r : Double, paint : Paint) {
     val shape = new Ellipse2D.Double(x-r, y-r, r*2, r*2)
     val g = rc.getGraphicsContext()
     //g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC))
