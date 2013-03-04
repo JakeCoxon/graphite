@@ -10,29 +10,65 @@ import scala.collection.JavaConversions._
 import edu.uci.ics.jung.graph.Hypergraph
 import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
+import edu.uci.ics.jung.graph.Graph
+import edu.uci.ics.jung.algorithms.layout.StaticLayout
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
+import com.jakemadethis.graphite.visualization.BasicEdgeLayout
+import edu.uci.ics.jung.visualization.DefaultVisualizationModel
+import edu.uci.ics.jung.visualization.VisualizationModel
 
 
-class GraphFrame extends JFrame {
+class GrammarFrame(g : HypergraphGrammar) extends JFrame {
   
   implicit def convertFunctionToAction(f : => Unit) : ActionListener = new ActionListener() {
     def actionPerformed(e : ActionEvent) = f
   }
 
-  var graph : Hypergraph[Vertex, Hyperedge] = null
-  val graphpanel = new GraphPanel()
-  def setGraph(g : Hypergraph[Vertex, Hyperedge]) = {
-    graph = g
-    graphpanel.setGraph(g)
-  }
-  
-  setLayout(new BorderLayout());
+  var graphpanel : GraphPanel = null
   
   val sidebar = new JPanel() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     setBackground(Color.WHITE)
     setSize(new Dimension(200, 10))
-    add(new GButton("OK"))
   }
+  
+  def setGrammar(g : HypergraphGrammar) {
+    
+    var firstModel : VisualizationModel[Vertex, Hyperedge] = null
+    
+    sidebar.removeAll()
+    g.foreach { case (_, derivations) => 
+      
+      println(derivations)
+      derivations.foreach { derivation =>
+        
+        val pseudoGraph = derivation.graph.asInstanceOf[Graph[Vertex, Hyperedge]];
+        
+        object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
+          with BasicEdgeLayout[Vertex, Hyperedge]
+                
+        // create visualization viewer
+        val graphModel = new DefaultVisualizationModel(glayout)
+        if (firstModel == null) firstModel = graphModel
+          
+        val btn = new GButton(derivation.label) {
+          addActionListener({
+            graphpanel.setGraphModel(graphModel)
+          } : Unit)
+        }
+        sidebar.add(btn)
+      }
+    }
+    //graphpanel.setGraph(g)
+    
+    
+    graphpanel = new GraphPanel(firstModel)
+  }
+  setGrammar(g)
+  
+  setLayout(new BorderLayout());
+  
+
   
   val main = new JPanel() {
     
@@ -41,7 +77,7 @@ class GraphFrame extends JFrame {
       setBackground(Color.DARK_GRAY)
       add(new GButton("Add Vertex") {
         addActionListener({
-          graph.addVertex(new Vertex())
+          graphpanel.graph.addVertex(new Vertex())
           graphpanel.visualization.repaint()
         } : Unit)
       })
@@ -49,8 +85,9 @@ class GraphFrame extends JFrame {
         addActionListener({
           val v1 = new FakeVertex()
           val v2 = new FakeVertex()
-          graph.addVertex(v1); graph.addVertex(v2)
-          graph.addEdge(new Hyperedge("A", true), Seq(v1, v2))
+          graphpanel.graph.addVertex(v1); 
+          graphpanel.graph.addVertex(v2)
+          graphpanel.graph.addEdge(new Hyperedge("A", true), Seq(v1, v2))
           graphpanel.visualization.repaint()
         } : Unit)
       })

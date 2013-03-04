@@ -39,7 +39,6 @@ class GrammarLoader(reader : Reader) {
   
   val derivations = graphreader.getGraphMLDocument().getGraphMetadata().map { meta =>
     val label = meta.getProperty("label")
-    println(label)
     new HypergraphDerivation(meta.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]], Seq(), label)
   }
   

@@ -13,7 +13,7 @@ import edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport
 import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.Vertex
 
-class EdgeRenderer(edgeLayout : EdgeLayout[Hyperedge]) extends Renderer.Edge[Vertex, Hyperedge] {
+class EdgeRenderer() extends Renderer.Edge[Vertex, Hyperedge] {
   def paintEdge(rc : RenderContext[Vertex, Hyperedge], layout : Layout[Vertex, Hyperedge], edge : Hyperedge) {
     val gd = rc.getGraphicsContext()
     val oldPaint = gd.getPaint()
@@ -26,6 +26,7 @@ class EdgeRenderer(edgeLayout : EdgeLayout[Hyperedge]) extends Renderer.Edge[Ver
       rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))
     }
     
+    val edgeLayout = EdgeLayout(layout)
     val edgeLoc = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, edgeLayout.getEdgeLocation(edge))
     
     gd.setStroke(new BasicStroke(2))

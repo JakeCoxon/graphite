@@ -4,11 +4,12 @@ import edu.uci.ics.jung.visualization.layout.PersistentLayout.Point
 import edu.uci.ics.jung.algorithms.layout.Layout
 import java.awt.geom.Point2D
 import collection.JavaConversions._
+import edu.uci.ics.jung.algorithms.layout.LayoutDecorator
 
-class BasicEdgeLayout[V,E](layout: Layout[V,E]) extends EdgeLayout[E] {
+trait BasicEdgeLayout[V,E] extends Layout[V,E] with EdgeLayout[E] {
   def getEdgeLocation(e : E) : Point2D = {
-    val vs = layout.getGraph().getIncidentVertices(e)
-    val ps = vs.map(layout.transform(_))
+    val vs = getGraph().getIncidentVertices(e)
+    val ps = vs.map(transform(_))
     val xs = ps.map(_.getX())
     val ys = ps.map(_.getY())
     val midX = (xs.min + xs.max) / 2

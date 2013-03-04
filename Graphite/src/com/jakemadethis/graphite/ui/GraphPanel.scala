@@ -24,7 +24,6 @@ import java.awt.event.ItemListener
 import com.jakemadethis.graphite.visualization.renderers.BasicHypergraphRenderer
 import com.jakemadethis.graphite.visualization.renderers.HyperedgeLabelRenderer
 import org.apache.commons.collections15.Predicate
-import com.jakemadethis.graphite.visualization.renderers.HyperedgeRenderer
 import com.jakemadethis.graphite.visualization.EdgeLayout
 import java.awt.Point
 import org.apache.commons.collections15.Transformer
@@ -34,70 +33,70 @@ import com.jakemadethis.graphite.visualization.HoverSupport
 import com.jakemadethis.graphite.visualization.BasicEdgeLayout
 import edu.uci.ics.jung.algorithms.layout.StaticLayout
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
+import edu.uci.ics.jung.algorithms.layout.Layout
 
-class GraphPanel extends JPanel {
-  var visualization : VisualizationViewer[Vertex, Hyperedge] = null
-    
-  def setGraph(graph : Hypergraph[Vertex, Hyperedge]) {
-    if (visualization != null) remove(visualization)
-    val pseudoGraph = graph.asInstanceOf[Graph[Vertex, Hyperedge]];
-    
-//    val glayout = 
-//            new FRLayout[Vertex, Hyperedge](pseudoGraph, new Dimension(500, 500))
-    val glayout = new StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
-            
-    val edgeLayout = new BasicEdgeLayout[Vertex, Hyperedge](glayout)
-    
-    // create visualization viewer
-    visualization = new VisualizationViewer[Vertex, Hyperedge](glayout, new Dimension(500, 500)) 
-        with HoverSupport[Vertex, Hyperedge] {
-      
-      setGraphMouse(new GraphMouseHandler());
-      setPickSupport(new HyperedgePickSupport[Vertex, Hyperedge](this));
-      
-      getRenderContext().setEdgeLabelTransformer(new Transformer[Hyperedge, String]() {
-        def transform(e : Hyperedge) = e.label
-      })
-      //getRenderContext().setVertexShapeTransformer(new ConstantTransformer(
-      //      new Ellipse2D.Float(-8,-8,16,16)));
-      //getRenderContext().setEdgeArrowPredicate(TruePredicate.getInstance());
-      //getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer[Hyperedge](hoverEdgeState, Color.gray, Color.cyan));
-      //getRenderContext().setVertexFillPaintTransformer(new MultiPickableVertexPaint[Vertex](
-      //  getPickedVertexState(), Color.cyan, hoverVertexState, Color.cyan.darker(), Color.black));
-      //v.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<V>(hoverVertexState, Color.black, Color.yellow));
+class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends JPanel {
   
-      //getModel().getRelaxer().setSleepTime(10);
-      
-      getRenderContext().getPickedVertexState().addItemListener(new ItemListener() {
-        def itemStateChanged(e : ItemEvent) {
-          val v = e.getItem().asInstanceOf[Vertex]
-          visualization.getGraphLayout().lock(v, e.getStateChange() == ItemEvent.SELECTED)
-        }
-      })
-      
-      //v.addKeyListener(gm.getModeKeyListener());
-      setFocusable(true);
+  
+  val visualization = new VisualizationViewer[Vertex, Hyperedge](model, new Dimension(500, 500)) 
+      with HoverSupport[Vertex, Hyperedge] {
     
-      setRenderer(new BasicHypergraphRenderer[Vertex, Hyperedge]())
-      
-      getRenderer().setVertexRenderer(new VertexRenderer(this))
-      
-      val lr = new HyperedgeLabelRenderer[Vertex, Hyperedge](edgeLayout)
-      lr.setDrawPredicate(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
-        def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
-      })
-      
-      getRenderer().setEdgeLabelRenderer(lr);
-      
+    setGraphMouse(new GraphMouseHandler())
+    setPickSupport(new HyperedgePickSupport[Vertex, Hyperedge](this))
+    
+    getRenderContext().setEdgeLabelTransformer(new Transformer[Hyperedge, String]() {
+      def transform(e : Hyperedge) = e.label
+    })
+    //getRenderContext().setVertexShapeTransformer(new ConstantTransformer(
+    //      new Ellipse2D.Float(-8,-8,16,16)));
+    //getRenderContext().setEdgeArrowPredicate(TruePredicate.getInstance());
+    //getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer[Hyperedge](hoverEdgeState, Color.gray, Color.cyan));
+    //getRenderContext().setVertexFillPaintTransformer(new MultiPickableVertexPaint[Vertex](
+    //  getPickedVertexState(), Color.cyan, hoverVertexState, Color.cyan.darker(), Color.black));
+    //v.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<V>(hoverVertexState, Color.black, Color.yellow));
+
+    //getModel().getRelaxer().setSleepTime(10);
+    
+    getRenderContext().getPickedVertexState().addItemListener(new ItemListener() {
+      def itemStateChanged(e : ItemEvent) {
+        val v = e.getItem().asInstanceOf[Vertex]
+        getGraphLayout().lock(v, e.getStateChange() == ItemEvent.SELECTED)
+      }
+    })
+    
+    //v.addKeyListener(gm.getModeKeyListener());
+    setFocusable(true)
+    
+    setRenderer(new BasicHypergraphRenderer[Vertex, Hyperedge]())
+    
+    getRenderer().setVertexRenderer(new VertexRenderer(this))
+    
+    val lr = new HyperedgeLabelRenderer[Vertex, Hyperedge]()
+    lr.setDrawPredicate(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
+      def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
+    })
+    
+    getRenderer().setEdgeLabelRenderer(lr);
+    
 //      val r = new HyperedgeRenderer[Vertex, Hyperedge](edgeLayout)
 //      r.setDrawAsHyperedge(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
 //        def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
 //      })
 //      
 //      getRenderer().setEdgeRenderer(r)
-      getRenderer().setEdgeRenderer(new EdgeRenderer(edgeLayout))
-    }
-    
-    add(visualization)
+    getRenderer().setEdgeRenderer(new EdgeRenderer())
   }
+  
+  add(visualization)
+    
+  def graph = visualization.getModel().getGraphLayout().getGraph()
+  
+  def setGraphModel(model : VisualizationModel[Vertex, Hyperedge]) {
+    println(model)
+    visualization.setModel(model)
+    visualization.repaint()
+  }
+  
+  
+  
 }

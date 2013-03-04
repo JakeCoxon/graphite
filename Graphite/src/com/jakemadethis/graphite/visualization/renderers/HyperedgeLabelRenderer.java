@@ -25,6 +25,7 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.functors.TruePredicate;
 
 import com.jakemadethis.graphite.visualization.EdgeLayout;
+import com.jakemadethis.graphite.visualization.EdgeLayout$;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -40,10 +41,8 @@ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 public class HyperedgeLabelRenderer<V,E> implements Renderer.EdgeLabel<V,E> {
 	
   private Predicate<Context<Hypergraph<V,E>,E>> drawPredicate = TruePredicate.getInstance();
-  private final EdgeLayout<E> edgeLayout;
 
-	public HyperedgeLabelRenderer(EdgeLayout<E> edgeLayout) {
-    this.edgeLayout = edgeLayout;
+	public HyperedgeLabelRenderer() {
 		
 	}
 	
@@ -62,6 +61,7 @@ public class HyperedgeLabelRenderer<V,E> implements Renderer.EdgeLabel<V,E> {
     	
     	Graph<V,E> g = layout.getGraph();
     	
+    	EdgeLayout<E> edgeLayout = EdgeLayout$.MODULE$.apply(layout);
       
       Hypergraph<V, E> hg = g;
       
@@ -71,7 +71,6 @@ public class HyperedgeLabelRenderer<V,E> implements Renderer.EdgeLabel<V,E> {
         if (!rc.getEdgeIncludePredicate().evaluate(Context.<Graph<V,E>,E>getInstance(g,e)))
             return;
         
-    		
     		Point2D edgePos = edgeLayout.getEdgeLocation(e);
     		edgePos = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, edgePos);
 

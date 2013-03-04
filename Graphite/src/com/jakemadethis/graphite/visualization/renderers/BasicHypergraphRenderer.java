@@ -3,8 +3,6 @@ package com.jakemadethis.graphite.visualization.renderers;
 import java.awt.Color;
 import java.util.ConcurrentModificationException;
 
-import com.jakemadethis.graphite.visualization.EdgeLayout;
-import com.jakemadethis.graphite.visualization.renderers.HyperedgeRenderer;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
@@ -65,19 +63,5 @@ public class BasicHypergraphRenderer<V,E> extends BasicRenderer<V,E> {
   }
   
   
-  public static <V, E> EdgeLayout<E> getEdgeLayout(Layout<V, E> layout) {
-  	EdgeLayout<E> edgeLocations;
-		if (layout instanceof LayoutDecorator) {
-			LayoutDecorator layoutDecorator = (LayoutDecorator) layout;
-			if (layoutDecorator.getDelegate() instanceof EdgeLayout)
-				return (EdgeLayout<E>) layoutDecorator.getDelegate();
-			else
-				throw new Error("renderer requires EdgeLayout");
-		}
-		else if (layout instanceof EdgeLayout<?>)
-	  	return (EdgeLayout<E>) layout;
-		else
-  		throw new Error("renderer requires EdgeLayout");
-  }
 
 }

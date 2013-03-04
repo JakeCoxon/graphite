@@ -5,6 +5,7 @@ xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml">
 <key id="label" for="hyperedge"><default>?</default></key>
 <key id="label" for="graph"><default>?</default></key>
 <graph edgedefault="directed">
+<data key="label">A</data>
 <node id="1"></node>
 <node id="2"></node>
 <node id="3"></node>
@@ -22,6 +23,7 @@ xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml">
 <edge source="1" target="2"/>
 </graph>
 <graph edgedefault="directed">
+<data key="label">B</data>
 <node id="1"></node>
 <node id="2"></node>
 <node id="3"></node>
