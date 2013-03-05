@@ -16,6 +16,7 @@ import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
 import com.jakemadethis.graphite.visualization.BasicEdgeLayout
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import edu.uci.ics.jung.visualization.VisualizationModel
+import com.jakemadethis.graphite.visualization.AverageEdgeLayout
 
 
 class GrammarFrame(g : HypergraphGrammar) extends JFrame {
@@ -34,7 +35,7 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
       val pseudoGraph = derivation.graph.asInstanceOf[Graph[Vertex, Hyperedge]];
       
       object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
-        with BasicEdgeLayout[Vertex, Hyperedge]
+        with AverageEdgeLayout[Vertex, Hyperedge]
               
       derivation.label -> new DefaultVisualizationModel(glayout)
     }
