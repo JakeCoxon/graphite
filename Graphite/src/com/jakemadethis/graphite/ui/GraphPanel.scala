@@ -78,7 +78,6 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends JPanel {
   def graph = visualization.getModel().getGraphLayout().getGraph()
   
   def setGraphModel(model : VisualizationModel[Vertex, Hyperedge]) {
-    println(model)
     visualization.setModel(model)
     visualization.repaint()
   }

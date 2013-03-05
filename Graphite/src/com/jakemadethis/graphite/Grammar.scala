@@ -8,7 +8,11 @@ abstract class Grammar[K, D <: Derivation[K]](map : Map[K, Seq[D]]) extends coll
   def get(key : K) = map.get(key)
   def + [B1 >: Seq[D]](kv: (K, B1)) = throw new UnsupportedOperationException()
   def -(key: K) = throw new UnsupportedOperationException()
-  
+  def derivations = {
+    values.foldLeft(Stream.empty[D]) { (result, seq) =>
+      result #::: seq.toStream
+    }
+  }
 }
 
 

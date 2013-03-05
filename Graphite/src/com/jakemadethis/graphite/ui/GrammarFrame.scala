@@ -23,8 +23,34 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
   implicit def convertFunctionToAction(f : => Unit) : ActionListener = new ActionListener() {
     def actionPerformed(e : ActionEvent) = f
   }
+  
+  
 
-  var graphpanel : GraphPanel = null
+  
+  protected def makeModels(g : HypergraphGrammar) : Traversable[(String, VisualizationModel[Vertex,Hyperedge])] = {
+    
+    // Construct a model for each derivation
+    val models = g.derivations.toList.map { derivation => 
+      val pseudoGraph = derivation.graph.asInstanceOf[Graph[Vertex, Hyperedge]];
+      
+      object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
+        with BasicEdgeLayout[Vertex, Hyperedge]
+              
+      derivation.label -> new DefaultVisualizationModel(glayout)
+    }
+
+    
+    models
+  }
+  
+  def setGrammar(g : HypergraphGrammar) {
+    val models = makeModels(g)
+    updateSidebar(models)
+    val (label, model) = models.head
+    graphpanel.setGraphModel(model)
+  }
+  
+      
   
   val sidebar = new JPanel() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -32,39 +58,26 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
     setSize(new Dimension(200, 10))
   }
   
-  def setGrammar(g : HypergraphGrammar) {
-    
-    var firstModel : VisualizationModel[Vertex, Hyperedge] = null
-    
+  protected def updateSidebar(models : Traversable[(String, VisualizationModel[Vertex,Hyperedge])]) {
     sidebar.removeAll()
-    g.foreach { case (_, derivations) => 
-      
-      println(derivations)
-      derivations.foreach { derivation =>
-        
-        val pseudoGraph = derivation.graph.asInstanceOf[Graph[Vertex, Hyperedge]];
-        
-        object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
-          with BasicEdgeLayout[Vertex, Hyperedge]
-                
-        // create visualization viewer
-        val graphModel = new DefaultVisualizationModel(glayout)
-        if (firstModel == null) firstModel = graphModel
-          
-        val btn = new GButton(derivation.label) {
-          addActionListener({
-            graphpanel.setGraphModel(graphModel)
-          } : Unit)
-        }
-        sidebar.add(btn)
+    
+    // Add button to sidebar for each derivation, to activate the model
+    models.foreach { case (label, m) =>
+      val btn = new GButton(label) {
+        addActionListener(graphpanel.setGraphModel(m))
       }
+      sidebar.add(btn)
     }
-    //graphpanel.setGraph(g)
-    
-    
-    graphpanel = new GraphPanel(firstModel)
   }
-  setGrammar(g)
+  
+  // Create models
+  val models = makeModels(g)
+  // Generate the sidebar
+  updateSidebar(models)
+  // Create graph panel with first model
+  val (label, model) = models.head
+  val graphpanel = new GraphPanel(model)
+  
   
   setLayout(new BorderLayout());
   
