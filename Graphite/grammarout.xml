@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><graphml xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://graphml.graphdrawing.org/xmlns/graphml">
+          <key for="graph" id="label"><default>?</default></key><key for="node" id="x"><default>0</default></key><key for="node" id="y"><default>0</default></key>
+          <graph edgedefault="undirected">
+        <data key="label">A</data>
+        <node id="1">
+        <data key="x">1.5166226137670047</data><data key="y">430.0383029175958</data>
+      </node><node id="2">
+        <data key="x">347.4713887703822</data><data key="y">495.35968073465136</data>
+      </node><node id="3">
+        <data key="x">181.04603853950508</data><data key="y">331.52072949484517</data>
+      </node><node id="4">
+        <data key="x">28.59765484054516</data><data key="y">399.07924921569946</data>
+      </node><node id="5">
+        <data key="x">101.23093488436002</data><data key="y">260.12014319571506</data>
+      </node><node id="6">
+        <data key="x">315.2220975194675</data><data key="y">198.47010000072657</data>
+      </node>
+        <hyperedge id="7">
+        
+        <endpoint node="2"></endpoint><endpoint node="1"></endpoint>
+      </hyperedge><hyperedge id="2">
+        
+        <endpoint node="3"></endpoint><endpoint node="1"></endpoint>
+      </hyperedge><hyperedge id="2">
+        
+        <endpoint node="2"></endpoint><endpoint node="3"></endpoint><endpoint node="6"></endpoint>
+      </hyperedge>
+      </graph><graph edgedefault="undirected">
+        <data key="label">B</data>
+        <node id="7">
+        <data key="x">0.8895576589127985</data><data key="y">116.84907366260595</data>
+      </node><node id="8">
+        <data key="x">339.5533451911272</data><data key="y">471.31994722082555</data>
+      </node><node id="9">
+        <data key="x">272.5204003232926</data><data key="y">41.812231370367826</data>
+      </node><node id="10">
+        <data key="x">78.2070302249368</data><data key="y">84.24624144446929</data>
+      </node><node id="11">
+        <data key="x">77.31771106761475</data><data key="y">230.9508843892184</data>
+      </node><node id="12">
+        <data key="x">170.76464115704587</data><data key="y">228.8163302624478</data>
+      </node>
+        <hyperedge id="13">
+        
+        <endpoint node="11"></endpoint><endpoint node="9"></endpoint>
+      </hyperedge><hyperedge id="10">
+        
+        <endpoint node="10"></endpoint><endpoint node="11"></endpoint><endpoint node="12"></endpoint>
+      </hyperedge><hyperedge id="13">
+        
+        <endpoint node="10"></endpoint><endpoint node="9"></endpoint>
+      </hyperedge>
+      </graph>
+      </graphml>
