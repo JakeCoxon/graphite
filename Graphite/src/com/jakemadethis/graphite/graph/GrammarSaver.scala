@@ -11,8 +11,9 @@ import org.apache.commons.collections15.Transformer
 import java.awt.geom.Point2D
 import java.io.FileWriter
 import com.jakemadethis.graphite.GraphMLWriter
+import java.io.File
 
-class GrammarSaver(grammar : HypergraphGrammar, models: Traversable[VisualizationModel[Vertex,Hyperedge]]) {
+class GrammarSaver(file : File, grammar : HypergraphGrammar, models: Traversable[VisualizationModel[Vertex,Hyperedge]]) {
   implicit def convertFunctionToTransformer[A,B](f : A => B) : Transformer[A,B] = new Transformer[A,B]() {
     def transform(obj : A) : B = f(obj)
   }
@@ -59,7 +60,7 @@ class GrammarSaver(grammar : HypergraphGrammar, models: Traversable[Visualizatio
   
   
   
-  val fwriter = new FileWriter("grammarout.xml")
+  val fwriter = new FileWriter(file)
   writer.saveHypergraphs(modelMap.keys, fwriter)
 }
 

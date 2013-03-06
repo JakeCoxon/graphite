@@ -17,6 +17,7 @@ import com.jakemadethis.graphite.visualization.BasicEdgeLayout
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import edu.uci.ics.jung.visualization.VisualizationModel
 import com.jakemadethis.graphite.visualization.AverageEdgeLayout
+import com.jakemadethis.graphite.App
 
 
 class GrammarFrame(g : HypergraphGrammar) extends JFrame {
@@ -25,7 +26,7 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
     def actionPerformed(e : ActionEvent) = f
   }
   
-  
+//  var grammar : HypergraphGrammar = g
 
   
   protected def makeModels(g : HypergraphGrammar) : Traversable[(String, VisualizationModel[Vertex,Hyperedge])] = {
@@ -44,12 +45,13 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
     models
   }
   
-  def setGrammar(g : HypergraphGrammar) {
-    val models = makeModels(g)
-    updateSidebar(models)
-    val (label, model) = models.head
-    graphpanel.setGraphModel(model)
-  }
+//  def setGrammar(g : HypergraphGrammar) {
+//    grammar = g
+//    val models = makeModels(g)
+//    updateSidebar(models)
+//    val (label, model) = models.head
+//    graphpanel.setGraphModel(model)
+//  }
   
       
   
@@ -78,7 +80,6 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
   // Create graph panel with first model
   val (label, model) = models.head
   val graphpanel = new GraphPanel(model)
-  
   
   setLayout(new BorderLayout());
   
@@ -115,10 +116,15 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
     add(cards);
   }
   
+  
   val menu = new JMenuBar() {
     add(new JMenu("File") {
-      add(new JMenuItem("Load Grammar..."))
-      add(new JMenuItem("Save Grammar..."))
+      add(new JMenuItem("Load Grammar...") {
+        addActionListener(App.loadGrammarGui(GrammarFrame.this))
+      })
+      add(new JMenuItem("Save Grammar...") {
+        addActionListener(App.saveGrammarGui(GrammarFrame.this, g, models.map(_._2)))
+      })
     })
     add(new JMenu("Tools") {
       add(new JMenuItem("Add Vertex"))
