@@ -15,16 +15,22 @@ import collection.JavaConversions._
 class GrammarLoader(reader : Reader) {
   
   val graphTransformer = new Transformer[GraphMetadata, Hypergraph[Vertex, Hyperedge]]() {
-    def transform(g : GraphMetadata) = new OrderedHypergraph()
+    def transform(m : GraphMetadata) = new OrderedHypergraph()
   }
   val vertexTransformer = new Transformer[NodeMetadata, Vertex]() {
-    def transform(n : NodeMetadata) = new Vertex()
+    def transform(m : NodeMetadata) = new Vertex()
   }
   val edgeTransformer = new Transformer[EdgeMetadata, Hyperedge]() {
-    def transform(n : EdgeMetadata) = new Hyperedge("!!", true)
+    def transform(m : EdgeMetadata) = {
+      val t = try { m.getProperty("terminal").toBoolean } catch { case x : NumberFormatException => true }
+      new Hyperedge(m.getProperty("label"), isTerminal=t)
+    }
   }
   val hyperedgeTransformer = new Transformer[HyperEdgeMetadata, Hyperedge]() {
-    def transform(n : HyperEdgeMetadata) = new Hyperedge("!!", true)
+    def transform(m : HyperEdgeMetadata) = {
+      val t = try { m.getProperty("terminal").toBoolean } catch { case x : NumberFormatException => true }
+      new Hyperedge(m.getProperty("label"), isTerminal=t)
+    }
   }
   
   val graphreader = new GraphMLReader2(reader, 

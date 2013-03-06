@@ -10,7 +10,7 @@ import edu.uci.ics.jung.io.GraphMLMetadata
 import org.apache.commons.collections15.Transformer
 import java.awt.geom.Point2D
 import java.io.FileWriter
-import com.jakemadethis.graphite.GraphMLWriter
+import com.jakemadethis.graphite.graph.GraphMLWriter
 import java.io.File
 
 class GrammarSaver(file : File, grammar : HypergraphGrammar, models: Traversable[VisualizationModel[Vertex,Hyperedge]]) {
@@ -51,16 +51,16 @@ class GrammarSaver(file : File, grammar : HypergraphGrammar, models: Traversable
   writer.addGraphData("label", "The grammar label", "?") { g =>
     derivationMap(g).label
   }
-  writer.addVertexData("x", "The x coordinate", "0") { (g, v) =>
+  writer.addEdgeData("label", "The edge label", "?") { (_, e) => e.label }
+  writer.addEdgeData("terminal", "If the edge is terminal", "true") { (_, e) => e.isTerminal.toString }
+  
+  writer.addVertexData("x", "The x coordinate", "?") { (g, v) =>
     modelMap(g).getGraphLayout().transform(v).getX().toString
   }
-  writer.addVertexData("y", "The y coordinate", "0") { (g, v) =>
+  writer.addVertexData("y", "The y coordinate", "?") { (g, v) =>
     modelMap(g).getGraphLayout().transform(v).getY().toString
   }
   
-  
-  
-  val fwriter = new FileWriter(file)
-  writer.saveHypergraphs(modelMap.keys, fwriter)
+  writer.saveHypergraphs(modelMap.keys, file)
 }
 
