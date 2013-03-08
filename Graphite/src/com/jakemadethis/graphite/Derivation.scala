@@ -15,7 +15,8 @@ class Derivation[T](val nonTerminals: List[T], val terminalSize: Int) {
   
   //def nonTerminalSize = nonTerminals.size
   def isTerminal = nonTerminals.isEmpty
-  def nonTerminalSet = MultiSet(nonTerminals)
+  val ntSet = MultiSet(nonTerminals)
+  def nonTerminalSet = ntSet
   
   def derive(newDerivation : Derivation[T]) = {
     new Derivation[T](newDerivation.nonTerminals ::: nonTerminals.tail, terminalSize + newDerivation.terminalSize)
