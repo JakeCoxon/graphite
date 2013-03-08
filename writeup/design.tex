@@ -41,9 +41,8 @@
 
   JUNG provides a highly extensible visualisation framework which enables a developer to show the structure of a graph in a range of different ways with custom layouts, filtering mechanisms and styles.
 
-  JUNG's current team consists of a Google software engineer and a Microsoft researcher. It is also partially funded by the National Science Foundation. Unfortunately the last update was in 2011 but it is opensource and available under the Berkeley Software Distribution (BSD) license so this means anybody is free to contribute to it.
+  The library was designed by a software engineer working at Google and a researcher at Microsoft. It is also partially funded by the National Science Foundation which shows the library is high Unfortunately the last update was in 2011 but it is opensource and available under the Berkeley Software Distribution (BSD) license so this means anybody is free to contribute to it.
 
-
-  support for hypergraphs - only halfway not concrete
+  Internally, JUNG uses interfaces to refer to different types of graph. In programming an interface defines what operations the object must have but the implementation can choose how to do it. JUNG supports hypergraph interfaces but only has a concrete implementation for `set hypergraphs' which do not order the tentacles. Fortunately JUNG is designed to be extensible and implementing an sequential hypergraph is trivial. Furthermore, there is no built in support for visualising hypergraphs but again, this can be done fairly easily.
 
 \subsection{File Representation}

@@ -1,0 +1,89 @@
+\section{Theory}
+
+\subsection{Hickey-Cohen Generation of Hypergraphs}
+
+  In this section, we will attempt to use the Hick Hickey-Cohen approach to generating uniform random strings to uniformly generate hypergraphs from a hypergraph grammar. 
+
+  The function to calculate the number of terminal strings in a vector of  $f$ is expressed in terms of the functions $T(\beta)$ and $A(\beta)$ where $T(\beta)$ is the number of terminals in the string $\beta$ and $A(\beta)$ is a vector whose $i$th component is the number of occurences of $N_i$ in the string $\beta$. We must first redefine these functions for hypergraphs.
+
+  Our grammar productions are named the same as before:
+  \[P = \left\{\pi_{ij} : N_i \to \alpha_{ij} | i = 1,\dots,r, j = 1, \dots,s_i \right\}\]
+  But instead of strings, now $N_1,\dots,N_r$ are non-terminal hyperedges and $\alpha_{ij}$ is the graph derivation.
+
+  $A(\beta)$ is now a vector whose $i$th component is the number of occurences of the non-terminal edge $N_i$ in the grah $\beta$.
+
+  In order to define $A(\beta)$ we must decide what `size' means for a hypergraph. This size must never decrease after applying a derivation and the following property must hold for derivations $d_1$ and $d_2$.
+  \[
+  T(\beta) + T(\alpha_{ij}) = T(\beta \Rightarrow \pi_{ij})
+  \]
+  What this means is when replacing a hyperedge with a subgraph ($\beta_1$), the overall size ($T(\beta)$) will increase by the size of the subgraph ($T(\beta_1)$).
+
+  I have chosen the following where $t_\beta$ is the number of terminal hyperedges in graph $\beta$, $v_\beta$ is the number of vertices in the graph and $x_\beta$ is the number of external vertices in the graph.
+
+  \[T(\beta) = t_\beta + v_\beta - x_\beta\]
+
+  It is also possible to define $T(\beta)$ without non-terminal edges, so $T(\beta) = v_\beta - x_\beta$. The distiction is whether the user wants to limit number of vertices and terminal edges or just vertices. It is required to not count external nodes in this case, because these nodes get merged and the aforementioned property will not hold.
+
+  The method now generates a graph of size $n$. To generate a single graph the program does the following.
+
+  \begin{itemize}
+    \item Start with a graph $\beta$ which is initial graph 
+    \item For each non-terminal hyperedge in $\beta$ where the label of the hyperedge is $N_i$, the following sub-procedure must be done. This is repeated until there is no non-terminals left.
+
+    It is worth noting that it doesn't matter which order the hyperedge is picked since it is known that hyperedge replacement can be performed in any order with the same output.
+    \begin{itemize}
+    \item Choose a production from the set $\left(\pi_{i1},\dots,\pi_{is_i}\right)$ by choosing a random number and using discrete cumulative probability distribution where production $\pi_{ij}$ has the probability $p_{ij}(\beta, n)$ of being chosen.
+
+    For example, if the probabilities for $(\pi_{i1}, \pi_{i2}, \pi_{i2})$ are $(\frac{1}{2}, \frac{1}{4}, \frac{1}{4})$. A random number $0 \leq r \leq 1$ is used to choose the production $p$ accordingly. Therefore
+    \[
+    p = \left\{\begin{aligned}
+      \pi_{i1}, \quad & r \le 0.5 \\
+      \pi_{i2}, \quad & 0.5 < r \le 0.75 \\
+      \pi_{i3}, \quad & 0.75 < r \le 1 \\
+    \end{aligned}\right.
+    \]
+    The probability $\pi_{ij}$ may be zero in the case where applying this production can never produce a graph of size $n$. In this case the production should not be considered in the above choice.
+
+    \item The production $p$ is applied the the graph $\beta$ which may add extra terminals and non-terminals.
+    \end{itemize}
+
+    \item $\beta$ is now a random graph of size $n$. 
+  \end{itemize}
+
+  If the user wants multiple graphs he can run this procedure as many times as needed.
+
+\subsubsection{Example}
+
+\input{figures/theory-nonterminal}
+
+\input{figures/theory-binarytree}
+
+The program first computes values for $g_A(t)$ for $1 \leq t \leq n$ using the following equation.
+
+\begin{align*}
+  g_{N_i}(t) &= \sum_{j=1}^{s_i} \left(g_{N_1}^{(\alpha_{ij})} * \hdots * g_{N_r}^{(\alpha_{rj})}\right)(t - T(\alpha_{ij})) \\
+  g_A(t) &= g_A(t-2) + (g_A^{(2)})(t-4) + \delta_0(t)
+\end{align*}
+
+Results for $n=21$.
+
+\begin{figure}[!h]
+\centering
+\begin{tabular}{l|l l l|l}
+$g_A(0)$ & 0 & & $g_A(11)$ & 0 \\
+$g_A(1)$ & 0 && $g_A(12)$ & 0 \\
+$g_A(2)$ & 1 && $g_A(13)$ & 0 \\
+$g_A(3)$ & 0 && $g_A(14)$ & 2 \\
+$g_A(4)$ & 0 && $g_A(15)$ & 0 \\
+$g_A(5)$ & 0 && $g_A(16)$ & 0 \\
+$g_A(6)$ & 0 && $g_A(17)$ & 0 \\
+$g_A(7)$ & 0 && $g_A(18)$ & 0 \\
+$g_A(8)$ & 1 && $g_A(19)$ & 0 \\
+$g_A(9)$ & 0 && $g_A(20)$ & 5 \\
+$g_A(10)$ & 0 && $g_A(21)$ & 0 \\
+\end{tabular}
+\end{figure}
+
+And now the program can generate as many graphs as needed, here we have generated three.
+
+\input{figures/theory-generation}

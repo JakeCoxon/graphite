@@ -1,0 +1,11 @@
+\begin{figure}[!h]
+  \centering
+  \begin{tikzpicture}
+    \node             (lefta) {$N_1$};
+    \node             (arrow) [right=of lefta] {$=$};
+    \node[vertex]     (a)     [right=of arrow,label=1] {};
+    \node[hyperedge]  (hyp1)  [below=0.5cm of a] {A};
+    \path[-] (hyp1)   edge node[tentacle]{} (a);
+  \end{tikzpicture}
+  \caption{$N_1$ is the single non-terminal in our grammar}
+\end{figure}

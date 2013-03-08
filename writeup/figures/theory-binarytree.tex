@@ -1,0 +1,53 @@
+\begin{figure}[!h]
+  \centering
+  \begin{tikzpicture}
+
+    \matrix[column sep=1cm]
+    {
+    \node[vertex]     (lefta) [label=1] {};
+    \node[hyperedge]  (hyp1)  [below=0.5cm of lefta] {A};
+    \node             (arrow) [right=of lefta] {$\underset{\pi_{11}}{\Rightarrow}$};
+    \node[vertex]     (a)     [right=of arrow,label=1] {};
+    \node[vertex]     (b)     [below=of a] {};
+    \node[hyperedge]  (hyp2)  [below=0.5cm of b] {A};
+
+    \path[-] (a)      edge (b);
+    \path[-] (hyp1)   edge node[tentacle]{} (lefta);
+    \path[-] (hyp2)   edge node[tentacle]{} (b);
+
+    &
+    \draw[seperator] (0,0) -- (0,-2);
+    &
+
+    \node[vertex]     (lefta) [label=1] {};
+    \node[hyperedge]  (hyp1)  [below=0.5cm of lefta] {A};
+    \node             (arrow) [right=of lefta] {$\underset{\pi_{12}}{\Rightarrow}$};
+    \node[vertex]     (a)     [right=of arrow,label=1] {};
+    \node[vertex]     (b)     [node distance=1cm and 0.5cm,below left=of a] {};
+    \node[hyperedge]  (hyp2)  [below=0.5cm of b] {A};
+    \node[vertex]     (c)     [node distance=1cm and 0.5cm,below right=of a] {};
+    \node[hyperedge]  (hyp3)  [below=0.5cm of c] {A};
+
+    \path[-] (a) edge (b)
+                 edge (c);
+    \path[-] (hyp1)   edge node[tentacle]{} (lefta);
+    \path[-] (hyp2)   edge node[tentacle]{} (b);
+    \path[-] (hyp3)   edge node[tentacle]{} (c);
+
+    &
+    \draw[seperator] (0,0) -- (0,-2);
+    &
+
+    \node[vertex]     (lefta) [label=1] {};
+    \node[hyperedge]  (hyp1)  [below=0.5cm of lefta] {A};
+    \node             (arrow) [right=of lefta] {$\underset{\pi_{13}}{\Rightarrow}$};
+    \node[vertex]     (a)     [right=of arrow,label=1] {};
+
+    \path[-] (hyp1)   edge node[tentacle]{} (lefta);
+    \\
+    };
+
+  \end{tikzpicture}
+  \caption{The binary tree grammar used for the example}
+
+\end{figure}

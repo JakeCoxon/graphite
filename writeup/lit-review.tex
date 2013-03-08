@@ -220,7 +220,7 @@
     \item Repeat loop
     \end{itemize}
 
-  \subsection{Generation of Uniform Random Strings}
+  \subsection{Hickey-Cohen Generation of Uniform Random Strings}
 
   The previous approach has a major downside that some terminal graphs have a far larger probability of occuring than others. Consider the string grammar $S \to a | Sa$, we can see here that the string $a$ has the probability $0.5$ of being produced and \emph{every} other terminal graph combined has the remaining probability of $0.5$. The same is true for graph grammars. A better option would be to choose terminal graphs with uniform randomness.
 
@@ -228,10 +228,10 @@
 
   The paper explains the meaning of producing strings uniformly - \emph{``Consider the set of all strings of length $n$ in the language. A uniform random generator is one which will produce strings from this set with equal probability.''} It is noted that the probability of which disjunct is used at each step in a derivation depends on the previous steps. This is different to the naive approach of choosing a derivation with equal probability and not taking into account the current state.
 
-  Firstly some notation is introducted. Let $G = \langle V, \Sigma, P, N_1 \rangle$ be an unamigious cycle-free context-free grammar containing no $\epsilon$-productions where $V = N \cup \Sigma$, $N = {N_1,\dots,N_r}$ is the nonterminal vocabulary, $\Sigma$ is the set of terminals, $N_1$ is the start symbol, and the set of productions is the following.
-  \[P = \left\{\pi_{ij} : N_i \to \alpha_{aj} | i = 1,\dots,r, j = 1, \dots,s_i \right\}\]
+  Firstly some notation is introduced. Let $G = \langle V, \Sigma, P, N_1 \rangle$ be an unambiguous cycle-free context-free grammar containing no $\epsilon$-productions where $V = N \cup \Sigma$, $N = {N_1,\dots,N_r}$ is the nonterminal vocabulary, $\Sigma$ is the set of terminals, $N_1$ is the start symbol, and the set of productions is the following.
+  \[P = \left\{\pi_{ij} : N_i \to \alpha_{ij} | i = 1,\dots,r, j = 1, \dots,s_i \right\}\]
 
-  Choosing a string $\beta_{k+1}$ from a previous string $\beta{k}$ involves rewriting the leftmost nonterminal in $\beta_k$ using one of the productions in $P$. if $N_i$ is the leftmost nonterminal in $B_k$, there are $s_i$ different choices for $\beta_{k+1}$. The idea of the method is to generate random strings of length $n$ by determining the probabilties $p_{ij}(\beta, n)$. These probabilities must be chosen so that every string of length $n$ has an equal probability.
+  Choosing a string $\beta_{k+1}$ from a previous string $\beta_k$ involves rewriting the leftmost nonterminal in $\beta_k$ using one of the productions in $P$. If $N_i$ is the leftmost nonterminal in $B_k$, there are $s_i$ different choices for $\beta_{k+1}$. The idea of the method is to generate random strings of length $n$ by determining the probabilties $p_{ij}(\beta, n)$. These probabilities must be chosen so that every string of length $n$ has an equal probability.
 
   Let $g_\beta(n)$ denote the number of terminal strings of length $n$ that can be derived from a sentential form $\beta$ and $\gamma$ be the result of applying $\pi_{ij}$ to $\beta$ in a leftmost derivation. The probability that must be assigned to $\pi_{ij}$ is:
   \[
@@ -263,7 +263,7 @@
   f(t,a) = \sum_{j=1}^{s_i}f(t-T(\alpha_{ij}), a+A(\alpha_{ij})-A(N_i)), \quad\mathrm{if}\ a_i \neq 0
   \]
 
-  Let $T(\beta)$ be the number of terminals in $\beta$ and let $A(\beta) = (A_1(\beta),\dots,A_r(\beta))$ be the vector whose $i$th component is the number of occurences of $N_i$. Then the function counting terminal strings from a string $\beta$ is the following.
+  Let $T(\beta)$ be the number of terminals in $\beta$ and let $A(\beta) = (A_1(\beta),\dots,A_r(\beta))$ be the vector whose $i$th component is the number of occurences of non-terminal $N_i$ in $\beta$. Then the function counting terminal strings from a string $\beta$ is the following.
   \[
   g_\beta(n) = f(n-T(\beta), A(\beta))
   \]
