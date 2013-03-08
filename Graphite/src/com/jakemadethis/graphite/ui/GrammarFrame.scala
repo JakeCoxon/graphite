@@ -18,31 +18,31 @@ import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import edu.uci.ics.jung.visualization.VisualizationModel
 import com.jakemadethis.graphite.visualization.AverageEdgeLayout
 import com.jakemadethis.graphite.App
+import scala.collection.immutable.Traversable
+import java.io.File
 
 
-class GrammarFrame(g : HypergraphGrammar) extends JFrame {
+class GrammarFrame(g : HypergraphGrammar, file : Option[File]) extends JFrame {
   
-  implicit def convertFunctionToAction(f : => Unit) : ActionListener = new ActionListener() {
-    def actionPerformed(e : ActionEvent) = f
+  implicit def convertFunctionToAction(f : () => Unit) : ActionListener = new ActionListener() {
+    def actionPerformed(e : ActionEvent) = f()
   }
   
 //  var grammar : HypergraphGrammar = g
 
   
-  protected def makeModels(g : HypergraphGrammar) : Traversable[(String, VisualizationModel[Vertex,Hyperedge])] = {
+  protected def makeModels(g : HypergraphGrammar) : Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]] = {
     
     // Construct a model for each derivation
-    val models = g.derivations.toList.map { derivation => 
+    g.derivations.toList.map { derivation => 
       val pseudoGraph = derivation.graph.asInstanceOf[Graph[Vertex, Hyperedge]];
       
       object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
         with AverageEdgeLayout[Vertex, Hyperedge]
               
-      derivation.label -> new DefaultVisualizationModel(glayout)
-    }
-
+      derivation.graph -> new DefaultVisualizationModel(glayout)
+    }.toMap
     
-    models
   }
   
 //  def setGrammar(g : HypergraphGrammar) {
@@ -61,13 +61,13 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
     setSize(new Dimension(200, 10))
   }
   
-  protected def updateSidebar(models : Traversable[(String, VisualizationModel[Vertex,Hyperedge])]) {
+  protected def updateSidebar(models : Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
     sidebar.removeAll()
     
     // Add button to sidebar for each derivation, to activate the model
-    models.foreach { case (label, m) =>
-      val btn = new GButton(label) {
-        addActionListener(graphpanel.setGraphModel(m))
+    models.values.zipWithIndex.foreach { case (model_, num) =>
+      val btn = new GButton("Rule "+(num+1)) {
+        addActionListener(() => graphpanel.setGraphModel(model_))
       }
       sidebar.add(btn)
     }
@@ -91,20 +91,20 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
     val menubar = new JPanel() {
       setBackground(Color.DARK_GRAY)
       add(new GButton("Add Vertex") {
-        addActionListener({
+        addActionListener({ () =>
           graphpanel.graph.addVertex(new Vertex())
           graphpanel.visualization.repaint()
-        } : Unit)
+        })
       })
       add(new GButton("Add Edge") {
-        addActionListener({
+        addActionListener({ () =>
           val v1 = new FakeVertex()
           val v2 = new FakeVertex()
           graphpanel.graph.addVertex(v1); 
           graphpanel.graph.addVertex(v2)
           graphpanel.graph.addEdge(new Hyperedge("A", true), Seq(v1, v2))
           graphpanel.visualization.repaint()
-        } : Unit)
+        })
       })
     }
     
@@ -120,10 +120,19 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
   val menu = new JMenuBar() {
     add(new JMenu("File") {
       add(new JMenuItem("Load Grammar...") {
-        addActionListener(App.loadGrammarGui(GrammarFrame.this))
+        addActionListener(() => App.loadGrammarGui(GrammarFrame.this))
       })
-      add(new JMenuItem("Save Grammar...") {
-        addActionListener(App.saveGrammarGui(GrammarFrame.this, g, models.map(_._2)))
+      add(new JMenuItem("Load Graph...") {
+        addActionListener(() => App.loadGraphGui(GrammarFrame.this))
+      })
+      add(new JMenuItem("Save Grammar") {
+        addActionListener({ () =>
+          if (file.isDefined) App.saveGrammar(g, models, file.get)
+          else App.saveGrammarGui(GrammarFrame.this, g, models)
+        })
+      })
+      add(new JMenuItem("Save Grammar as...") {
+        addActionListener(() => App.saveGrammarGui(GrammarFrame.this, g, models))
       })
     })
     add(new JMenu("Tools") {
@@ -134,8 +143,8 @@ class GrammarFrame(g : HypergraphGrammar) extends JFrame {
   setJMenuBar(menu)
   
   
-  getContentPane().add(sidebar, BorderLayout.WEST);
-  getContentPane().add(main, BorderLayout.CENTER);    
+  getContentPane().add(sidebar, BorderLayout.WEST)
+  getContentPane().add(main, BorderLayout.CENTER)
   setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
   
   

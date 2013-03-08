@@ -1,6 +1,5 @@
 package com.jakemadethis.graphite
 import com.jakemadethis.util.MultiSet
-import scala.collection.mutable.Map
 import scala.collection.mutable.ArraySeq
 import com.jakemadethis.graphite.ui.GrammarFrame
 import com.jakemadethis.graphite.graph._
@@ -15,6 +14,8 @@ import javax.swing.filechooser.FileFilter
 import java.io.FilenameFilter
 import java.awt.FileDialog
 import edu.uci.ics.jung.visualization.VisualizationModel
+import scala.collection.immutable.Traversable
+import edu.uci.ics.jung.graph.Hypergraph
 
 
 
@@ -37,8 +38,13 @@ object App {
     val grammarLoader = new GrammarLoader(new FileReader(file))
     println(grammarLoader.grammar)
     
-    val frame = new GrammarFrame(grammarLoader.grammar)
+    val frame = new GrammarFrame(grammarLoader.grammar, Some(file))
     frame.setVisible(true)
+    println("Loaded " + file.getAbsolutePath())
+  }
+  def saveGrammar(grammar : HypergraphGrammar, models: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]], file : File) {
+    val saver = new GrammarSaver(file, grammar, models)
+    println("Saved " + file.getAbsolutePath())
   }
   
   def loadGrammarGui(parent : JFrame) {
@@ -53,10 +59,12 @@ object App {
     if (d.getFile() == null) return
     val file = new File(d.getDirectory()+"/"+d.getFile())
     openGrammar(file)
-    println("Loaded " + file.getAbsolutePath())
+  }
+  def loadGraphGui(parent : JFrame) {
+    
   }
   
-  def saveGrammarGui(parent : JFrame, grammar : HypergraphGrammar, models: Traversable[VisualizationModel[Vertex,Hyperedge]]) {
+  def saveGrammarGui(parent : JFrame, grammar : HypergraphGrammar, models: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
     
     val d = new FileDialog(parent, "Save Graph Grammar")
     d.setDirectory(new File(".").getAbsolutePath())
@@ -67,8 +75,7 @@ object App {
     d.setVisible(true)
     if (d.getFile() == null) return
     val file = new File(d.getDirectory()+"/"+d.getFile())
-    val saver = new GrammarSaver(file, grammar, models)
-    println("Saved " + file.getAbsolutePath())
+    saveGrammar(grammar, models, file)
   }
   
 }

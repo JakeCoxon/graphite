@@ -13,25 +13,20 @@ import java.io.FileWriter
 import com.jakemadethis.graphite.graph.GraphMLWriter
 import java.io.File
 
-class GrammarSaver(file : File, grammar : HypergraphGrammar, models: Traversable[VisualizationModel[Vertex,Hyperedge]]) {
+class GrammarSaver(file : File, grammar : HypergraphGrammar, modelMap: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
   implicit def convertFunctionToTransformer[A,B](f : A => B) : Transformer[A,B] = new Transformer[A,B]() {
     def transform(obj : A) : B = f(obj)
   }
   
-  val points = models.foldLeft(Map[Vertex, Point2D]()) { (result, model) =>
+  val points = modelMap.foldLeft(Map[Vertex, Point2D]()) { case (result, (graph, model)) =>
     val layout = model.getGraphLayout()
     val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
     
     result ++ graph.getVertices().map { v => v -> layout.transform(v) }
   }
-  val derivationMap = grammar.derivations.map { g =>
-    g.graph -> g
-  }.toMap
   
-  val modelMap = models.map { m => 
-    val g = m.getGraphLayout().getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]] 
-    g -> m
-  }.toMap
+  
+  val derivationMap = grammar.derivations.map { d => d.graph -> d }.toMap
   
   var id = 0
   val vIdMap = collection.mutable.Map[Vertex, Int]()
