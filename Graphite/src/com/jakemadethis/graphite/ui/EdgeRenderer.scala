@@ -12,13 +12,26 @@ import java.awt.BasicStroke
 import edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport
 import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.Vertex
+import edu.uci.ics.jung.visualization.VisualizationViewer
+import com.jakemadethis.graphite.visualization.HoverSupport
 
-class EdgeRenderer() extends Renderer.Edge[Vertex, Hyperedge] {
+class EdgeRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSupport[Vertex,Hyperedge]) extends Renderer.Edge[Vertex, Hyperedge] {
   def paintEdge(rc : RenderContext[Vertex, Hyperedge], layout : Layout[Vertex, Hyperedge], edge : Hyperedge) {
     val gd = rc.getGraphicsContext()
     val oldPaint = gd.getPaint()
     
-    gd.setPaint(Color.BLACK)
+    val pickedEdgeState = vv.getPickedEdgeState()
+    val hoverEdgeState = vv.getHoverEdgeState()
+    val hovered = hoverEdgeState.getPicked().size > 0 && hoverEdgeState.getPicked().last == edge
+    
+    val c = if (pickedEdgeState.isPicked(edge)) 
+      Color.GREEN.darker() 
+    else if (hovered)
+      Color.GREEN.darker().darker() 
+    else
+      Color.BLACK
+      
+    gd.setPaint(c)
     
     val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
     

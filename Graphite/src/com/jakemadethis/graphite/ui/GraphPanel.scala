@@ -70,7 +70,7 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends JPanel {
     
     getRenderer().setEdgeLabelRenderer(lr);
     
-    getRenderer().setEdgeRenderer(new EdgeRenderer())
+    getRenderer().setEdgeRenderer(new EdgeRenderer(this))
   }
   
   add(visualization)

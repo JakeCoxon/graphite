@@ -29,3 +29,5 @@ Select edges
 Delete edges + nodes
 If delete node with edges then ask "Delete m nodes and n edges?"
 Add + Remove rules
+optimize
+comment thorough

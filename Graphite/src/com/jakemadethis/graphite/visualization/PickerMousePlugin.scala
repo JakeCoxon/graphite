@@ -10,6 +10,7 @@ import java.awt.Rectangle
 import scala.collection.JavaConversions._
 import java.awt.event.InputEvent
 import java.awt.Point
+import edu.uci.ics.jung.visualization.picking.PickedState
 
 class PickerMousePlugin[V,E] extends AbstractGraphMousePlugin(0)
     with MouseListener with MouseMotionListener {
@@ -28,12 +29,15 @@ class PickerMousePlugin[V,E] extends AbstractGraphMousePlugin(0)
     val pickedVertexState = vv.getPickedVertexState()
     val pickedEdgeState = vv.getPickedEdgeState()
     val hoverVertexState = vv.getHoverVertexState()
+    val hoverEdgeState = vv.getHoverEdgeState()
     
+    // Vertices
     if (pickedVertexState != null && hoverVertexState.getPicked().size > 0) {
       val hover = hoverVertexState.getPicked().last
       if (e.getModifiers() == SINGLE_SELECT) {
         if (!pickedVertexState.isPicked(hover)) {
           pickedVertexState.clear()
+          pickedEdgeState.clear()
           pickedVertexState.pick(hover, true)
         }
       }
@@ -43,16 +47,43 @@ class PickerMousePlugin[V,E] extends AbstractGraphMousePlugin(0)
         }
       }
     }
+
+    // Edges
+    if (pickedEdgeState != null && hoverEdgeState.getPicked().size > 0) {
+      val hover = hoverEdgeState.getPicked().last
+      if (e.getModifiers() == SINGLE_SELECT) {
+        if (!pickedEdgeState.isPicked(hover)) {
+          pickedVertexState.clear()
+          pickedEdgeState.clear()
+          pickedEdgeState.pick(hover, true)
+        }
+      }
+      else if (e.getModifiers() == MULTI_SELECT) {
+        if (hoverEdgeState.getPicked().size > 0) {
+          pickedEdgeState.pick(hover, true)
+        }
+      }
+    }
+    
+    
   }
+  
+  
   
   def mouseReleased(e : MouseEvent) {
     val vv = e.getSource().asInstanceOf[VisualizationViewer[V,E] with HoverSupport[V,E]]
     val pickedVertexState = vv.getPickedVertexState()
+    val pickedEdgeState = vv.getPickedEdgeState()
     val hoverVertexState = vv.getHoverVertexState()
+    val hoverEdgeState = vv.getHoverEdgeState()
     
-    if (e.getModifiers() == SINGLE_SELECT && hoverVertexState.getPicked().isEmpty) {
-      if (!hasMovedFar(e.getPoint(), downPoint))
+    if (e.getModifiers() == SINGLE_SELECT && 
+        hoverVertexState.getPicked().isEmpty && 
+        hoverEdgeState.getPicked().isEmpty) {
+      if (!hasMovedFar(e.getPoint(), downPoint)) {
         pickedVertexState.clear()
+        pickedEdgeState.clear()
+      }
     }
   }
   
