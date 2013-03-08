@@ -12,9 +12,7 @@ trait EdgeLayout[E] {
 object EdgeLayout {
   def apply[V,E](layout : Layout[V,E]) : EdgeLayout[E] = {
     layout match {
-      case layout : LayoutDecorator[V,E] => layout.getDelegate() match {
-        case delegate : EdgeLayout[E] => delegate
-      }
+      case layout : LayoutDecorator[V,E] => apply(layout.getDelegate())
       case layout : EdgeLayout[E] => layout
       case _ => throw new Error("renderer requires Layout to have trait EdgeLayout")
     }
