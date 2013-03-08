@@ -13,8 +13,10 @@ private object graphutil {
 }
 
 
-class HypergraphDerivation(val graph : Hypergraph[Vertex, Hyperedge], val externalNodes : Seq[Vertex], val label : String) 
+class HypergraphDerivation(val graph : Hypergraph[Vertex, Hyperedge], 
+    val externalNodes : Seq[Vertex], val label : String) 
   extends Derivation(graphutil.nonTerminalStrings(graph), graphutil.terminalSize(graph, externalNodes)) {
+  def deriveType = externalNodes.size
 }
 
 object HypergraphGrammar {
@@ -38,7 +40,7 @@ class HypergraphGenerator(start : HypergraphDerivation, val graph : Hypergraph[V
     val incidents = new IterableWrapper(graph.getIncidentVertices(edge))
     
     val vs = graph.getIncidentVertices(edge)
-    if (vs.size != derivation.externalNodes.size) throw new Error("Incorrect size")
+    if (vs.size != derivation.deriveType) throw new Error("Hypergraph type does not match hyperedge type")
     graph.removeEdge(edge)
     applyGraph(derivation, incidents)
   }
