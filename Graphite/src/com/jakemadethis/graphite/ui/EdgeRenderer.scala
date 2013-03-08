@@ -33,6 +33,9 @@ class EdgeRenderer() extends Renderer.Edge[Vertex, Hyperedge] {
     points.foreach { p =>
       gd.drawLine(edgeLoc.getX().toInt, edgeLoc.getY().toInt, p.getX().toInt, p.getY().toInt)
     }
+    gd.setPaint(Color.RED.brighter())
+    
+    gd.drawLine(edgeLoc.getX().toInt, edgeLoc.getY().toInt, points.head.getX().toInt, points.head.getY().toInt)
     
     gd.setPaint(oldPaint)
   }
