@@ -7,7 +7,8 @@ object TerminalEdge {
 object NonTerminalEdge {
   def apply(label : String) = new Hyperedge(label, false)
 } 
-class Vertex(val label:String="") {
+class Vertex(val label:String) {
+  def this() = this("")
   def copy = new Vertex(label)
 }
 class FakeVertex extends Vertex {}
