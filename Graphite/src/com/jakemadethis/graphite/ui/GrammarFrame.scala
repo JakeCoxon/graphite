@@ -83,6 +83,7 @@ class GrammarFrame(g : HypergraphGrammar, file : Option[File]) extends JFrame {
   
   setLayout(new BorderLayout());
   
+  def graph = graphpanel.graph
 
   
   val main = new JPanel() {
@@ -98,12 +99,16 @@ class GrammarFrame(g : HypergraphGrammar, file : Option[File]) extends JFrame {
       })
       add(new GButton("Add Edge") {
         addActionListener({ () =>
-          val v1 = new FakeVertex()
-          val v2 = new FakeVertex()
-          graphpanel.graph.addVertex(v1); 
-          graphpanel.graph.addVertex(v2)
-          graphpanel.graph.addEdge(new Hyperedge("A", true), Seq(v1, v2))
-          graphpanel.visualization.repaint()
+          def addEdge(d : EdgeDialogSuccess) {
+            val vs = (1 to d.sizing).map {i => new FakeVertex()}
+            vs foreach { graph.addVertex(_) }
+            graph.addEdge(new Hyperedge(d.label, d.termination), vs)
+            //graphpanel.visualization.repaint()
+          }
+          val d = new AddEdgeDialog(null, addEdge(_)) {
+            centerOnScreen
+            open
+          }
         })
       })
     }
