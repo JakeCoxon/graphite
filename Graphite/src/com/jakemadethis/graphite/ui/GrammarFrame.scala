@@ -24,7 +24,7 @@ import java.io.File
 
 class GrammarFrame(g : HypergraphGrammar, file : Option[File]) extends JFrame {
   
-  implicit def convertFunctionToAction(f : () => Unit) : ActionListener = new ActionListener() {
+  implicit def convertFunctionToAction[T](f : () => T) : ActionListener = new ActionListener() {
     def actionPerformed(e : ActionEvent) = f()
   }
   
@@ -93,8 +93,8 @@ class GrammarFrame(g : HypergraphGrammar, file : Option[File]) extends JFrame {
       setBackground(Color.DARK_GRAY)
       add(new GButton("Add Vertex") {
         addActionListener({ () =>
-          graphpanel.graph.addVertex(new Vertex())
-          graphpanel.visualization.repaint()
+          graph.addVertex(new Vertex())
+          //graphpanel.visualization.repaint()
         })
       })
       add(new GButton("Add Edge") {
