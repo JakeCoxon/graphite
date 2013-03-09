@@ -33,6 +33,8 @@ import com.jakemadethis.graphite.visualization.BasicEdgeLayout
 import edu.uci.ics.jung.algorithms.layout.StaticLayout
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
 import edu.uci.ics.jung.algorithms.layout.Layout
+import javax.swing.border.Border
+import javax.swing.BorderFactory
 
 class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends JPanel {
   
@@ -71,6 +73,9 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends JPanel {
     getRenderer().setEdgeLabelRenderer(lr);
     
     getRenderer().setEdgeRenderer(new EdgeRenderer(this))
+    
+    setBorder(BorderFactory.createMatteBorder(
+                                    1, 1, 1, 1, Color.BLACK))
   }
   
   add(visualization)
