@@ -23,13 +23,13 @@ class GrammarLoader(reader : Reader) {
   val edgeTransformer = new Transformer[EdgeMetadata, Hyperedge]() {
     def transform(m : EdgeMetadata) = {
       val t = try { m.getProperty("terminal").toBoolean } catch { case x : NumberFormatException => true }
-      new Hyperedge(m.getProperty("label"), isTerminal=t)
+      new Hyperedge(m.getProperty("label"), Termination.terminal(t))
     }
   }
   val hyperedgeTransformer = new Transformer[HyperEdgeMetadata, Hyperedge]() {
     def transform(m : HyperEdgeMetadata) = {
       val t = try { m.getProperty("terminal").toBoolean } catch { case x : NumberFormatException => true }
-      new Hyperedge(m.getProperty("label"), isTerminal=t)
+      new Hyperedge(m.getProperty("label"), Termination.terminal(t))
     }
   }
   
