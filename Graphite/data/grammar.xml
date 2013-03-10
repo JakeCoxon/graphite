@@ -9,6 +9,9 @@
   <key for="node" id="y">
     <default>?</default>
   </key>
+  <key for="node" id="external">
+    <default>-1</default>
+  </key>
   <key for="hyperedge" id="terminal">
     <default>true</default>
   </key>
@@ -20,6 +23,7 @@
     <node id="1">
       <data key="x">67.7650294522319</data>
       <data key="y">299.82445028848963</data>
+      <data key="external">1</data>
     </node>
     <node id="2">
       <data key="x">12.38666428568347</data>

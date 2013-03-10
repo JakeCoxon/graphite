@@ -33,9 +33,10 @@ import edu.uci.ics.jung.algorithms.layout.Layout
 import java.awt.event.ItemListener
 import java.awt.event.ItemEvent
 import javax.swing.BorderFactory
+import com.jakemadethis.graphite.graph.OrderedHypergraph
 
 class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends BoxPanel(Orientation.Vertical) {
-  
+  def this() = this(new DefaultVisualizationModel[Vertex, Hyperedge](new StaticLayout(new OrderedHypergraph())))
   
   val visualization = new VisualizationViewer[Vertex, Hyperedge](model, new Dimension(500, 500)) 
       with HoverSupport[Vertex, Hyperedge] {
@@ -88,7 +89,8 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends BoxPanel
   
   def pickedVertices = visualization.getPickedVertexState().getPicked().toSet
   def pickedEdges = visualization.getPickedEdgeState().getPicked().toSet
-  
+  def setPicked(v : Vertex, picked : Boolean) = visualization.getPickedVertexState().pick(v, picked)
+  def setPicked(e : Hyperedge, picked : Boolean) = visualization.getPickedEdgeState().pick(e, picked)
   
   
 }

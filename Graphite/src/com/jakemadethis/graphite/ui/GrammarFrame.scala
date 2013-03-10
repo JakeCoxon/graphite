@@ -20,23 +20,29 @@ import java.awt.Dimension
 
 class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) extends MainFrame {
   
-      
-  
+  var currentModel : DerivationModel = null
+  def setDerivation(deriv : HypergraphDerivation) {
+     currentModel = loadedGrammar.getModel(deriv.graph)
+     graphpanel.graphModel = currentModel
+  }
+    
   val sidebar = new BoxPanel(Orientation.Vertical) {
     size = new Dimension(200, 10)
     background = Color.WHITE
   }
   
   
+  
   // Generate the sidebar
-  loadedGrammar.models.zipWithIndex.foreach { case (model, num) =>
+  loadedGrammar.grammar.derivations.zipWithIndex.foreach { case (derivation, num) =>
     sidebar.contents += new NoFocusButton(Action("Rule "+(num+1)) {
-      graphpanel.graphModel = model
+      setDerivation(derivation)
     })
   }
   
   // Create graph panel with first model
-  val graphpanel = new GraphPanel(loadedGrammar.models.head)
+  val graphpanel = new GraphPanel()
+  setDerivation(loadedGrammar.grammar.derivations.head)
   
   
   def graph = graphpanel.graph
@@ -64,9 +70,10 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
         }
       })
       
-      contents += new NoFocusButton(Action("Delete") {
-        val vs = graphpanel.pickedVertices
-        val es = graphpanel.pickedEdges ++ vs.flatMap { v => graph.getIncidentEdges(v) }
+      def removeItems(vertices : Set[Vertex], edges : Set[Hyperedge]) {
+        
+        val vs = vertices -- currentModel.derivation.externalNodes
+        val es = edges ++ vs.flatMap { v => graph.getIncidentEdges(v) }
         
         if (es.size + vs.size > 0) {
           def dialog = {
@@ -80,11 +87,22 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
           }
                 
           if (es.size + vs.size == 1 || dialog == Dialog.Result.Ok) {
-            es.foreach { graph.removeEdge(_) }
-            vs.foreach { graph.removeVertex(_) }
+            es.foreach { e => graph.removeEdge(e); graphpanel.setPicked(e, false) }
+            vs.foreach { v => graph.removeVertex(v); graphpanel.setPicked(v, false) }
+            
+            println(graph.getEdges())
+            println(graph.getVertices())
+            
             graphpanel.visualization.repaint()
           }
         }
+      }
+      contents += new NoFocusButton(Action("Delete") {
+        removeItems(graphpanel.pickedVertices, graphpanel.pickedEdges)
+      })
+      
+      contents += new NoFocusButton(Action("Clear") {
+        removeItems(graph.getVertices().toSet, graph.getEdges().toSet)
       })
     }
     

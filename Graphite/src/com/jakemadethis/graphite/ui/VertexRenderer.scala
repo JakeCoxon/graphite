@@ -16,12 +16,16 @@ import scala.collection.JavaConversions._
 import com.jakemadethis.graphite.graph.Vertex
 import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.FakeVertex
+import com.jakemadethis.graphite.visualization.renderers.TextRenderer
+import com.jakemadethis.graphite.graph.DerivationModel
 
 class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSupport[Vertex,Hyperedge]) extends Renderer.Vertex[Vertex, Hyperedge] {
   def paintVertex(rc: RenderContext[Vertex,Hyperedge], layout : Layout[Vertex,Hyperedge], v : Vertex) {
+    println(v)
     val p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))
     val x = p.getX()
     val y = p.getY()
+    
         
     if (v.isInstanceOf[FakeVertex]) {
       circle(rc, x, y, 7, new Color(1f, 0f, 0f, 0.5f))
@@ -38,6 +42,14 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
       circle(rc, x, y, 10, c)
     }
     
+    
+    val model = vv.getModel().asInstanceOf[DerivationModel]
+    val index = model.derivation.externalNodes.indexOf(v)
+    if (index > -1) {
+      val textRenderer = TextRenderer.getComponent(vv, index, null, Color.BLACK)
+      val size = textRenderer.getPreferredSize()
+      rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width/2, y.toInt - size.height/2 - 20, size.width, size.height, true)
+    }
   }
   
   private def circle(rc : RenderContext[Vertex, Hyperedge], x : Double, y : Double, r : Double, paint : Paint) {
