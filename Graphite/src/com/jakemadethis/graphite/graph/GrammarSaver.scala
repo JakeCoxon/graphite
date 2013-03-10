@@ -34,12 +34,12 @@ class GrammarSaver(file : File, grammar : HypergraphGrammar, modelMap: Map[Hyper
    
   val writer = new GraphMLWriter[Vertex, Hyperedge](
     (g, v) => {
-      id = vIdMap.getOrElseUpdate(v, id+1)
-      id.toString
+      val newid = vIdMap.getOrElseUpdate(v, { id += 1; id })
+      newid.toString
     },
     (g, e) => {
-      id = eIdMap.getOrElseUpdate(e, id+1)
-      id.toString
+      val newid = eIdMap.getOrElseUpdate(e, { id += 1; id })
+      newid.toString
     })
       
   

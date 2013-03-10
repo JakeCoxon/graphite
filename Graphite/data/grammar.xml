@@ -1,43 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<graphml xmlns="http://graphml.graphdrawing.org/xmlns/graphml"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
-xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml">
-<key id="label" for="hyperedge"><default>?</default></key>
-<key id="label" for="graph"><default>?</default></key>
-<graph edgedefault="directed">
-<data key="label">A</data>
-<node id="1"></node>
-<node id="2"></node>
-<node id="3"></node>
-<node id="4"></node>
-<node id="5"></node>
-<node id="6"></node>
-<hyperedge>
-<data key="label">B</data>
-<endpoint node="1"/>
-<endpoint node="3"/>
-<endpoint node="4"/>
-</hyperedge>
-
-<edge source="3" target="2"/>
-<edge source="1" target="2"/>
-</graph>
-<graph edgedefault="directed">
-<data key="label">B</data>
-<node id="1"></node>
-<node id="2"></node>
-<node id="3"></node>
-<node id="4"></node>
-<node id="5"></node>
-<node id="6"></node>
-<hyperedge>
-<data key="label">B</data>
-<endpoint node="1"/>
-<endpoint node="3"/>
-<endpoint node="4"/>
-</hyperedge>
-
-<edge source="3" target="2"/>
-<edge source="1" target="2"/>
-</graph>
+<graphml xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://graphml.graphdrawing.org/xmlns/graphml">
+  <key for="graph" id="label">
+    <default>?</default>
+  </key>
+  <key for="node" id="x">
+    <default>?</default>
+  </key>
+  <key for="node" id="y">
+    <default>?</default>
+  </key>
+  <key for="hyperedge" id="terminal">
+    <default>true</default>
+  </key>
+  <key for="hyperedge" id="label">
+    <default>?</default>
+  </key>
+  <graph edgedefault="undirected">
+    <data key="label">A</data>
+    <node id="1">
+      <data key="x">67.7650294522319</data>
+      <data key="y">299.82445028848963</data>
+    </node>
+    <node id="2">
+      <data key="x">12.38666428568347</data>
+      <data key="y">54.21823844010626</data>
+    </node>
+    <node id="3">
+      <data key="x">321.8768441992859</data>
+      <data key="y">289.63401133414965</data>
+    </node>
+    <node id="4">
+      <data key="x">489.65059563640165</data>
+      <data key="y">262.1419670419062</data>
+    </node>
+    <node id="5">
+      <data key="x">278.7545500400721</data>
+      <data key="y">376.2429602292611</data>
+    </node>
+    <node id="6">
+      <data key="x">416.1027504228929</data>
+      <data key="y">60.72492249430328</data>
+    </node>
+    <node id="7">
+      <data key="x">166.8840902117776</data>
+      <data key="y">348.5613545110757</data>
+    </node>
+    <hyperedge id="8">
+      <data key="terminal">true</data>
+      <endpoint node="5"></endpoint>
+      <endpoint node="4"></endpoint>
+    </hyperedge>
+    <hyperedge id="90">
+      <data key="terminal">true</data>
+      <endpoint node="3"></endpoint>
+      <endpoint node="4"></endpoint>
+    </hyperedge>
+    <hyperedge id="100">
+      <data key="terminal">true</data>
+      <data key="label">B</data>
+      <endpoint node="3"></endpoint>
+      <endpoint node="5"></endpoint>
+      <endpoint node="7"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">B</data>
+    <node id="8">
+      <data key="x">65.65987270657625</data>
+      <data key="y">284.11775952589016</data>
+    </node>
+    <node id="9">
+      <data key="x">414.3760659963599</data>
+      <data key="y">437.7991352009997</data>
+    </node>
+    <node id="10">
+      <data key="x">21.826486266203926</data>
+      <data key="y">102.75547393349649</data>
+    </node>
+    <node id="11">
+      <data key="x">84.76776739696085</data>
+      <data key="y">205.2025875352095</data>
+    </node>
+    <node id="12">
+      <data key="x">377.0458482642984</data>
+      <data key="y">278.3175849926675</data>
+    </node>
+    <node id="13">
+      <data key="x">288.2812919063577</data>
+      <data key="y">198.31583890512323</data>
+    </node>
+    <hyperedge id="14">
+      <data key="terminal">true</data>
+      <endpoint node="12"></endpoint>
+      <endpoint node="11"></endpoint>
+    </hyperedge>
+    <hyperedge id="121">
+      <data key="terminal">true</data>
+      <endpoint node="9"></endpoint>
+      <endpoint node="11"></endpoint>
+    </hyperedge>
+    <hyperedge id="122">
+      <data key="terminal">true</data>
+      <data key="label">B</data>
+      <endpoint node="12"></endpoint>
+      <endpoint node="9"></endpoint>
+      <endpoint node="13"></endpoint>
+    </hyperedge>
+  </graph>
 </graphml>
