@@ -223,7 +223,7 @@ public class OrderedHypergraph<V,H>
             return false;
         for (H hyperedge : vertices.get(vertex))
         {
-        		nullifyValue(edges.get(hyperedge), vertex);
+          edges.get(hyperedge).remove(vertex);
         }
         vertices.remove(vertex);
         return true;
@@ -348,15 +348,6 @@ public class OrderedHypergraph<V,H>
 	}
 	
 	
-	private static <O> void nullifyValue(ArrayList<O> arrayList, O value) {
-		int i = 0;
-	  for (O item : arrayList) {
-	  	if (item.equals(value)) {
-	  		arrayList.set(i, null);
-	  	}
-	  	i ++;
-	  }
-	}
 	
 	
 	/*
