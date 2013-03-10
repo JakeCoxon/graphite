@@ -13,12 +13,12 @@ import java.io.FileWriter
 import com.jakemadethis.graphite.graph.GraphMLWriter
 import java.io.File
 
-class GrammarSaver(file : File, grammar : HypergraphGrammar, modelMap: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
+class GrammarSaver(file : File, grammarObject : LoadedGrammarObject) {
   implicit def convertFunctionToTransformer[A,B](f : A => B) : Transformer[A,B] = new Transformer[A,B]() {
     def transform(obj : A) : B = f(obj)
   }
   
-  val points = modelMap.foldLeft(Map[Vertex, Point2D]()) { case (result, (graph, model)) =>
+  val points = grammarObject.models.foldLeft(Map[Vertex, Point2D]()) { case (result, model) =>
     val layout = model.getGraphLayout()
     val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
     
@@ -26,7 +26,7 @@ class GrammarSaver(file : File, grammar : HypergraphGrammar, modelMap: Map[Hyper
   }
   
   
-  val derivationMap = grammar.derivations.map { d => d.graph -> d }.toMap
+  val derivationMap = grammarObject.grammar.derivations.map { d => d.graph -> d }.toMap
   
   var id = 0
   val vIdMap = collection.mutable.Map[Vertex, Int]()
@@ -50,12 +50,12 @@ class GrammarSaver(file : File, grammar : HypergraphGrammar, modelMap: Map[Hyper
   writer.addEdgeData("terminal", "If the edge is terminal", "true") { (_, e) => e.isTerminal.toString }
   
   writer.addVertexData("x", "The x coordinate", "?") { (g, v) =>
-    modelMap(g).getGraphLayout().transform(v).getX().toString
+    grammarObject.getModel(g).getGraphLayout().transform(v).getX().toString
   }
   writer.addVertexData("y", "The y coordinate", "?") { (g, v) =>
-    modelMap(g).getGraphLayout().transform(v).getY().toString
+    grammarObject.getModel(g).getGraphLayout().transform(v).getY().toString
   }
   
-  writer.saveHypergraphs(modelMap.keys, file)
+  writer.saveHypergraphs(grammarObject.graphs, file)
 }
 

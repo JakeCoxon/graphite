@@ -36,16 +36,15 @@ object App {
   
   def openGrammar(file : File) {
     val grammarLoader = new GrammarLoader(new FileReader(file))
-    println(grammarLoader.grammar)
     
-    new GrammarFrame(grammarLoader.grammar, Some(file)) {
+    new GrammarFrame(grammarLoader.loadedGrammarObject, Some(file)) {
       open
     }
     
     println("Loaded " + file.getAbsolutePath())
   }
-  def saveGrammar(grammar : HypergraphGrammar, models: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]], file : File) {
-    val saver = new GrammarSaver(file, grammar, models)
+  def saveGrammar(loadedGrammar : LoadedGrammarObject, file : File) {
+    val saver = new GrammarSaver(file, loadedGrammar)
     println("Saved " + file.getAbsolutePath())
   }
   
@@ -66,7 +65,7 @@ object App {
     
   }
   
-  def saveGrammarGui(parent : Frame, grammar : HypergraphGrammar, models: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
+  def saveGrammarGui(parent : Frame, loadedGrammar : LoadedGrammarObject) {
     
     val d = new FileDialog(parent.peer, "Save Graph Grammar") {
       setDirectory(new File(".").getAbsolutePath())
@@ -77,7 +76,7 @@ object App {
     if (d.getFile() == null) return
     
     val file = new File(d.getDirectory() + "/" + d.getFile())
-    saveGrammar(grammar, models, file)
+    saveGrammar(loadedGrammar, file)
   }
   
 }

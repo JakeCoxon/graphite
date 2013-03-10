@@ -18,22 +18,8 @@ import java.awt.Color
 import java.awt.Dimension
 
 
-class GrammarFrame(grammar : HypergraphGrammar, file : Option[File]) extends MainFrame {
+class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) extends MainFrame {
   
-  /** Make a map of hypergraphs to models **/
-  protected def makeModels(g : HypergraphGrammar) : Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]] = {
-    
-    // Construct a model for each derivation
-    g.derivations.toList.map { derivation => 
-      val pseudoGraph = derivation.graph.asInstanceOf[Graph[Vertex, Hyperedge]];
-      
-      object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
-        with AverageEdgeLayout[Vertex, Hyperedge]
-              
-      derivation.graph -> new DefaultVisualizationModel(glayout)
-    }.toMap
-    
-  }
       
   
   val sidebar = new BoxPanel(Orientation.Vertical) {
@@ -41,19 +27,16 @@ class GrammarFrame(grammar : HypergraphGrammar, file : Option[File]) extends Mai
     background = Color.WHITE
   }
   
-  // Create models
-  val models = makeModels(grammar)
   
   // Generate the sidebar
-  models.values.zipWithIndex.foreach { case (model, num) =>
+  loadedGrammar.models.zipWithIndex.foreach { case (model, num) =>
     sidebar.contents += new NoFocusButton(Action("Rule "+(num+1)) {
       graphpanel.graphModel = model
     })
   }
   
   // Create graph panel with first model
-  val (label, model) = models.head
-  val graphpanel = new GraphPanel(model)
+  val graphpanel = new GraphPanel(loadedGrammar.models.head)
   
   
   def graph = graphpanel.graph
@@ -92,18 +75,18 @@ class GrammarFrame(grammar : HypergraphGrammar, file : Option[File]) extends Mai
     }
     
     contents += new Menu("File") {
-      contents += menuItem("Load Grammar...") {
+      contents += menuItem("Open Grammar...") {
         App.loadGrammarGui(GrammarFrame.this)
       }
-      contents += menuItem("Load Graph...") {
+      contents += menuItem("Open Graph...") {
         App.loadGraphGui(GrammarFrame.this)
       }
-      contents += menuItem("Save Grammar") {
-        if (file.isDefined) App.saveGrammar(grammar, models, file.get)
-        else App.saveGrammarGui(GrammarFrame.this, grammar, models)
-      }
+//      contents += menuItem("Save Grammar") {
+//        if (file.isDefined) App.saveGrammar(grammarObject.grammar, models, file.get)
+//        else App.saveGrammarGui(GrammarFrame.this, grammar, models)
+//      }
       contents += menuItem("Save Grammar as...") {
-        App.saveGrammarGui(GrammarFrame.this, grammar, models)
+        App.saveGrammarGui(GrammarFrame.this, loadedGrammar)
       }
     }
     contents += new Menu("Tools") {
