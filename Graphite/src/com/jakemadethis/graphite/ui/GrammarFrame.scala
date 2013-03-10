@@ -16,6 +16,7 @@ import scala.collection.immutable.Traversable
 import java.io.File
 import java.awt.Color
 import java.awt.Dimension
+import com.jakemadethis.graphite.graph.GraphExtensions._
 
 
 class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) extends MainFrame {
@@ -70,10 +71,29 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
         }
       })
       
+      // When deleting a vertex attached to an edge, the vertex should be replaced with a fake vertex
+      def replaceWithFakeVertex(g : Hypergraph[Vertex, Hyperedge], vertexToReplace : Vertex) {
+        
+        val edges = graph.getIncidentEdges(vertexToReplace)
+        
+        edges.toList.foreach { edge => 
+          val fake = new FakeVertex()
+          val newIncidents = graph.getIncidentVertices(edge).map(a => 
+            if (a == vertexToReplace) fake else a)
+          graph.removeEdge(edge)
+          graph.addEdge(edge, newIncidents)
+          
+          // Fake vertex should have same position as old vertex
+          currentModel.getGraphLayout().setLocation(fake, 
+              currentModel.getGraphLayout().transform(vertexToReplace))
+        }
+    
+      }
       def removeItems(vertices : Set[Vertex], edges : Set[Hyperedge]) {
         
         val vs = vertices -- currentModel.derivation.externalNodes
-        val es = edges ++ vs.flatMap { v => graph.getIncidentEdges(v) }
+        val es = edges
+        val edgesToReplace = vs.flatMap { v => graph.getIncidentEdges(v) } -- es
         
         if (es.size + vs.size > 0) {
           def dialog = {
@@ -88,7 +108,13 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
                 
           if (es.size + vs.size == 1 || dialog == Dialog.Result.Ok) {
             es.foreach { e => graph.removeEdge(e); graphpanel.setPicked(e, false) }
-            vs.foreach { v => graph.removeVertex(v); graphpanel.setPicked(v, false) }
+            vs.foreach { v => 
+              if (graph.getIncidentEdges(v).exists(edgesToReplace.contains(_))) {
+                replaceWithFakeVertex(graph, v)
+              }
+              graph.removeVertex(v); 
+              graphpanel.setPicked(v, false) 
+            }
             
             graphpanel.visualization.repaint()
           }

@@ -26,7 +26,7 @@ class VertexMergePlugin extends MouseDropPlugin[Vertex, Hyperedge] {
   }
   
   def vertexDropped(vs : VisualizationServer[Vertex, Hyperedge], drag : Vertex, drop : Vertex) = {
-    vs.getGraphLayout().getGraph().merge(drag, drop)
+    vs.getGraphLayout().getGraph().replaceVertex(drag, drop)
     vs.repaint()
   }
 }
