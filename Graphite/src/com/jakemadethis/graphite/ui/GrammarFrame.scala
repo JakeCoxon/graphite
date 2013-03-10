@@ -90,9 +90,6 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
             es.foreach { e => graph.removeEdge(e); graphpanel.setPicked(e, false) }
             vs.foreach { v => graph.removeVertex(v); graphpanel.setPicked(v, false) }
             
-            println(graph.getEdges())
-            println(graph.getVertices())
-            
             graphpanel.visualization.repaint()
           }
         }

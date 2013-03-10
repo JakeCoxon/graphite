@@ -21,7 +21,6 @@ import com.jakemadethis.graphite.graph.DerivationModel
 
 class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSupport[Vertex,Hyperedge]) extends Renderer.Vertex[Vertex, Hyperedge] {
   def paintVertex(rc: RenderContext[Vertex,Hyperedge], layout : Layout[Vertex,Hyperedge], v : Vertex) {
-    println(v)
     val p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))
     val x = p.getX()
     val y = p.getY()
