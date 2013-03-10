@@ -41,7 +41,7 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends BoxPanel
       with HoverSupport[Vertex, Hyperedge] {
     
     setGraphMouse(new GraphMouseHandler())
-    setPickSupport(new HyperedgePickSupport[Vertex, Hyperedge](this))
+    //setPickSupport(new ShapePickSupport[Vertex, Hyperedge](this))
     
     getRenderContext().setEdgeLabelTransformer(new Transformer[Hyperedge, String]() {
       def transform(e : Hyperedge) = e.label
@@ -85,6 +85,9 @@ class GraphPanel(model : VisualizationModel[Vertex, Hyperedge]) extends BoxPanel
     visualization.setModel(model)
     visualization.repaint()
   }
+  
+  def pickedVertices = visualization.getPickedVertexState().getPicked().toSet
+  def pickedEdges = visualization.getPickedEdgeState().getPicked().toSet
   
   
   

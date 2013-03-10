@@ -63,6 +63,29 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
           open
         }
       })
+      
+      contents += new NoFocusButton(Action("Delete") {
+        val vs = graphpanel.pickedVertices
+        val es = graphpanel.pickedEdges ++ vs.flatMap { v => graph.getIncidentEdges(v) }
+        
+        if (es.size + vs.size > 0) {
+          def dialog = {
+            val vtext = vs.size match { case 0 => null case 1 => "1 vertex" case x => x + " vertices" }
+            val etext = es.size match { case 0 => null case 1 => "1 edge" case x => x + " edges" }
+            val text = List(vtext, etext).filter(_ != null).mkString(" and ")
+            
+            Dialog.showConfirmation(this, 
+              message="Delete "+text+"?", 
+              title="Delete?")
+          }
+                
+          if (es.size + vs.size == 1 || dialog == Dialog.Result.Ok) {
+            es.foreach { graph.removeEdge(_) }
+            vs.foreach { graph.removeVertex(_) }
+            graphpanel.visualization.repaint()
+          }
+        }
+      })
     }
     
     contents ++= menubar :: graphpanel :: Nil
