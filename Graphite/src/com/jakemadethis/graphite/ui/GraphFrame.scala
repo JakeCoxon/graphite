@@ -12,7 +12,7 @@ import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import java.awt.BorderLayout
 import javax.swing.WindowConstants
 
-class GraphFrame(graph : Hypergraph[Vertex, Hyperedge]) extends JFrame {
+class GraphFrame(graph : Hypergraph[Vertex, Hyperedge]) extends MainFrame {
   
   val pseudoGraph = graph.asInstanceOf[Graph[Vertex, Hyperedge]]
       
@@ -22,14 +22,11 @@ class GraphFrame(graph : Hypergraph[Vertex, Hyperedge]) extends JFrame {
   
   val graphmodel = new DefaultVisualizationModel(glayout)
   
-  setLayout(new BorderLayout());
   val graphpanel = new GraphPanel(graphmodel)
-  add(graphpanel)
-  
-  setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
+  contents = graphpanel
   
   
-  setVisible(true)
-  setSize(800,600)
+  
+  size = new Dimension(800,600)
   
 }

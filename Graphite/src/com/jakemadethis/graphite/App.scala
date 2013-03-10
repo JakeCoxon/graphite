@@ -4,19 +4,17 @@ import scala.collection.mutable.ArraySeq
 import com.jakemadethis.graphite.ui.GrammarFrame
 import com.jakemadethis.graphite.graph._
 import scala.collection.JavaConversions._
-import javax.swing.UIManager
-import java.io.FileReader
-import javax.swing.JFileChooser
-import javax.swing.JComponent
 import java.io.File
-import javax.swing.JFrame
-import javax.swing.filechooser.FileFilter
-import java.io.FilenameFilter
-import java.awt.FileDialog
 import edu.uci.ics.jung.visualization.VisualizationModel
 import scala.collection.immutable.Traversable
 import edu.uci.ics.jung.graph.Hypergraph
-
+import scala.swing._
+import java.io.FileReader
+import javax.swing.UIManager
+import java.awt.FileDialog
+import java.awt.FileDialog
+import java.io.FilenameFilter
+import java.awt.FileDialog
 
 
 object App {
@@ -28,18 +26,22 @@ object App {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Graphite");
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
               
-              
-    
     openGrammar(new File("data/grammar.xml"))
     
+  }
+  
+  object XMLFilter extends FilenameFilter() {
+    def accept(dir : File, name : String) = name.endsWith(".xml")
   }
   
   def openGrammar(file : File) {
     val grammarLoader = new GrammarLoader(new FileReader(file))
     println(grammarLoader.grammar)
     
-    val frame = new GrammarFrame(grammarLoader.grammar, Some(file))
-    frame.setVisible(true)
+    new GrammarFrame(grammarLoader.grammar, Some(file)) {
+      open
+    }
+    
     println("Loaded " + file.getAbsolutePath())
   }
   def saveGrammar(grammar : HypergraphGrammar, models: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]], file : File) {
@@ -47,34 +49,34 @@ object App {
     println("Saved " + file.getAbsolutePath())
   }
   
-  def loadGrammarGui(parent : JFrame) {
+  def loadGrammarGui(parent : Frame) {
     
-    val d = new FileDialog(parent, "Open Graph Grammar")
-    d.setDirectory(new File(".").getAbsolutePath())
-    d.setFilenameFilter(new FilenameFilter() {
-      def accept(dir : File, name : String) = name.endsWith(".xml")
-    })
-    d.setMode(FileDialog.LOAD)
-    d.setVisible(true)
-    if (d.getFile() == null) return
-    val file = new File(d.getDirectory()+"/"+d.getFile())
+    val dialog = new FileDialog(parent.peer, "Open Graph Grammar") {
+      setDirectory(new File(".").getAbsolutePath())
+      setFilenameFilter(XMLFilter)
+      setMode(FileDialog.LOAD)
+      setVisible(true)
+    }
+    if (dialog.getFile() == null) return
+    
+    val file = new File(dialog.getDirectory() + "/" + dialog.getFile())
     openGrammar(file)
   }
-  def loadGraphGui(parent : JFrame) {
+  def loadGraphGui(parent : Frame) {
     
   }
   
-  def saveGrammarGui(parent : JFrame, grammar : HypergraphGrammar, models: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
+  def saveGrammarGui(parent : Frame, grammar : HypergraphGrammar, models: Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
     
-    val d = new FileDialog(parent, "Save Graph Grammar")
-    d.setDirectory(new File(".").getAbsolutePath())
-    d.setFilenameFilter(new FilenameFilter() {
-      def accept(dir : File, name : String) = name.endsWith(".xml")
-    })
-    d.setMode(FileDialog.SAVE)
-    d.setVisible(true)
+    val d = new FileDialog(parent.peer, "Save Graph Grammar") {
+      setDirectory(new File(".").getAbsolutePath())
+      setFilenameFilter(XMLFilter)
+      setMode(FileDialog.SAVE)
+      setVisible(true)
+    }
     if (d.getFile() == null) return
-    val file = new File(d.getDirectory()+"/"+d.getFile())
+    
+    val file = new File(d.getDirectory() + "/" + d.getFile())
     saveGrammar(grammar, models, file)
   }
   

@@ -1,15 +1,9 @@
 package com.jakemadethis.graphite.ui
 
-import java.awt.BorderLayout
-import javax.swing._
-import java.awt.CardLayout
-import java.awt.Color
-import java.awt.Dimension
+import scala.swing._
 import com.jakemadethis.graphite.graph._
 import scala.collection.JavaConversions._
 import edu.uci.ics.jung.graph.Hypergraph
-import java.awt.event.ActionListener
-import java.awt.event.ActionEvent
 import edu.uci.ics.jung.graph.Graph
 import edu.uci.ics.jung.algorithms.layout.StaticLayout
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
@@ -20,17 +14,13 @@ import com.jakemadethis.graphite.visualization.AverageEdgeLayout
 import com.jakemadethis.graphite.App
 import scala.collection.immutable.Traversable
 import java.io.File
+import java.awt.Color
+import java.awt.Dimension
 
 
-class GrammarFrame(g : HypergraphGrammar, file : Option[File]) extends JFrame {
+class GrammarFrame(grammar : HypergraphGrammar, file : Option[File]) extends MainFrame {
   
-  implicit def convertFunctionToAction[T](f : () => T) : ActionListener = new ActionListener() {
-    def actionPerformed(e : ActionEvent) = f()
-  }
-  
-//  var grammar : HypergraphGrammar = g
-
-  
+  /** Make a map of hypergraphs to models **/
   protected def makeModels(g : HypergraphGrammar) : Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]] = {
     
     // Construct a model for each derivation
@@ -44,115 +34,89 @@ class GrammarFrame(g : HypergraphGrammar, file : Option[File]) extends JFrame {
     }.toMap
     
   }
-  
-//  def setGrammar(g : HypergraphGrammar) {
-//    grammar = g
-//    val models = makeModels(g)
-//    updateSidebar(models)
-//    val (label, model) = models.head
-//    graphpanel.setGraphModel(model)
-//  }
-  
       
   
-  val sidebar = new JPanel() {
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    setBackground(Color.WHITE)
-    setSize(new Dimension(200, 10))
-  }
-  
-  protected def updateSidebar(models : Map[Hypergraph[Vertex,Hyperedge], VisualizationModel[Vertex,Hyperedge]]) {
-    sidebar.removeAll()
-    
-    // Add button to sidebar for each derivation, to activate the model
-    models.values.zipWithIndex.foreach { case (model_, num) =>
-      val btn = new GButton("Rule "+(num+1)) {
-        addActionListener(() => graphpanel.setGraphModel(model_))
-      }
-      sidebar.add(btn)
-    }
+  val sidebar = new BoxPanel(Orientation.Vertical) {
+    size = new Dimension(200, 10)
+    background = Color.WHITE
   }
   
   // Create models
-  val models = makeModels(g)
+  val models = makeModels(grammar)
+  
   // Generate the sidebar
-  updateSidebar(models)
+  models.values.zipWithIndex.foreach { case (model, num) =>
+    sidebar.contents += new NoFocusButton(Action("Rule "+(num+1)) {
+      graphpanel.graphModel = model
+    })
+  }
+  
   // Create graph panel with first model
   val (label, model) = models.head
   val graphpanel = new GraphPanel(model)
   
-  setLayout(new BorderLayout());
   
   def graph = graphpanel.graph
 
   
-  val main = new JPanel() {
+  val main = new BoxPanel(Orientation.Vertical) {
     
-    val cards = new JPanel(new CardLayout())
-    val menubar = new JPanel() {
-      setBackground(Color.DARK_GRAY)
-      add(new GButton("Add Vertex") {
-        addActionListener({ () =>
-          graph.addVertex(new Vertex())
-          //graphpanel.visualization.repaint()
-        })
+    val menubar = new FlowPanel() {
+      background = Color.DARK_GRAY
+      contents += new NoFocusButton(Action("Add Vertex") {
+        graph.addVertex(new Vertex())
+        graphpanel.visualization.repaint()
       })
-      add(new GButton("Add Edge") {
-        addActionListener({ () =>
-          def addEdge(d : EdgeDialogSuccess) {
-            val vs = (1 to d.sizing).map {i => new FakeVertex()}
-            vs foreach { graph.addVertex(_) }
-            graph.addEdge(new Hyperedge(d.label, d.termination), vs)
-            //graphpanel.visualization.repaint()
-          }
-          val d = new AddEdgeDialog(null, addEdge(_)) {
-            centerOnScreen
-            open
-          }
-        })
+      
+      contents += new NoFocusButton(Action("Add Edge") {
+        def addEdge(d : EdgeDialogSuccess) {
+          val vs = (1 to d.sizing).map {i => new FakeVertex()}
+          vs foreach { graph.addVertex(_) }
+          graph.addEdge(new Hyperedge(d.label, d.termination), vs)
+          graphpanel.visualization.repaint()
+        }
+        new AddEdgeDialog(GrammarFrame.this, addEdge(_)) {
+          centerOnScreen
+          open
+        }
       })
     }
     
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
+    contents ++= menubar :: graphpanel :: Nil
+  }
   
-    cards.add("Hi", graphpanel)
+  
+  val mainMenuBar = new MenuBar() {
+    def menuItem(text: String)(op: => Unit) = {
+      new MenuItem(Action(text)(op))
+    }
     
-    add(menubar);
-    add(cards);
+    contents += new Menu("File") {
+      contents += menuItem("Load Grammar...") {
+        App.loadGrammarGui(GrammarFrame.this)
+      }
+      contents += menuItem("Load Graph...") {
+        App.loadGraphGui(GrammarFrame.this)
+      }
+      contents += menuItem("Save Grammar") {
+        if (file.isDefined) App.saveGrammar(grammar, models, file.get)
+        else App.saveGrammarGui(GrammarFrame.this, grammar, models)
+      }
+      contents += menuItem("Save Grammar as...") {
+        App.saveGrammarGui(GrammarFrame.this, grammar, models)
+      }
+    }
+    contents += new Menu("Tools") {
+      contents += new MenuItem("Add Vertex")
+      contents += new MenuItem("Add Hyperedge")
+    }
+  }
+  menuBar = mainMenuBar
+  
+  contents = new BorderPanel() {
+    layout(sidebar) = BorderPanel.Position.West
+    layout(main) = BorderPanel.Position.Center
   }
   
-  
-  val menu = new JMenuBar() {
-    add(new JMenu("File") {
-      add(new JMenuItem("Load Grammar...") {
-        addActionListener(() => App.loadGrammarGui(GrammarFrame.this))
-      })
-      add(new JMenuItem("Load Graph...") {
-        addActionListener(() => App.loadGraphGui(GrammarFrame.this))
-      })
-      add(new JMenuItem("Save Grammar") {
-        addActionListener({ () =>
-          if (file.isDefined) App.saveGrammar(g, models, file.get)
-          else App.saveGrammarGui(GrammarFrame.this, g, models)
-        })
-      })
-      add(new JMenuItem("Save Grammar as...") {
-        addActionListener(() => App.saveGrammarGui(GrammarFrame.this, g, models))
-      })
-    })
-    add(new JMenu("Tools") {
-      add(new JMenuItem("Add Vertex"))
-      add(new JMenuItem("Add Hyperedge"))
-    })
-  }
-  setJMenuBar(menu)
-  
-  
-  getContentPane().add(sidebar, BorderLayout.WEST)
-  getContentPane().add(main, BorderLayout.CENTER)
-  setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
-  
-  
-  setVisible(true)
-  setSize(800,600)
+  size = new Dimension(800, 600)
 }

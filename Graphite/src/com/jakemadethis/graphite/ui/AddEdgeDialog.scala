@@ -26,7 +26,7 @@ class AddEdgeDialog(owner : Window, success : EdgeDialogSuccess => Unit) extends
     }
   }
   
-  lazy val confirm = Button("Add edge") {
+  lazy val confirm = new NoFocusButton(Action("Add edge") {
     
     defaults.sizing = inputs.sizing.text
     defaults.label = inputs.label.text
@@ -43,7 +43,7 @@ class AddEdgeDialog(owner : Window, success : EdgeDialogSuccess => Unit) extends
     success(new EdgeDialogSuccess(s, l, t))
     
     
-  }
+  })
   
   object inputs {
     lazy val sizing = new TextField(defaults.sizing) { 
@@ -65,9 +65,10 @@ class AddEdgeDialog(owner : Window, success : EdgeDialogSuccess => Unit) extends
   contents = 
     new BoxPanel(Orientation.Vertical) {
       contents ++= main :: 
-      new FlowPanel(Button("Cancel") { close() }, confirm) :: Nil
+        new FlowPanel(new NoFocusButton(Action("Cancel") { close() }), confirm) :: Nil
     }
   defaultButton = confirm
+  
   resizable = false
   
   {
