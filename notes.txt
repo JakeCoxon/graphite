@@ -22,12 +22,7 @@ Java random number generator
 Grammar XML + Graph XML distinction
 gui to open multiple graphs
 Should show left-side and right-side of rules, but left-side is not editable except for changing external nodes
-Add edge frame for choosing type and terminal options
-External nodes!
 Tentacle numbering
-Select edges
-Delete edges + nodes
-If delete node with edges then ask "Delete m nodes and n edges?"
 Add + Remove rules
 optimize
 comment thorough
