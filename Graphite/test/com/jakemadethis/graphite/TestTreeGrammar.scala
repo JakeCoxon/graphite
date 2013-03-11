@@ -38,9 +38,11 @@ object TestTreeGrammar {
       val v1 = new Vertex()
       val v2 = new Vertex()
       val e1 = TerminalEdge("")
+      val e2 = NonTerminalEdge("A")
       g.addVertex(v1)
       g.addVertex(v2)
       g.addEdge(e1, Seq(v1, v2))
+      g.addEdge(e2, Seq(v2))
       new HypergraphDerivation(g, Seq(v1), "A")
     }
     val g3 = {
@@ -66,7 +68,7 @@ object TestTreeGrammar {
     }
     
     Time {
-      for (x <- 0 to 21) {
+      for (x <- 0 to 11) {
         println("gA("+x+") = "+enumerator.count("A", x));
       }
     }
@@ -80,7 +82,7 @@ object TestTreeGrammar {
     
         
     Time {
-      for (x <- 0 to 1) {
+      for (x <- 0 to 3) {
         val g = genGraph
         printgraph(g)
         new GraphFrame(g)
@@ -92,7 +94,7 @@ object TestTreeGrammar {
   
   def genGraph() = {
     if (!hasSetup) setup()
-    randomizer.generate(startder, 21, new HypergraphGenerator(_, new OrderedHypergraph())).graph
+    randomizer.generate(startder, 11, new HypergraphGenerator(_, new OrderedHypergraph())).graph
   }
   
   def printgraph(g : Hypergraph[Vertex, Hyperedge]) {
