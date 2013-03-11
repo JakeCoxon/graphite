@@ -15,7 +15,7 @@ trait BasicEdgeLayout[V,E] extends Layout[V,E] with EdgeLayout[E] {
     val midX = (xs.min + xs.max) / 2
     val midY = (ys.min + ys.max) / 2
 
-    return new Point2D.Double(midX, midY);
+    new Point2D.Double(midX, midY)
   }
 }
 
@@ -23,8 +23,9 @@ trait AverageEdgeLayout[V,E] extends Layout[V,E] with EdgeLayout[E] {
   def getEdgeLocation(e : E) : Point2D = {
     val vs = getGraph().getIncidentVertices(e)
     val ps = vs.map(transform(_))
+    if (vs.size == 1) return new Point2D.Double(ps.head.getX(), ps.head.getY()+40)
     val x = ps.map(_.getX()).sum / vs.size
     val y = ps.map(_.getY()).sum / vs.size
-    return new Point2D.Double(x, y)
+    new Point2D.Double(x, y)
   }
 }
