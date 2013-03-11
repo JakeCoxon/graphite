@@ -6,14 +6,13 @@ import javax.swing.text.DocumentFilter
 import javax.swing.text.AttributeSet
 import javax.swing.text.AbstractDocument
 
-case class EdgeDialogSuccess(sizing : Int, label : String, termination : Termination)
+case class EdgeDialogObject(sizing : Int, label : String, termination : Termination)
 
-private object defaults {
-  var sizing = "2"
-  var label = "A"
-  var terminal = true
+private object EdgeDialog {
+  var default : EdgeDialogObject = new EdgeDialogObject(2, "A", NonTerminal)
 }
-class AddEdgeDialog(owner : Window, success : EdgeDialogSuccess => Unit) extends Dialog(owner) {
+class EdgeDialog(owner : Window, values : EdgeDialogObject=null)(success : EdgeDialogObject => Unit) extends Dialog(owner) {
+  val isNewEdge = values == null
   
   object IntegralFilter extends DocumentFilter {
     override def insertString(fb: DocumentFilter.FilterBypass, offs: Int, str: String, a: AttributeSet){
@@ -28,29 +27,32 @@ class AddEdgeDialog(owner : Window, success : EdgeDialogSuccess => Unit) extends
   
   lazy val confirm = new NoFocusButton(Action("Add edge") {
     
-    defaults.sizing = inputs.sizing.text
-    defaults.label = inputs.label.text
-    defaults.terminal = inputs.terminal.selected
-    
     val s = inputs.sizing.text.toInt
     val t = Termination.terminal(inputs.terminal.selected)
     val l = if (t.isNonTerminal) 
         inputs.label.text.toUpperCase()
       else
         inputs.label.text.toLowerCase()
+        
+    val obj = new EdgeDialogObject(s, l, t)
+    if (isNewEdge) {
+      EdgeDialog.default = obj
+    }
     
     close
-    success(new EdgeDialogSuccess(s, l, t))
+    success(obj)
     
     
   })
   
   object inputs {
-    lazy val sizing = new TextField(defaults.sizing) { 
+    lazy val default = if (isNewEdge) EdgeDialog.default else values
+    
+    lazy val sizing = new TextField(default.sizing.toString) { 
       peer.getDocument().asInstanceOf[AbstractDocument].setDocumentFilter(IntegralFilter) 
     }
-    lazy val label = new TextField(defaults.label)
-    lazy val terminal = new CheckBox() { selected = defaults.terminal }
+    lazy val label = new TextField(default.label)
+    lazy val terminal = new CheckBox() { selected = default.termination.isTerminal }
   }
   
   lazy val main = new GridPanel(3, 2) {

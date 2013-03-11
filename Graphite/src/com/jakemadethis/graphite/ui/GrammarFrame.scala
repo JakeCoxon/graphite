@@ -58,14 +58,14 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
         graphpanel.visualization.repaint()
       })
       
-      contents += new NoFocusButton(Action("Add Edge") {
-        def addEdge(d : EdgeDialogSuccess) {
+      contents += new NoFocusButton(Action("Add Edge...") {
+        def addEdge(d : EdgeDialogObject) {
           val vs = (1 to d.sizing).map {i => new FakeVertex()}
           vs foreach { graph.addVertex(_) }
           graph.addEdge(new Hyperedge(d.label, d.termination), vs)
           graphpanel.visualization.repaint()
         }
-        new AddEdgeDialog(GrammarFrame.this, addEdge(_)) {
+        new EdgeDialog(GrammarFrame.this)(addEdge(_)) {
           centerOnScreen
           open
         }
@@ -131,6 +131,28 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
       
       contents += new NoFocusButton(Action("Clear") {
         removeItems(graph.getVertices().toSet, graph.getEdges().toSet)
+      })
+      
+      contents += new NoFocusButton(Action("Edit...") {
+        if (graphpanel.pickedEdges.size == 1) {
+          val edge = graphpanel.pickedEdges.head
+          val oldvs = graph.getIncidentVertices(edge).toList
+          
+          def editEdge(d : EdgeDialogObject) {
+            graph.removeEdge(edge)
+            val vs = oldvs.take(d.sizing) ++ 
+              ((oldvs.size until d.sizing) map {i => new FakeVertex()})
+            oldvs.drop(d.sizing) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
+            graph.addEdge(new Hyperedge(d.label, d.termination), vs)
+            graphpanel.visualization.repaint()
+          }
+          
+          val obj = new EdgeDialogObject(oldvs.size, edge.label, edge.termination)
+          new EdgeDialog(GrammarFrame.this, obj)(editEdge(_)) {
+            centerOnScreen
+            open
+          }
+        }
       })
     }
     
