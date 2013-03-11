@@ -43,9 +43,7 @@ class GrammarSaver(file : File, grammarObject : LoadedGrammarObject) {
     })
       
   
-  writer.addGraphData("label", "The grammar label", "?") { g =>
-    derivationMap(g).label
-  }
+  writer.addGraphData("label", "The grammar label", "?") { g => derivationMap(g).label }
   writer.addEdgeData("label", "The edge label", "?") { (_, e) => e.label }
   writer.addEdgeData("terminal", "If the edge is terminal", "true") { (_, e) => e.isTerminal.toString }
   
@@ -58,6 +56,10 @@ class GrammarSaver(file : File, grammarObject : LoadedGrammarObject) {
   writer.addVertexData("external", "The external node id", "-1") { (g, v) =>
     val id = grammarObject.getModel(g).derivation.externalNodes.indexOf(v)
     if (id > -1) id.toString else null
+  }
+  writer.addVertexData("fake", "If this vertex is fake", "false") { (g, v) =>
+    v match { case v : FakeVertex => "true" case _ => null }
+    
   }
   
   writer.saveHypergraphs(grammarObject.graphs, file)

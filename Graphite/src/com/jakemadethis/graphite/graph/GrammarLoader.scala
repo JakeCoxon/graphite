@@ -34,7 +34,7 @@ class GrammarLoader(reader : Reader) {
   }
   val vertexTransformer = new Transformer[NodeMetadata, Vertex]() {
     def transform(m : NodeMetadata) = {
-      val v = new Vertex()
+      val v = if (m.getProperty("fake").toBoolean) new FakeVertex() else new Vertex()
       val x = m.getProperty("x").toDouble
       val y = m.getProperty("y").toDouble
       val ex = m.getProperty("external").toInt
