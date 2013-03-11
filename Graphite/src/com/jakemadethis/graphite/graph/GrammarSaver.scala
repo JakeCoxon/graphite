@@ -55,6 +55,10 @@ class GrammarSaver(file : File, grammarObject : LoadedGrammarObject) {
   writer.addVertexData("y", "The y coordinate", "?") { (g, v) =>
     grammarObject.getModel(g).getGraphLayout().transform(v).getY().toString
   }
+  writer.addVertexData("external", "The external node id", "-1") { (g, v) =>
+    val id = grammarObject.getModel(g).derivation.externalNodes.indexOf(v)
+    if (id > -1) id.toString else null
+  }
   
   writer.saveHypergraphs(grammarObject.graphs, file)
 }
