@@ -22,7 +22,7 @@ private object util {
   type Func = BigInt => BigInt
   
   def convolution(f1: Func, f2: Func)(num : BigInt) : BigInt = {
-    (BigInt(1) to num-1).map { i => f1(i) * f2(num-i) }.sum
+    (BigInt(0) to num).map { i => f1(i) * f2(num-i) }.sum
   }
   def selfConvolution(f : Func, reps : Int) : Func = {
     if (reps == 0) return d0
@@ -69,7 +69,7 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
         sumSubtractN(sum_result, conv, derivation.terminalSize)
     }
     
-    funcs(nt) = util.makeMemo { x => if (x <= 0) 0 else summation(x) }
+    funcs(nt) = util.makeMemo { x => if (x < 0) 0 else summation(x) }
   })
     
 }
