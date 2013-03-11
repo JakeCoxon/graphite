@@ -24,21 +24,30 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
     val p = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))
     val x = p.getX()
     val y = p.getY()
+    val graph = vv.getGraphLayout().getGraph()
     
         
     if (v.isInstanceOf[FakeVertex]) {
       circle(rc, x, y, 7, new Color(1f, 0f, 0f, 0.5f))
     } else {
-      val pickedVertexState = vv.getPickedVertexState()
-      val hoverVertexState = vv.getHoverVertexState()
-      val hovered = hoverVertexState.getPicked().size > 0 && hoverVertexState.getPicked().last == v
-      val c = if (pickedVertexState.isPicked(v)) 
-          Color.GREEN.darker() 
-        else if (hovered)
-          Color.GREEN.darker().darker() 
-        else
-          Color.BLACK
-      circle(rc, x, y, 10, c)
+      
+      val pickedEdgeState = vv.getPickedEdgeState()
+      if (graph.getIncidentEdges(v).exists(pickedEdgeState.isPicked(_))) {
+        circle(rc, x, y, 10, Color.BLACK)
+        circle(rc, x, y, 7, new Color(1f, 0f, 0f, 0.5f))
+      }
+      else {
+        val pickedVertexState = vv.getPickedVertexState()
+        val hoverVertexState = vv.getHoverVertexState()
+        val hovered = hoverVertexState.getPicked().size > 0 && hoverVertexState.getPicked().last == v
+        val c = if (pickedVertexState.isPicked(v)) 
+            Color.GREEN.darker() 
+          else if (hovered)
+            Color.GREEN.darker().darker() 
+          else
+            Color.BLACK
+        circle(rc, x, y, 10, c)
+      }
     }
     
     
