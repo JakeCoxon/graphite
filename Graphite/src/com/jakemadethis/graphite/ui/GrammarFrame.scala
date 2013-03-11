@@ -91,7 +91,7 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
       }
       def removeItems(vertices : Set[Vertex], edges : Set[Hyperedge]) {
         
-        val vs = vertices -- currentModel.derivation.externalNodes
+        val vs = (vertices filterNot {_.isInstanceOf[FakeVertex]}) -- currentModel.derivation.externalNodes
         val es = edges
         val edgesToReplace = vs.flatMap { v => graph.getIncidentEdges(v) } -- es
         
@@ -107,12 +107,17 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
           }
                 
           if (es.size + vs.size == 1 || dialog == Dialog.Result.Ok) {
-            es.foreach { e => graph.removeEdge(e); graphpanel.setPicked(e, false) }
+            es.foreach { e => 
+              graph.getIncidentVertices(e) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
+              graph.removeEdge(e)
+              
+              graphpanel.setPicked(e, false)
+            }
             vs.foreach { v => 
               if (graph.getIncidentEdges(v).exists(edgesToReplace.contains(_))) {
                 replaceWithFakeVertex(graph, v)
               }
-              graph.removeVertex(v); 
+              graph.removeVertex(v)
               graphpanel.setPicked(v, false) 
             }
             
