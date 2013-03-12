@@ -39,8 +39,12 @@ import com.jakemadethis.graphite.visualization.AverageEdgeLayout
 import com.jakemadethis.graphite.graph.HypergraphDerivation
 import com.jakemadethis.graphite.graph.HyperedgeGraph
 import com.jakemadethis.graphite.visualization.HyperedgeLayout
+import com.jakemadethis.graphite.graph.FakeVertex
+import java.awt.geom.Dimension2D
 
 class GraphPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOrientation) {
+  
+  var currentModel : DerivationModel = model
   
   val leftVis = new VisualizationViewer[Vertex, Hyperedge](newLeftModel(model.derivation), new Dimension(500, 500)) 
       with HoverSupport[Vertex, Hyperedge] {
@@ -119,9 +123,118 @@ class GraphPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOrienta
                                     1, 1, 1, 1, Color.BLACK))
   }
   
-  
+  val rightBox = new BoxPanel(Orientation.Vertical) {
+    val menubar = new FlowPanel() {
+      background = Color.DARK_GRAY
+      contents += new NoFocusButton(Action("Add Vertex") {
+        graph.addVertex(new Vertex())
+        visualization.repaint()
+      })
+      
+      contents += new NoFocusButton(Action("Add Edge...") {
+        def addEdge(d : EdgeDialogObject) {
+          val vs = (1 to d.sizing).map {i => new FakeVertex()}
+          vs foreach { graph.addVertex(_) }
+          graph.addEdge(new Hyperedge(d.label, d.termination), vs)
+          visualization.repaint()
+        }
+        new EdgeDialog(null)(addEdge(_)) {
+          centerOnScreen
+          open
+        }
+      })
+      
+      // When deleting a vertex attached to an edge, the vertex should be replaced with a fake vertex
+      def replaceWithFakeVertex(g : Hypergraph[Vertex, Hyperedge], vertexToReplace : Vertex) {
+        
+        val edges = graph.getIncidentEdges(vertexToReplace)
+        
+        edges.toList.foreach { edge => 
+          val fake = new FakeVertex()
+          val newIncidents = graph.getIncidentVertices(edge).map(a => 
+            if (a == vertexToReplace) fake else a)
+          graph.removeEdge(edge)
+          graph.addEdge(edge, newIncidents)
+          
+          // Fake vertex should have same position as old vertex
+          visualization.getGraphLayout().setLocation(fake, 
+              visualization.getGraphLayout().transform(vertexToReplace))
+        }
+    
+      }
+      def removeItems(vertices : Set[Vertex], edges : Set[Hyperedge]) {
+        
+        val vs = (vertices filterNot {_.isInstanceOf[FakeVertex]}) -- currentModel.derivation.externalNodes
+        val es = edges
+        val edgesToReplace = vs.flatMap { v => graph.getIncidentEdges(v) } -- es
+        
+        if (es.size + vs.size > 0) {
+          def dialog = {
+            val vtext = vs.size match { case 0 => null case 1 => "1 vertex" case x => x + " vertices" }
+            val etext = es.size match { case 0 => null case 1 => "1 edge" case x => x + " edges" }
+            val text = List(vtext, etext).filter(_ != null).mkString(" and ")
+            
+            Dialog.showConfirmation(this, 
+              message="Delete "+text+"?", 
+              title="Delete?")
+          }
+                
+          if (es.size + vs.size == 1 || dialog == Dialog.Result.Ok) {
+            es.foreach { e => 
+              graph.getIncidentVertices(e) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
+              graph.removeEdge(e)
+              
+              setPicked(e, false)
+            }
+            vs.foreach { v => 
+              if (graph.getIncidentEdges(v).exists(edgesToReplace.contains(_))) {
+                replaceWithFakeVertex(graph, v)
+              }
+              graph.removeVertex(v)
+              setPicked(v, false) 
+            }
+            
+            visualization.repaint()
+          }
+        }
+      }
+      contents += new NoFocusButton(Action("Delete") {
+        removeItems(pickedVertices, pickedEdges)
+      })
+      
+      contents += new NoFocusButton(Action("Clear") {
+        removeItems(graph.getVertices().toSet, graph.getEdges().toSet)
+      })
+      
+      contents += new NoFocusButton(Action("Edit Edge...") {
+        if (pickedEdges.size == 1) {
+          val edge = pickedEdges.head
+          val oldvs = graph.getIncidentVertices(edge).toList
+          
+          def editEdge(d : EdgeDialogObject) {
+            graph.removeEdge(edge)
+            val vs = oldvs.take(d.sizing) ++ 
+              ((oldvs.size until d.sizing) map {i => new FakeVertex()})
+            oldvs.drop(d.sizing) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
+            graph.addEdge(new Hyperedge(d.label, d.termination), vs)
+            visualization.repaint()
+          }
+          
+          val obj = new EdgeDialogObject(oldvs.size, edge.label, edge.termination)
+          new EdgeDialog(null, obj)(editEdge(_)) {
+            centerOnScreen
+            open
+          }
+        }
+      })
+      minimumSize = new Dimension(0, minimumSize.getHeight().toInt)
+      maximumSize = new Dimension(Int.MaxValue, minimumSize.getHeight().toInt)
+    }
+    contents += menubar
+    contents += Component.wrap(visualization)
+  }
   val split = new SplitPane(Orientation.Vertical, Component.wrap(leftVis),
-      Component.wrap(visualization)) {
+      rightBox) {
     dividerLocation = 300
     resizeWeight = 0.3
   }
@@ -143,6 +256,7 @@ class GraphPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOrienta
   
   def graphModel = visualization.getModel()
   def graphModel_=(model : DerivationModel) {
+    currentModel = model
     leftVis.setModel(newLeftModel(model.derivation))
     leftVis.repaint()
     visualization.setModel(model)
