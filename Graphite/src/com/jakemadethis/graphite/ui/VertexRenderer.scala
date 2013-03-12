@@ -51,13 +51,20 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
     }
     
     
-    val model = vv.getModel().asInstanceOf[DerivationModel]
-    val index = model.derivation.externalNodes.indexOf(v)
+    val index = vv.getModel() match {
+      case model : DerivationModel =>
+        model.derivation.externalNodes.indexOf(v)
+      case model : LeftsideModel[Vertex,Hyperedge] =>
+        model.graph.getIncidentVertices(model.graph.getEdges().head).toList.indexOf(v)
+      case _ => -1
+    }
+    
     if (index > -1) {
-      val textRenderer = TextRenderer.getComponent(vv, index, null, Color.BLACK)
+      val textRenderer = TextRenderer.getComponent(vv, index+1, null, Color.BLACK)
       val size = textRenderer.getPreferredSize()
       rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width/2, y.toInt - size.height/2 - 20, size.width, size.height, true)
     }
+    
   }
   
   private def circle(rc : RenderContext[Vertex, Hyperedge], x : Double, y : Double, r : Double, paint : Paint) {

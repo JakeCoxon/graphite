@@ -7,7 +7,7 @@ import collection.JavaConversions._
 class HyperedgeGraph[V,E](label : String, size : Int) extends OrderedHypergraph[Vertex, Hyperedge] {
   
   val edge = new Hyperedge(label, NonTerminal)
-  val vs = (0 until size-1) map {x => new Vertex()}
+  val vs = (0 until size) map {x => new Vertex()}
   
   edges.put(edge, new java.util.ArrayList(vs))
   vs foreach { v =>

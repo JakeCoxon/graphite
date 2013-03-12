@@ -138,7 +138,7 @@ class GraphPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOrienta
     val layout = new HyperedgeLayout(g, new Dimension(500,500)) 
     
     
-    new DerivationModel(derivation, layout)
+    new LeftsideModel(g, layout)
   }
   
   def graphModel = visualization.getModel()
@@ -154,5 +154,9 @@ class GraphPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOrienta
   def setPicked(v : Vertex, picked : Boolean) = visualization.getPickedVertexState().pick(v, picked)
   def setPicked(e : Hyperedge, picked : Boolean) = visualization.getPickedEdgeState().pick(e, picked)
   
+  
+}
+
+case class LeftsideModel[V,E](val graph : Hypergraph[V, E], layout_ : Layout[V, E]) extends DefaultVisualizationModel[V, E](layout_) {
   
 }

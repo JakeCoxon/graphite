@@ -3,6 +3,9 @@
   <key for="graph" id="label">
     <default>?</default>
   </key>
+  <key for="node" id="fake">
+    <default>false</default>
+  </key>
   <key for="node" id="x">
     <default>?</default>
   </key>
@@ -23,11 +26,12 @@
     <node id="1">
       <data key="x">67.7650294522319</data>
       <data key="y">299.82445028848963</data>
-      <data key="external">1</data>
+      <data key="external">0</data>
     </node>
     <node id="2">
       <data key="x">12.38666428568347</data>
       <data key="y">54.21823844010626</data>
+      <data key="external">1</data>
     </node>
     <node id="3">
       <data key="x">321.8768441992859</data>
