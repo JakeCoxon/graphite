@@ -11,11 +11,13 @@ sealed class Termination {
 object Terminal extends Termination
 object NonTerminal extends Termination
 
-class Vertex(val label:String) {
-  def this() = this("")
-  def copy = new Vertex(label)
+class Vertex() {
+  def copy = new Vertex()
 }
-class FakeVertex extends Vertex {}
+class FakeVertex extends Vertex {
+  override def copy = 
+    throw new Error("Cannot copy FakeVertex")
+}
 
 object TerminalEdge {
   def apply(label : String) = new Hyperedge(label, Terminal)
