@@ -42,8 +42,9 @@ class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) ext
   }
   
   // Create graph panel with first model
-  val graphpanel = new GraphPanel()
-  setDerivation(loadedGrammar.grammar.derivations.head)
+  currentModel = loadedGrammar.getModel(loadedGrammar.grammar.derivations.head.graph)
+  val graphpanel = new GraphPanel(currentModel)
+  
   
   
   def graph = graphpanel.graph

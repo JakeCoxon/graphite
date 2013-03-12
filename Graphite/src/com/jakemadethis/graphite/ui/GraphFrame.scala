@@ -22,8 +22,8 @@ class GraphFrame(graph : Hypergraph[Vertex, Hyperedge]) extends MainFrame {
   
   val graphmodel = new DefaultVisualizationModel(glayout)
   
-  val graphpanel = new GraphPanel(graphmodel)
-  contents = graphpanel
+  //val graphpanel = new GraphPanel(graphmodel)
+  //contents = graphpanel
   
   
   
