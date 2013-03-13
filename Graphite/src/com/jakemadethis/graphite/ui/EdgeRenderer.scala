@@ -46,6 +46,9 @@ class EdgeRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSupport[
     points.foreach { p =>
       gd.drawLine(edgeLoc.getX().toInt, edgeLoc.getY().toInt, p.getX().toInt, p.getY().toInt)
     }
+    gd.setPaint(Color.RED.brighter())
+    
+    gd.drawLine(edgeLoc.getX().toInt, edgeLoc.getY().toInt, points.head.getX().toInt, points.head.getY().toInt)
     
     gd.setPaint(oldPaint)
   }
