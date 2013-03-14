@@ -5,6 +5,7 @@ import com.jakemadethis.graphite.graph._
 import collection.JavaConversions._
 import com.jakemadethis.util.Time
 import com.jakemadethis.graphite.ui.GraphFrame
+import java.util.Date
 
 object TestTreeGrammar {
   def newGraph : Hypergraph[Vertex,Hyperedge] = new OrderedHypergraph[Vertex,Hyperedge]()
@@ -74,7 +75,7 @@ object TestTreeGrammar {
     }
   
     
-    randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
+    randomizer = new GrammarRandomizer(enumerator, new scala.util.Random(new Date().getTime()))
     startder = start
   }
   
@@ -85,7 +86,9 @@ object TestTreeGrammar {
       for (x <- 0 to 3) {
         val g = genGraph
         printgraph(g)
-        new GraphFrame(g)
+        new GraphFrame(g) {
+          open
+        }
       }
     }
     
