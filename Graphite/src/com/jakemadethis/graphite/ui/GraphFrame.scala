@@ -9,8 +9,8 @@ import com.jakemadethis.graphite.visualization.AverageEdgeLayout
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
 import java.awt.Dimension
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel
-import java.awt.BorderLayout
 import javax.swing.WindowConstants
+import scala.swing._
 
 class GraphFrame(graph : Hypergraph[Vertex, Hyperedge]) extends MainFrame {
   
@@ -22,10 +22,8 @@ class GraphFrame(graph : Hypergraph[Vertex, Hyperedge]) extends MainFrame {
   
   val graphmodel = new DefaultVisualizationModel(glayout)
   
-  //val graphpanel = new GraphPanel(graphmodel)
-  //contents = graphpanel
-  
-  
+  val graphpanel = new GraphPanel(graphmodel)
+  contents = Component.wrap(graphpanel)
   
   size = new Dimension(800,600)
   
