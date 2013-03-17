@@ -5,7 +5,13 @@ import edu.uci.ics.jung.algorithms.layout.Layout
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator
 
 trait EdgeLayout[E] {
-  def getEdgeLocation(edge : E) : Point2D 
+  val locked = collection.mutable.Map[E, Boolean]()
+  def getEdgeLocation(edge : E) : Point2D
+  def lockEdge(edge : E, b : Boolean) {
+    if (b) locked(edge) = true
+    else locked.remove(edge)
+  }
+  def isEdgeLocked(edge : E) = locked.getOrElse(edge, false)
 }
 
 

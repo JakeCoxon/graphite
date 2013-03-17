@@ -54,6 +54,7 @@ object DerivationPair {
       val graph = new HyperedgeGraph(label, size)
       val rand = new RandomLocationTransformer[Vertex](new Dimension(500,500))
       val layout = new HyperedgeLayout(graph, new Dimension(500,500))
+      layout.lockEdge(graph.edge, true)
       new LeftModel(layout)
     }
   }

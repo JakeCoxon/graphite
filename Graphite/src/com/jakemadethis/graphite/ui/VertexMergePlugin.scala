@@ -12,6 +12,7 @@ import com.jakemadethis.graphite.graph.FakeVertex
 import com.jakemadethis.graphite.visualization.HoverSupport
 import collection.JavaConversions._
 import java.awt.event.InputEvent
+import com.jakemadethis.graphite.visualization.EdgeLayout
 
 class VertexMergePlugin extends MouseDropPlugin[Vertex, Hyperedge] {
   
@@ -35,6 +36,7 @@ class VertexMergePlugin extends MouseDropPlugin[Vertex, Hyperedge] {
   override def mousePressed(e : MouseEvent) {
     val vv = e.getSource().asInstanceOf[VisualizationViewer[Vertex,Hyperedge] with HoverSupport[Vertex,Hyperedge]]
     val graph = vv.getGraphLayout().getGraph()
+    val edgeLayout = EdgeLayout(vv.getGraphLayout())
     val hoverVertices = vv.getHoverVertexState().getPicked()
     val hoverEdgeState = vv.getHoverEdgeState()
     val pickedEdges = vv.getPickedEdgeState().getPicked()
@@ -44,7 +46,7 @@ class VertexMergePlugin extends MouseDropPlugin[Vertex, Hyperedge] {
     if (notshift && hoverVertices.size > 0 && pickedVertices.size == 1 && !hoverVertices.last.isInstanceOf[FakeVertex]) {
       val drag = hoverVertices.last
       val incidents = graph.getIncidentEdges(drag)
-      oldEdgeSelection.filter(incidents.contains(_)).lastOption map { edge =>
+      oldEdgeSelection.filter(incidents.contains(_)).filterNot(edgeLayout.isEdgeLocked(_)).lastOption map { edge =>
         val tentacle = incidents.toList.indexOf(drag)
         val fake = new FakeVertex()
         val newincs = graph.getIncidentVertices(edge) map { v => if (v == drag) fake else v }
