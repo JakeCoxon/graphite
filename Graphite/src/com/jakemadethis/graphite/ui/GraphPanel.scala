@@ -49,6 +49,8 @@ class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge])
     })
     
   })
+  
+  addPostRenderPaintable(new FakeVertexRenderer(vv))
     
     
   setBorder(Swing.MatteBorder(1,1,1,1,Color.BLACK))

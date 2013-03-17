@@ -26,14 +26,11 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
     val graph = vv.getGraphLayout().getGraph()
     
         
-    if (v.isInstanceOf[FakeVertex]) {
-      circle(rc, x, y, 7, new Color(1f, 0f, 0f, 0.5f))
-    } else {
+    if (!v.isInstanceOf[FakeVertex]) {
       
       val pickedEdgeState = vv.getPickedEdgeState()
       if (graph.getIncidentEdges(v).exists(pickedEdgeState.isPicked(_))) {
         circle(rc, x, y, 10, Color.BLACK)
-        circle(rc, x, y, 7, new Color(1f, 0f, 0f, 0.5f))
       }
       else {
         val pickedVertexState = vv.getPickedVertexState()
