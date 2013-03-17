@@ -97,6 +97,9 @@ class GrammarLoader(reader : Reader) {
     val layout = new StaticLayout[Vertex, Hyperedge](pgraph, rand, new Dimension(500, 500))
       with AverageEdgeLayout[Vertex, Hyperedge]
     
+    graph.getVertices().foreach { v => 
+      layout.setLocation(v, posMap(v))}
+    
     val leftSide = DerivationPair.LeftModel(label, extNodes.size)
     val rightSide = DerivationPair.RightModel(layout, extNodes)
     new DerivationPair(leftSide, rightSide)
