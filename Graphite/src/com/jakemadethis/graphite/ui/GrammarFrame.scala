@@ -23,6 +23,8 @@ import com.jakemadethis.graphite.GuiApp
 class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends MainFrame {
   
   
+  // Create graph panel with first model
+  val graphpanel = new DerivationPanel(loadedGrammar.initialGraph)
   
   val buttons = new BoxPanel(Orientation.Vertical) {
     val map = collection.mutable.Map[DerivationPair, ToggleButton]()
@@ -45,12 +47,15 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       map += t
     }
   }
+  
+  
     
   def setDerivation(deriv : DerivationPair) {
     graphpanel.derivationPair = deriv
     buttons.setToggled(deriv)
     sidebar.delButton.enabled = !deriv.isInitial
   }
+  
     
   val sidebar = new BoxPanel(Orientation.Vertical) {
     size = new Dimension(200, 10)
@@ -84,11 +89,16 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
         }
       }
       
+      buttons.setToggled(graphpanel.currentPair)
+      
       buttons.revalidate
+      buttons.repaint
     }
     refreshButtons()
     
     contents += new ScrollPane(buttons)
+    
+    
     contents += button(Action("Add") {
       val label = "A"
       val newDerivation = GrammarLoader.newDerivation(label, 2)
@@ -96,7 +106,16 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       refreshButtons()
       setDerivation(newDerivation)
     })
-    val delButton = button(Action("Delete") {})
+    
+    
+    val delButton = button(Action("Delete") {
+      val todel = graphpanel.currentPair
+      loadedGrammar.derivations -= todel
+      if (buttons.toggled == buttons.map(todel)) {
+        setDerivation(loadedGrammar.initialGraph)
+      }
+      refreshButtons()
+    })
     contents += delButton
   }
   
@@ -106,8 +125,6 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   
   
   
-  // Create graph panel with first model
-  val graphpanel = new DerivationPanel(loadedGrammar.initialGraph)
   
   setDerivation(loadedGrammar.initialGraph)
   
