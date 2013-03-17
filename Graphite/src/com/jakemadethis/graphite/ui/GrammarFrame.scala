@@ -19,39 +19,72 @@ import java.awt.Dimension
 import com.jakemadethis.graphite.graph.GraphExtensions._
 
 
-class GrammarFrame(loadedGrammar : LoadedGrammarObject, file : Option[File]) extends MainFrame {
+class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends MainFrame {
   
-  var currentModel : DerivationModel = null
-  def setDerivation(deriv : HypergraphDerivation) {
-     currentModel = loadedGrammar.getModel(deriv.graph)
-     graphpanel.graphModel = currentModel
+  
+  
+  def setDerivation(deriv : DerivationPair) {
+     graphpanel.derivationPair = deriv
   }
     
   val sidebar = new BoxPanel(Orientation.Vertical) {
     size = new Dimension(200, 10)
     background = Color.WHITE
-  }
-  
-  
-  
-  // Generate the sidebar
-  loadedGrammar.grammar.derivations.zipWithIndex.foreach { case (derivation, num) =>
-    sidebar.contents += new NoFocusButton(Action("Rule "+(num+1)) {
-      setDerivation(derivation)
+    
+    val dimension = new Dimension(1000,30)
+    def button(action : Action) = new NoFocusButton(action) {
+      maximumSize = dimension
+    }
+    
+    val buttons = new BoxPanel(Orientation.Vertical)
+    
+    def refreshButtons() {
+      buttons.contents.clear
+      var toggled : ToggleButton = null
+    
+      // Generate the sidebar
+      loadedGrammar.derivations.zipWithIndex.foreach { case (derivation, num) =>
+        buttons.contents += new ToggleButton(){
+          action = Action("Rule "+(num+1)) {
+            toggled.selected = false
+            setDerivation(derivation)
+            toggled = this
+            toggled.selected = true
+          }
+          maximumSize = dimension
+          focusable = false
+        }
+      }
+      
+      toggled = buttons.contents.head.asInstanceOf[ToggleButton]
+      
+      buttons.revalidate
+    }
+    refreshButtons()
+    
+    contents += new ScrollPane(buttons)
+    contents += button(Action("Add") {
+      val label = "A"
+      val newDerivation = GrammarLoader.newDerivation(label, 2)
+      loadedGrammar.derivations += newDerivation
+      refreshButtons()
     })
+    contents += button(Action("Delete") {})
   }
+  
+  
+  
+  
+  
+  
   
   // Create graph panel with first model
-  currentModel = loadedGrammar.getModel(loadedGrammar.grammar.derivations.head.graph)
-  val graphpanel = new DerivationPanel(currentModel)
-  
-  
+  val graphpanel = new DerivationPanel(loadedGrammar.derivations.head)
   
   def graph = graphpanel.graph
 
   
   val main = new BoxPanel(Orientation.Vertical) {
-    
     
     
     contents += graphpanel

@@ -22,7 +22,25 @@ import java.awt.geom.Point2D
 import org.apache.commons.collections15.functors.MapTransformer
 import edu.uci.ics.jung.algorithms.layout.Layout
 import scala.collection.mutable.Buffer
+import com.jakemadethis.graphite.ui.DerivationPair
+import com.jakemadethis.graphite.ui.GuiGrammar
 
+object GrammarLoader {
+  def newDerivation(label : String, size : Int) = {
+    val extNodes = (0 to size).map {i => new Vertex() -> i}.toMap
+    val graph = new OrderedHypergraph[Vertex,Hyperedge]()
+    extNodes.keys.foreach { v => graph.addVertex(v) }
+    
+    val pgraph = graph.asInstanceOf[Graph[Vertex,Hyperedge]]
+    val rand = new RandomLocationTransformer[Vertex](new Dimension(500, 500))
+    val layout = new StaticLayout[Vertex, Hyperedge](pgraph, rand, new Dimension(500, 500))
+      with AverageEdgeLayout[Vertex, Hyperedge]
+    
+    val leftSide = DerivationPair.LeftModel(label, size)
+    val rightSide = DerivationPair.RightModel(layout, extNodes)
+    new DerivationPair(leftSide, rightSide)
+  }
+}
 class GrammarLoader(reader : Reader) {
   
   // This means vertices cannot be shared across graphs
@@ -68,48 +86,23 @@ class GrammarLoader(reader : Reader) {
   
   val derivations = graphreader.getGraphMLDocument().getGraphMetadata().map { meta =>
     val label = meta.getProperty("label")
-    val g = meta.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
-    val extNodes = g.getVertices().foldLeft(Buffer[Vertex]()) { (buffer, v) =>
-      allExternalNodes.get(v).map { id => 
-        while (buffer.size <= id) buffer.append(null)
-        buffer(id) = v
-      }; buffer
+    val graph = meta.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
+    val extNodes = collection.mutable.Map[Vertex,Int]()
+    graph.getVertices().foreach { v =>
+      allExternalNodes.get(v).map { id => extNodes += (v -> id) }
     }
-    new HypergraphDerivation(g, extNodes, label)
-  }
-  
-  /** Make a model for derivation **/
-  protected def makeModel(derivation : HypergraphDerivation) = {
     
-    val pseudoGraph = derivation.graph.asInstanceOf[Graph[Vertex, Hyperedge]];
-    
+    val pgraph = graph.asInstanceOf[Graph[Vertex,Hyperedge]]
     val rand = new RandomLocationTransformer[Vertex](new Dimension(500, 500))
-    val layout = new StaticLayout[Vertex, Hyperedge](pseudoGraph, rand, new Dimension(500, 500))
+    val layout = new StaticLayout[Vertex, Hyperedge](pgraph, rand, new Dimension(500, 500))
       with AverageEdgeLayout[Vertex, Hyperedge]
-    posMap.foreach { case (v, p) => layout.setLocation(v, p) }
-    new DerivationModel(derivation, layout)
+    
+    val leftSide = DerivationPair.LeftModel(label, extNodes.size)
+    val rightSide = DerivationPair.RightModel(layout, extNodes)
+    new DerivationPair(leftSide, rightSide)
   }
   
-  val _grammar = HypergraphGrammar(derivations)
-       
-  // Construct a model for each derivation
-  val modelMap = derivations.map { derivation =>      
-    derivation.graph -> makeModel(derivation)
-  }.toMap
-  
-  def grammar = _grammar
-  
-  val _lgo = new LoadedGrammarObject(_grammar, modelMap)
-  def loadedGrammarObject = _lgo
-  
+  val grammar = new GuiGrammar()
+  grammar.derivations ++= derivations
 }
 
-class LoadedGrammarObject(val grammar : HypergraphGrammar, modelMap : Map[Hypergraph[Vertex, Hyperedge], DerivationModel]) {
-  def getModel(graph : Hypergraph[Vertex, Hyperedge]) = modelMap(graph)
-  def models = modelMap.values
-  def graphs = modelMap.keys
-}
-
-class DerivationModel(val derivation : HypergraphDerivation, layout : Layout[Vertex, Hyperedge]) extends DefaultVisualizationModel(layout) {
-  
-}

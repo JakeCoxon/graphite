@@ -34,7 +34,6 @@ import java.awt.event.ItemListener
 import java.awt.event.ItemEvent
 import javax.swing.BorderFactory
 import com.jakemadethis.graphite.graph.OrderedHypergraph
-import com.jakemadethis.graphite.graph.DerivationModel
 import com.jakemadethis.graphite.visualization.AverageEdgeLayout
 import com.jakemadethis.graphite.graph.HypergraphDerivation
 import com.jakemadethis.graphite.graph.HyperedgeGraph
@@ -42,19 +41,19 @@ import com.jakemadethis.graphite.visualization.HyperedgeLayout
 import com.jakemadethis.graphite.graph.FakeVertex
 import java.awt.geom.Dimension2D
 
-class DerivationPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOrientation) {
+class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.NoOrientation) {
   
-  var currentModel : DerivationModel = model
+  var currentPair : DerivationPair = derivPair
   
-  val leftVis = new GraphPanel(newLeftModel(model.derivation))
-  val visualization = new GraphPanel(model)
+  val leftVis = new GraphPanel(derivPair.leftSide)
+  val rightVis = new GraphPanel(derivPair.rightSide)
   
   val rightBox = new BoxPanel(Orientation.Vertical) {
     val menubar = new FlowPanel() {
       background = Color.DARK_GRAY
       contents += new NoFocusButton(Action("Add Vertex") {
         graph.addVertex(new Vertex())
-        visualization.repaint()
+        rightVis.repaint()
       })
       
       contents += new NoFocusButton(Action("Add Edge...") {
@@ -62,7 +61,7 @@ class DerivationPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOr
           val vs = (1 to d.sizing).map {i => new FakeVertex()}
           vs foreach { graph.addVertex(_) }
           graph.addEdge(new Hyperedge(d.label, d.termination), vs)
-          visualization.repaint()
+          rightVis.repaint()
         }
         new EdgeDialog(null)(addEdge(_)) {
           centerOnScreen
@@ -83,14 +82,14 @@ class DerivationPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOr
           graph.addEdge(edge, newIncidents)
           
           // Fake vertex should have same position as old vertex
-          visualization.graphLayout.setLocation(fake, 
-              visualization.graphLayout.transform(vertexToReplace))
+          rightVis.graphLayout.setLocation(fake, 
+              rightVis.graphLayout.transform(vertexToReplace))
         }
     
       }
       def removeItems(vertices : Set[Vertex], edges : Set[Hyperedge]) {
         
-        val vs = (vertices filterNot {_.isInstanceOf[FakeVertex]}) -- currentModel.derivation.externalNodes
+        val vs = (vertices filterNot {_.isInstanceOf[FakeVertex]}) -- currentPair.rightSide.externalNodesSet
         val es = edges
         val edgesToReplace = vs.flatMap { v => graph.getIncidentEdges(v) } -- es
         
@@ -120,7 +119,7 @@ class DerivationPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOr
               setPicked(v, false) 
             }
             
-            visualization.repaint()
+            rightVis.repaint()
           }
         }
       }
@@ -143,7 +142,7 @@ class DerivationPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOr
               ((oldvs.size until d.sizing) map {i => new FakeVertex()})
             oldvs.drop(d.sizing) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
             graph.addEdge(new Hyperedge(d.label, d.termination), vs)
-            visualization.repaint()
+            rightVis.repaint()
           }
           
           val obj = new EdgeDialogObject(oldvs.size, edge.label, edge.termination)
@@ -157,7 +156,7 @@ class DerivationPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOr
       maximumSize = new Dimension(Int.MaxValue, minimumSize.getHeight().toInt)
     }
     contents += menubar
-    contents += Component.wrap(visualization)
+    contents += Component.wrap(rightVis)
   }
   val split = new SplitPane(Orientation.Vertical, Component.wrap(leftVis),
       rightBox) {
@@ -168,35 +167,22 @@ class DerivationPanel(model : DerivationModel) extends BoxPanel(Orientation.NoOr
   contents += split
       
     
-  def graph = visualization.graph
+  def graph = rightVis.graph
+  def graphModel = currentPair.rightSide
   
-  private def newLeftModel(derivation : HypergraphDerivation) = {
-    
-    val g = new HyperedgeGraph(derivation.label, derivation.deriveType)
-    val rand = new RandomLocationTransformer[Vertex](new Dimension(500,500))
-    val layout = new HyperedgeLayout(g, new Dimension(500,500)) 
-    
-    
-    new LeftsideModel(g, layout)
-  }
-  
-  def graphModel = visualization.getModel
-  def graphModel_=(model : DerivationModel) {
-    currentModel = model
-    leftVis.setModel(newLeftModel(model.derivation))
+  def derivationPair = currentPair
+  def derivationPair_=(pair : DerivationPair) {
+    currentPair = pair
+    leftVis.setModel(pair.leftSide)
     leftVis.repaint()
-    visualization.setModel(model)
-    visualization.repaint()
+    rightVis.setModel(pair.rightSide)
+    rightVis.repaint()
   }
   
-  def pickedVertices = visualization.getPickedVertexState.getPicked().toSet
-  def pickedEdges = visualization.getPickedEdgeState.getPicked().toSet
-  def setPicked(v : Vertex, picked : Boolean) = visualization.getPickedVertexState.pick(v, picked)
-  def setPicked(e : Hyperedge, picked : Boolean) = visualization.getPickedEdgeState.pick(e, picked)
+  def pickedVertices = rightVis.getPickedVertexState.getPicked().toSet
+  def pickedEdges = rightVis.getPickedEdgeState.getPicked().toSet
+  def setPicked(v : Vertex, picked : Boolean) = rightVis.getPickedVertexState.pick(v, picked)
+  def setPicked(e : Hyperedge, picked : Boolean) = rightVis.getPickedEdgeState.pick(e, picked)
   
-  
-}
-
-case class LeftsideModel[V,E](val graph : Hypergraph[V, E], layout_ : Layout[V, E]) extends DefaultVisualizationModel[V, E](layout_) {
   
 }

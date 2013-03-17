@@ -4,7 +4,7 @@ import edu.uci.ics.jung.graph.util.EdgeType
 import edu.uci.ics.jung.graph._
 import collection.JavaConversions._
 
-class HyperedgeGraph[V,E](label : String, size : Int) extends OrderedHypergraph[Vertex, Hyperedge] {
+class HyperedgeGraph(label : String, size : Int) extends OrderedHypergraph[Vertex, Hyperedge] {
   
   val edge = new Hyperedge(label, NonTerminal)
   val vs = (0 until size) map {x => new Vertex()}

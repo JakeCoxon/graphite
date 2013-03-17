@@ -12,21 +12,22 @@ import java.awt.geom.Point2D
 import java.io.FileWriter
 import com.jakemadethis.graphite.graph.GraphMLWriter
 import java.io.File
+import com.jakemadethis.graphite.ui.GuiGrammar
 
-class GrammarSaver(file : File, grammarObject : LoadedGrammarObject) {
+class GrammarSaver(file : File, grammar : GuiGrammar) {
   implicit def convertFunctionToTransformer[A,B](f : A => B) : Transformer[A,B] = new Transformer[A,B]() {
     def transform(obj : A) : B = f(obj)
   }
   
-  val points = grammarObject.models.foldLeft(Map[Vertex, Point2D]()) { case (result, model) =>
-    val layout = model.getGraphLayout()
+  val points = grammar.derivations.foldLeft(Map[Vertex, Point2D]()) { case (result, pair) =>
+    val layout = pair.rightSide.getGraphLayout
     val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
     
     result ++ graph.getVertices().map { v => v -> layout.transform(v) }
   }
   
   
-  val derivationMap = grammarObject.grammar.derivations.map { d => d.graph -> d }.toMap
+  val derivationMap = grammar.derivations.map { pair => pair.rightSide.graph -> pair }.toMap
   
   var id = 0
   val vIdMap = collection.mutable.Map[Vertex, Int]()
@@ -43,25 +44,25 @@ class GrammarSaver(file : File, grammarObject : LoadedGrammarObject) {
     })
       
   
-  writer.addGraphData("label", "The grammar label", "?") { g => derivationMap(g).label }
+  writer.addGraphData("label", "The grammar label", "?") { g => derivationMap(g).leftSide.label }
   writer.addEdgeData("label", "The edge label", "?") { (_, e) => e.label }
   writer.addEdgeData("terminal", "If the edge is terminal", "true") { (_, e) => e.isTerminal.toString }
   
   writer.addVertexData("x", "The x coordinate", "?") { (g, v) =>
-    grammarObject.getModel(g).getGraphLayout().transform(v).getX().toString
+    derivationMap(g).rightSide.getGraphLayout().transform(v).getX().toString
   }
   writer.addVertexData("y", "The y coordinate", "?") { (g, v) =>
-    grammarObject.getModel(g).getGraphLayout().transform(v).getY().toString
+    derivationMap(g).rightSide.getGraphLayout().transform(v).getY().toString
   }
   writer.addVertexData("external", "The external node id", "-1") { (g, v) =>
-    val id = grammarObject.getModel(g).derivation.externalNodes.indexOf(v)
-    if (id > -1) id.toString else null
+    val id = derivationMap(g).rightSide.externalNodeId(v)
+    id.map { _.toString }.orNull
   }
   writer.addVertexData("fake", "If this vertex is fake", "false") { (g, v) =>
     v match { case v : FakeVertex => "true" case _ => null }
-    
   }
   
-  writer.saveHypergraphs(grammarObject.graphs, file)
+  val graphs = grammar.derivations.map { pair => pair.rightSide.graph }
+  writer.saveHypergraphs(graphs, file)
 }
 

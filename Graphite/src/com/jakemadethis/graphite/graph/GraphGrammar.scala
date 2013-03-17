@@ -28,7 +28,9 @@ object HypergraphGrammar {
     new HypergraphGrammar(map)
   }
 }
-class HypergraphGrammar(map : Map[String, Seq[HypergraphDerivation]]) extends StringGrammar(map)
+class HypergraphGrammar(map_ : Map[String, Seq[HypergraphDerivation]]) extends StringGrammar[HypergraphDerivation] {
+  def map = map_
+}
 
 class HypergraphGenerator(start : HypergraphDerivation, val graph : Hypergraph[Vertex, Hyperedge]) 
     extends Generator[String, HypergraphDerivation] {

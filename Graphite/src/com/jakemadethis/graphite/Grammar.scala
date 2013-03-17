@@ -2,8 +2,9 @@ package com.jakemadethis.graphite;
 //import scala.collection.mutable.Map
 import scala.collection.mutable.ArraySeq
 
-abstract class Grammar[K, D <: Derivation[K]](map : Map[K, Seq[D]]) extends collection.immutable.Map[K, Seq[D]] {
+trait Grammar[K, D <: Derivation[K]] extends collection.Map[K, Seq[D]] {
 
+  def map : Map[K, Seq[D]]
   def iterator = map.iterator
   def get(key : K) = map.get(key)
   def + [B1 >: Seq[D]](kv: (K, B1)) = throw new UnsupportedOperationException()
@@ -16,8 +17,10 @@ abstract class Grammar[K, D <: Derivation[K]](map : Map[K, Seq[D]]) extends coll
 }
 
 
-class CharGrammar(map : Map[Char, Seq[CharDerivation]]) extends Grammar(map)
-class StringGrammar[D <: Derivation[String]](map : Map[String, Seq[D]]) extends Grammar(map)
+class CharGrammar(map_ : Map[Char, Seq[CharDerivation]]) extends Grammar[Char, CharDerivation] {
+  def map = map_
+}
+trait StringGrammar[D <: Derivation[String]] extends Grammar[String, D] 
 
 class CharDerivation(val string : String, nts : Seq[Char]) 
   extends Derivation[Char](List(nts:_*), string.size - nts.size)

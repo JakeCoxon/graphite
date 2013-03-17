@@ -74,6 +74,7 @@
   <graph edgedefault="undirected">
     <data key="label">B</data>
     <node id="8">
+      <data key="external">0</data>
       <data key="x">65.65987270657625</data>
       <data key="y">284.11775952589016</data>
     </node>

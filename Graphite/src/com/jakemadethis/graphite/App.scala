@@ -15,6 +15,7 @@ import java.awt.FileDialog
 import java.awt.FileDialog
 import java.io.FilenameFilter
 import java.awt.FileDialog
+import com.jakemadethis.graphite.ui.GuiGrammar
 
 
 object App {
@@ -37,14 +38,14 @@ object App {
   def openGrammar(file : File) {
     val grammarLoader = new GrammarLoader(new FileReader(file))
     
-    new GrammarFrame(grammarLoader.loadedGrammarObject, Some(file)) {
+    new GrammarFrame(grammarLoader.grammar, Some(file)) {
       open
     }
     
     println("Loaded " + file.getAbsolutePath())
   }
-  def saveGrammar(loadedGrammar : LoadedGrammarObject, file : File) {
-    val saver = new GrammarSaver(file, loadedGrammar)
+  def saveGrammar(grammar : GuiGrammar, file : File) {
+    val saver = new GrammarSaver(file, grammar)
     println("Saved " + file.getAbsolutePath())
   }
   
@@ -65,7 +66,7 @@ object App {
     
   }
   
-  def saveGrammarGui(parent : Frame, loadedGrammar : LoadedGrammarObject) {
+  def saveGrammarGui(parent : Frame, grammar : GuiGrammar) {
     
     val d = new FileDialog(parent.peer, "Save Graph Grammar") {
       setDirectory(new File(".").getAbsolutePath())
@@ -76,7 +77,7 @@ object App {
     if (d.getFile() == null) return
     
     val file = new File(d.getDirectory() + "/" + d.getFile())
-    saveGrammar(loadedGrammar, file)
+    saveGrammar(grammar, file)
   }
   
 }

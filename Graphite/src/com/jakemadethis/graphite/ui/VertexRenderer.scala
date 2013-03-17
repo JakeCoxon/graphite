@@ -17,7 +17,6 @@ import com.jakemadethis.graphite.graph.Vertex
 import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.FakeVertex
 import com.jakemadethis.graphite.visualization.renderers.TextRenderer
-import com.jakemadethis.graphite.graph.DerivationModel
 
 class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSupport[Vertex,Hyperedge]) extends Renderer.Vertex[Vertex, Hyperedge] {
   def paintVertex(rc: RenderContext[Vertex,Hyperedge], layout : Layout[Vertex,Hyperedge], v : Vertex) {
@@ -51,19 +50,21 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
     }
     
     
-    val index = vv.getModel() match {
+    vv.getModel() match {
       case model : DerivationModel =>
-        model.derivation.externalNodes.indexOf(v)
-      case model : LeftsideModel[Vertex,Hyperedge] =>
-        model.graph.getIncidentVertices(model.graph.getEdges().head).toList.indexOf(v)
-      case _ => -1
+        model.externalNodeId(v) match {
+          case Some(index) =>
+            val textRenderer = TextRenderer.getComponent(vv, index+1, null, Color.BLACK)
+            val size = textRenderer.getPreferredSize()
+            rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width/2, y.toInt - size.height/2 - 20, size.width, size.height, true)
+          case None => 
+        }
+      case _ =>
     }
     
-    if (index > -1) {
-      val textRenderer = TextRenderer.getComponent(vv, index+1, null, Color.BLACK)
-      val size = textRenderer.getPreferredSize()
-      rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width/2, y.toInt - size.height/2 - 20, size.width, size.height, true)
-    }
+    
+  
+    
     
   }
   
