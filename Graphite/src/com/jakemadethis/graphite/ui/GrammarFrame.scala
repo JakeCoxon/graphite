@@ -23,8 +23,31 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   
   
   
+  val buttons = new BoxPanel(Orientation.Vertical) {
+    val map = collection.mutable.Map[DerivationPair, ToggleButton]()
+    var toggled : ToggleButton = null
+    def setToggled(derivation : DerivationPair) {
+      map.get(derivation) map {b =>
+        if (toggled != null) toggled.selected = false
+        toggled = b
+        toggled.selected = true
+      }
+    }
+    def clear {
+      toggled = null
+      contents.clear
+      map.clear
+    }
+    def +=(t : (DerivationPair, ToggleButton)) {
+      val (derivation, button) = t
+      contents += button
+      map += t
+    }
+  }
+    
   def setDerivation(deriv : DerivationPair) {
      graphpanel.derivationPair = deriv
+     buttons.setToggled(deriv)
   }
     
   val sidebar = new BoxPanel(Orientation.Vertical) {
@@ -36,27 +59,20 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       maximumSize = dimension
     }
     
-    val buttons = new BoxPanel(Orientation.Vertical)
     
     def refreshButtons() {
-      buttons.contents.clear
-      var toggled : ToggleButton = null
+      buttons.clear
     
       // Generate the sidebar
       loadedGrammar.derivations.zipWithIndex.foreach { case (derivation, num) =>
-        buttons.contents += new ToggleButton(){
+        buttons += derivation -> new ToggleButton(){
           action = Action("Rule "+(num+1)) {
-            toggled.selected = false
             setDerivation(derivation)
-            toggled = this
-            toggled.selected = true
           }
           maximumSize = dimension
           focusable = false
         }
       }
-      
-      toggled = buttons.contents.head.asInstanceOf[ToggleButton]
       
       buttons.revalidate
     }
@@ -68,6 +84,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       val newDerivation = GrammarLoader.newDerivation(label, 2)
       loadedGrammar.derivations += newDerivation
       refreshButtons()
+      setDerivation(newDerivation)
     })
     contents += button(Action("Delete") {})
   }
@@ -80,6 +97,8 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   
   // Create graph panel with first model
   val graphpanel = new DerivationPanel(loadedGrammar.derivations.head)
+  
+  setDerivation(loadedGrammar.derivations.head)
   
   def graph = graphpanel.graph
 
