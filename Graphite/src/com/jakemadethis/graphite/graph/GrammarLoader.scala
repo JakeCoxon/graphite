@@ -27,7 +27,7 @@ import com.jakemadethis.graphite.ui.GuiGrammar
 
 object GrammarLoader {
   def newDerivation(label : String, size : Int) = {
-    val extNodes = (0 to size).map {i => new Vertex() -> i}.toMap
+    val extNodes = (0 until size).map {i => new Vertex() -> i}.toMap
     val graph = new OrderedHypergraph[Vertex,Hyperedge]()
     extNodes.keys.foreach { v => graph.addVertex(v) }
     
