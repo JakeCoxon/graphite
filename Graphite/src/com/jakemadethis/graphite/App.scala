@@ -23,61 +23,8 @@ object App {
   
   
   def main(args: Array[String]) {
-    System.setProperty("apple.laf.useScreenMenuBar", "true");
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Graphite");
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-              
-    openGrammar(new File("data/grammar.xml"))
-    
+    GuiApp.start()
   }
   
-  object XMLFilter extends FilenameFilter() {
-    def accept(dir : File, name : String) = name.endsWith(".xml")
-  }
-  
-  def openGrammar(file : File) {
-    val grammarLoader = new GrammarLoader(new FileReader(file))
-    
-    new GrammarFrame(grammarLoader.grammar, Some(file)) {
-      open
-    }
-    
-    println("Loaded " + file.getAbsolutePath())
-  }
-  def saveGrammar(grammar : GuiGrammar, file : File) {
-    val saver = new GrammarSaver(file, grammar)
-    println("Saved " + file.getAbsolutePath())
-  }
-  
-  def loadGrammarGui(parent : Frame) {
-    
-    val dialog = new FileDialog(parent.peer, "Open Graph Grammar") {
-      setDirectory(new File(".").getAbsolutePath())
-      setFilenameFilter(XMLFilter)
-      setMode(FileDialog.LOAD)
-      setVisible(true)
-    }
-    if (dialog.getFile() == null) return
-    
-    val file = new File(dialog.getDirectory() + "/" + dialog.getFile())
-    openGrammar(file)
-  }
-  def loadGraphGui(parent : Frame) {
-    
-  }
-  
-  def saveGrammarGui(parent : Frame, grammar : GuiGrammar) {
-    
-    val d = new FileDialog(parent.peer, "Save Graph Grammar") {
-      setDirectory(new File(".").getAbsolutePath())
-      setFilenameFilter(XMLFilter)
-      setMode(FileDialog.SAVE)
-      setVisible(true)
-    }
-    if (d.getFile() == null) return
-    
-    val file = new File(d.getDirectory() + "/" + d.getFile())
-    saveGrammar(grammar, file)
-  }
   
 }

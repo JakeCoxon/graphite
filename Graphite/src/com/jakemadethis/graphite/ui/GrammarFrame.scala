@@ -17,6 +17,7 @@ import java.io.File
 import java.awt.Color
 import java.awt.Dimension
 import com.jakemadethis.graphite.graph.GraphExtensions._
+import com.jakemadethis.graphite.GuiApp
 
 
 class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends MainFrame {
@@ -116,23 +117,26 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     }
     
     contents += new Menu("File") {
+      contents += menuItem("New Grammar") {
+        GuiApp.newGrammar()
+      }
       contents += menuItem("Open Grammar...") {
-        App.loadGrammarGui(GrammarFrame.this)
+        GuiApp.loadGrammarDialog(GrammarFrame.this)
       }
       contents += menuItem("Open Graph...") {
-        App.loadGraphGui(GrammarFrame.this)
+        GuiApp.loadGraphDialog(GrammarFrame.this)
       }
 //      contents += menuItem("Save Grammar") {
 //        if (file.isDefined) App.saveGrammar(grammarObject.grammar, models, file.get)
 //        else App.saveGrammarGui(GrammarFrame.this, grammar, models)
 //      }
       contents += menuItem("Save Grammar as...") {
-        App.saveGrammarGui(GrammarFrame.this, loadedGrammar)
+        GuiApp.saveGrammarDialog(GrammarFrame.this, loadedGrammar)
       }
     }
-    contents += new Menu("Tools") {
-      contents += new MenuItem("Add Vertex")
-      contents += new MenuItem("Add Hyperedge")
+    contents += new Menu("Graph") {
+      contents += menuItem("Duplicate items") {}
+      contents += menuItem("Clear") {}
     }
   }
   menuBar = mainMenuBar
