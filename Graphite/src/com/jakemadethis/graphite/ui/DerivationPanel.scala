@@ -48,6 +48,19 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
   val leftVis = new GraphPanel(derivPair.leftSide)
   val rightVis = new GraphPanel(derivPair.rightSide)
   
+  val leftBox = new BoxPanel(Orientation.Vertical) {
+    val menubar = new FlowPanel() {
+      background = Color.DARK_GRAY
+      contents += new NoFocusButton(Action("Edit edge...") {
+        
+      })
+      minimumSize = new Dimension(0, minimumSize.getHeight().toInt)
+      maximumSize = new Dimension(Int.MaxValue, minimumSize.getHeight().toInt)
+    }
+    contents += menubar
+    contents += Component.wrap(leftVis)
+  }
+  
   val rightBox = new BoxPanel(Orientation.Vertical) {
     val menubar = new FlowPanel() {
       background = Color.DARK_GRAY
@@ -158,8 +171,7 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
     contents += menubar
     contents += Component.wrap(rightVis)
   }
-  val split = new SplitPane(Orientation.Vertical, Component.wrap(leftVis),
-      rightBox) {
+  val split = new SplitPane(Orientation.Vertical, leftBox, rightBox) {
     dividerLocation = 300
     resizeWeight = 0.3
     var oldDividerLocation = 300
@@ -175,7 +187,8 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
   def derivationPair_=(pair : DerivationPair) {
     currentPair = pair
     if (pair.isInitial) {
-      split.oldDividerLocation = split.dividerLocation 
+      split.oldDividerLocation = split.dividerLocation
+      split.dividerLocation = 0
       leftVis.setVisible(false)
     } else {
       leftVis.setVisible(true)
