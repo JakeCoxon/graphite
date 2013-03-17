@@ -17,11 +17,7 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout
 abstract class DerivationModel(layout : Layout[Vertex,Hyperedge]) extends DefaultVisualizationModel(layout) {
   
   def externalNodeId(vertex : Vertex) : Option[Int]
-  val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
-  override def setGraphLayout(layout : Layout[Vertex,Hyperedge], viewSize : Dimension) {
-    require(graph == null || graph == layout.getGraph, "Cannot change graph")
-    super.setGraphLayout(layout, viewSize)
-  }
+  def graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
   
 }
 
@@ -43,10 +39,12 @@ object DerivationPair {
     def numExternalNodes = extNodes.size
     protected[DerivationPair] def numExternalNodes_=(newSize : Int) {
       require(newSize > 0)
-      val oldvs = graph.getVertices().toList
-      val vs = oldvs.take(newSize) ++ 
-        ((oldvs.size until newSize) map {i => 
+      val oldExt : collection.mutable.Buffer[Vertex] = extNodes.keys.toBuffer.sortBy {extNodes(_)}
+      
+      val vs = oldExt.take(newSize) ++ 
+        ((oldExt.size until newSize) map {i => 
           val v = new Vertex(); graph.addVertex(v); v})
+      oldExt.drop(newSize).filter {graph.getIncidentEdges(_).isEmpty}.foreach {graph.removeVertex(_)}
       extNodes.clear
       vs.zipWithIndex.foreach { case (v,i) => extNodes(v) = i }
     }
@@ -56,6 +54,7 @@ object DerivationPair {
     def apply(label : String, size : Int) = {
       require(size > 0)
       val graph = new HyperedgeGraph(label, size)
+      println("Left graph", graph)
       val rand = new RandomLocationTransformer[Vertex](new Dimension(500,500))
       val layout = new HyperedgeLayout(graph, new Dimension(500,500))
       layout.lockEdge(graph.edge, true)
@@ -71,23 +70,15 @@ object DerivationPair {
       case -1 => None; case x => Some(x)
     }
     
-    def size = vertices.size
-    protected[DerivationPair] def size_=(newSize : Int) {
-      require(newSize > 0)
-      graph.removeEdge(hyperedge)
-      val oldvs = vertices
-      val vs = oldvs.take(newSize) ++ 
-        ((oldvs.size until newSize) map {i => new Vertex()})
-      oldvs.drop(newSize) foreach {graph.removeVertex(_)}
-      graph.addEdge(hyperedge, vs)
+    protected[DerivationPair] def edit(newLabel : String, newSize : Int) {
+      getGraphLayout().setGraph(new HyperedgeGraph(newLabel, newSize))
     }
     
+    
+    def size = vertices.size
+    
+    
     def label = hyperedge.label
-    def label_=(newLabel : String) {
-      val oldvs = vertices
-      graph.removeEdge(hyperedge)
-      graph.addEdge(new Hyperedge(label, NonTerminal), oldvs)
-    }
   }
   
 }
@@ -100,10 +91,13 @@ class DerivationPair(val leftSide : LeftModel, val rightSide : RightModel) {
   
   def label = leftSide.label
   lazy val isInitial = false
-  def numExternalNodes_=(size : Int) {
-    require(size > 0)
-    leftSide.size = size
-    rightSide.numExternalNodes = size
+  
+  def numExternalNodes = rightSide.numExternalNodes
+  
+  def edit(newLabel : String, newSize : Int) {
+    require(newSize > 0)
+    leftSide.edit(newLabel, newSize)
+    rightSide.numExternalNodes = newSize
   }
     
   
@@ -119,7 +113,7 @@ object InitialDerivation {
 class InitialDerivation(_label : String, rightSide : RightModel) extends DerivationPair(InitialDerivation.emptyLeft, rightSide) {
   override def label = _label
   override lazy val isInitial = true
-  override def numExternalNodes_=(size : Int) = throw new UnsupportedOperationException()
+  override def edit(newLabel : String, size : Int) = throw new UnsupportedOperationException()
 }
 
 

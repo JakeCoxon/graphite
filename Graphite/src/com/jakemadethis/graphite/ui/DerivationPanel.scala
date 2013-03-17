@@ -33,13 +33,10 @@ import edu.uci.ics.jung.algorithms.layout.Layout
 import java.awt.event.ItemListener
 import java.awt.event.ItemEvent
 import javax.swing.BorderFactory
-import com.jakemadethis.graphite.graph.OrderedHypergraph
 import com.jakemadethis.graphite.visualization.AverageEdgeLayout
-import com.jakemadethis.graphite.graph.HypergraphDerivation
-import com.jakemadethis.graphite.graph.HyperedgeGraph
 import com.jakemadethis.graphite.visualization.HyperedgeLayout
-import com.jakemadethis.graphite.graph.FakeVertex
 import java.awt.geom.Dimension2D
+import com.jakemadethis.graphite.graph._
 
 class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.NoOrientation) {
   
@@ -53,6 +50,17 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
       background = Color.DARK_GRAY
       contents += new NoFocusButton(Action("Edit edge...") {
         
+        def editEdge(d : EdgeDialogObject) {
+          currentPair.edit(d.label, d.sizing)
+          leftVis.repaint()
+          rightVis.repaint()
+        }
+        
+        val obj = new EdgeDialogObject(currentPair.numExternalNodes, currentPair.leftSide.label, NonTerminal)
+        new EdgeDialog(null, obj)(editEdge(_)) {
+          centerOnScreen
+          open
+        }
       })
       minimumSize = new Dimension(0, minimumSize.getHeight().toInt)
       maximumSize = new Dimension(Int.MaxValue, minimumSize.getHeight().toInt)
@@ -82,60 +90,7 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
         }
       })
       
-      // When deleting a vertex attached to an edge, the vertex should be replaced with a fake vertex
-      def replaceWithFakeVertex(g : Hypergraph[Vertex, Hyperedge], vertexToReplace : Vertex) {
-        
-        val edges = graph.getIncidentEdges(vertexToReplace)
-        
-        edges.toList.foreach { edge => 
-          val fake = new FakeVertex()
-          val newIncidents = graph.getIncidentVertices(edge).map(a => 
-            if (a == vertexToReplace) fake else a)
-          graph.removeEdge(edge)
-          graph.addEdge(edge, newIncidents)
-          
-          // Fake vertex should have same position as old vertex
-          rightVis.graphLayout.setLocation(fake, 
-              rightVis.graphLayout.transform(vertexToReplace))
-        }
-    
-      }
-      def removeItems(vertices : Set[Vertex], edges : Set[Hyperedge]) {
-        
-        val vs = (vertices filterNot {_.isInstanceOf[FakeVertex]}) -- currentPair.rightSide.externalNodesSet
-        val es = edges
-        val edgesToReplace = vs.flatMap { v => graph.getIncidentEdges(v) } -- es
-        
-        if (es.size + vs.size > 0) {
-          def dialog = {
-            val vtext = vs.size match { case 0 => null case 1 => "1 vertex" case x => x + " vertices" }
-            val etext = es.size match { case 0 => null case 1 => "1 edge" case x => x + " edges" }
-            val text = List(vtext, etext).filter(_ != null).mkString(" and ")
-            
-            Dialog.showConfirmation(this, 
-              message="Delete "+text+"?", 
-              title="Delete?")
-          }
-                
-          if (es.size + vs.size == 1 || dialog == Dialog.Result.Ok) {
-            es.foreach { e => 
-              graph.getIncidentVertices(e) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
-              graph.removeEdge(e)
-              
-              setPicked(e, false)
-            }
-            vs.foreach { v => 
-              if (graph.getIncidentEdges(v).exists(edgesToReplace.contains(_))) {
-                replaceWithFakeVertex(graph, v)
-              }
-              graph.removeVertex(v)
-              setPicked(v, false) 
-            }
-            
-            rightVis.repaint()
-          }
-        }
-      }
+      
       contents += new NoFocusButton(Action("Delete") {
         removeItems(pickedVertices, pickedEdges)
       })
@@ -205,5 +160,59 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
   def setPicked(v : Vertex, picked : Boolean) = rightVis.getPickedVertexState.pick(v, picked)
   def setPicked(e : Hyperedge, picked : Boolean) = rightVis.getPickedEdgeState.pick(e, picked)
   
+  // When deleting a vertex attached to an edge, the vertex should be replaced with a fake vertex
+  protected def replaceWithFakeVertex(g : Hypergraph[Vertex, Hyperedge], vertexToReplace : Vertex) {
+    
+    val edges = graph.getIncidentEdges(vertexToReplace)
+    
+    edges.toList.foreach { edge => 
+      val fake = new FakeVertex()
+      val newIncidents = graph.getIncidentVertices(edge).map(a => 
+        if (a == vertexToReplace) fake else a)
+      graph.removeEdge(edge)
+      graph.addEdge(edge, newIncidents)
+      
+      // Fake vertex should have same position as old vertex
+      rightVis.graphLayout.setLocation(fake, 
+          rightVis.graphLayout.transform(vertexToReplace))
+    }
+
+  }
+  def removeItems(vertices : Set[Vertex], edges : Set[Hyperedge]) {
+    
+    val vs = (vertices filterNot {_.isInstanceOf[FakeVertex]}) -- currentPair.rightSide.externalNodesSet
+    val es = edges
+    val edgesToReplace = vs.flatMap { v => graph.getIncidentEdges(v) } -- es
+    
+    if (es.size + vs.size > 0) {
+      def dialog = {
+        val vtext = vs.size match { case 0 => null case 1 => "1 vertex" case x => x + " vertices" }
+        val etext = es.size match { case 0 => null case 1 => "1 edge" case x => x + " edges" }
+        val text = List(vtext, etext).filter(_ != null).mkString(" and ")
+        
+        Dialog.showConfirmation(this, 
+          message="Delete "+text+"?", 
+          title="Delete?")
+      }
+            
+      if (es.size + vs.size == 1 || dialog == Dialog.Result.Ok) {
+        es.foreach { e => 
+          graph.getIncidentVertices(e) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
+          graph.removeEdge(e)
+          
+          setPicked(e, false)
+        }
+        vs.foreach { v => 
+          if (graph.getIncidentEdges(v).exists(edgesToReplace.contains(_))) {
+            replaceWithFakeVertex(graph, v)
+          }
+          graph.removeVertex(v)
+          setPicked(v, false) 
+        }
+        
+        rightVis.repaint()
+      }
+    }
+  }
   
 }

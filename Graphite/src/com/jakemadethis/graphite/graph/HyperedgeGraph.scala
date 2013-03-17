@@ -16,10 +16,14 @@ class HyperedgeGraph(label : String, size : Int) extends OrderedHypergraph[Verte
   }
   
   
-  override def addVertex(v : Vertex) = false
-  override def addEdge(e : Hyperedge, vs : java.util.Collection[_ <: Vertex]) = false
-  override def removeVertex(v : Vertex) = false
-  override def removeEdge(e : Hyperedge) = false
+  override def addVertex(v : Vertex) = 
+    throw new UnsupportedOperationException()
+  override def addEdge(e : Hyperedge, vs : java.util.Collection[_ <: Vertex]) = 
+    throw new UnsupportedOperationException()
+  override def removeVertex(v : Vertex) = 
+    throw new UnsupportedOperationException()
+  override def removeEdge(e : Hyperedge) = 
+    throw new UnsupportedOperationException()
   
   
 

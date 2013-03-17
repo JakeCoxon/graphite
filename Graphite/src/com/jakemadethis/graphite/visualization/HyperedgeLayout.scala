@@ -8,7 +8,7 @@ import java.awt.geom.Point2D
 import collection.JavaConversions._
 
 class HyperedgeLayout[V,E](g : Hypergraph[V,E], d : Dimension) extends Layout[V, E] 
-      with AverageEdgeLayout[V, E] {
+      with EdgeLayout[E] {
   var graph : Hypergraph[V,E] = null
   var dimension = d
   var locs = collection.immutable.Map[V, Point2D]()
@@ -21,10 +21,14 @@ class HyperedgeLayout[V,E](g : Hypergraph[V,E], d : Dimension) extends Layout[V,
     val edge = g.getEdges().head
     val vs = g.getIncidentVertices(edge)
     locs = vs.zipWithIndex.map { case (v, i) =>
-      val n = i.toFloat / vs.size * Math.Pi * 2
-      v -> new Point2D.Double(math.sin(n) * 100, math.cos(n) * 100)
+      val n = i.toFloat / vs.size * math.Pi * 2
+      v -> new Point2D.Double(-math.sin(n) * 100, -math.cos(n) * 100)
     }.toMap
+    lockEdge(edge, true)
   }
+  
+  val zero = new Point2D.Double(0,0)
+  def getEdgeLocation(edge : E) = zero
   
   def initialize() {}
   def setInitializer(init : Transformer[V,Point2D]) {}
