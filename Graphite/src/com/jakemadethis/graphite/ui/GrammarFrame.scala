@@ -47,8 +47,9 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   }
     
   def setDerivation(deriv : DerivationPair) {
-     graphpanel.derivationPair = deriv
-     buttons.setToggled(deriv)
+    graphpanel.derivationPair = deriv
+    buttons.setToggled(deriv)
+    sidebar.delButton.enabled = !deriv.isInitial
   }
     
   val sidebar = new BoxPanel(Orientation.Vertical) {
@@ -63,6 +64,14 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     
     def refreshButtons() {
       buttons.clear
+      
+      buttons += loadedGrammar.initialGraph -> new ToggleButton() {
+        action = Action("Initial") {
+          setDerivation(loadedGrammar.initialGraph)
+        }
+        maximumSize = dimension
+        focusable = false
+      }
     
       // Generate the sidebar
       loadedGrammar.derivations.zipWithIndex.foreach { case (derivation, num) =>
@@ -87,7 +96,8 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       refreshButtons()
       setDerivation(newDerivation)
     })
-    contents += button(Action("Delete") {})
+    val delButton = button(Action("Delete") {})
+    contents += delButton
   }
   
   
@@ -97,9 +107,9 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   
   
   // Create graph panel with first model
-  val graphpanel = new DerivationPanel(loadedGrammar.derivations.head)
+  val graphpanel = new DerivationPanel(loadedGrammar.initialGraph)
   
-  setDerivation(loadedGrammar.derivations.head)
+  setDerivation(loadedGrammar.initialGraph)
   
   def graph = graphpanel.graph
 

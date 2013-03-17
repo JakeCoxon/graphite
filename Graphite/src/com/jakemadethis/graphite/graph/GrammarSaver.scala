@@ -19,7 +19,9 @@ class GrammarSaver(file : File, grammar : GuiGrammar) {
     def transform(obj : A) : B = f(obj)
   }
   
-  val points = grammar.derivations.foldLeft(Map[Vertex, Point2D]()) { case (result, pair) =>
+  val derivations = grammar.initialGraph +: grammar.derivations
+  
+  val points = derivations.foldLeft(Map[Vertex, Point2D]()) { case (result, pair) =>
     val layout = pair.rightSide.getGraphLayout
     val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
     
@@ -27,7 +29,7 @@ class GrammarSaver(file : File, grammar : GuiGrammar) {
   }
   
   
-  val derivationMap = grammar.derivations.map { pair => pair.rightSide.graph -> pair }.toMap
+  val derivationMap = derivations.map { pair => pair.rightSide.graph -> pair }.toMap
   
   var id = 0
   val vIdMap = collection.mutable.Map[Vertex, Int]()
@@ -44,7 +46,7 @@ class GrammarSaver(file : File, grammar : GuiGrammar) {
     })
       
   
-  writer.addGraphData("label", "The grammar label", "?") { g => derivationMap(g).leftSide.label }
+  writer.addGraphData("label", "The grammar label", "?") { g => derivationMap(g).label }
   writer.addEdgeData("label", "The edge label", "?") { (_, e) => e.label }
   writer.addEdgeData("terminal", "If the edge is terminal", "true") { (_, e) => e.isTerminal.toString }
   
@@ -62,7 +64,7 @@ class GrammarSaver(file : File, grammar : GuiGrammar) {
     v match { case v : FakeVertex => "true" case _ => null }
   }
   
-  val graphs = grammar.derivations.map { pair => pair.rightSide.graph }
+  val graphs = derivations.map { pair => pair.rightSide.graph }
   writer.saveHypergraphs(graphs, file)
 }
 

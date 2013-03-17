@@ -162,6 +162,7 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
       rightBox) {
     dividerLocation = 300
     resizeWeight = 0.3
+    var oldDividerLocation = 300
   }
   
   contents += split
@@ -173,8 +174,15 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
   def derivationPair = currentPair
   def derivationPair_=(pair : DerivationPair) {
     currentPair = pair
-    leftVis.setModel(pair.leftSide)
-    leftVis.repaint()
+    if (pair.isInitial) {
+      split.oldDividerLocation = split.dividerLocation 
+      leftVis.setVisible(false)
+    } else {
+      leftVis.setVisible(true)
+      leftVis.setModel(pair.leftSide)
+      leftVis.repaint()
+      split.dividerLocation = split.oldDividerLocation
+    }
     rightVis.setModel(pair.rightSide)
     rightVis.repaint()
   }

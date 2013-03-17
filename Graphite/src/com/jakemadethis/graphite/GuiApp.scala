@@ -26,8 +26,7 @@ object GuiApp {
   }
   
   def newGrammar() {
-    val grammar = new GuiGrammar()
-    grammar.derivations += GrammarLoader.newDerivation("A", 2)
+    val grammar = GrammarLoader.newGrammar()
     new GrammarFrame(grammar, None) {
       open
     }

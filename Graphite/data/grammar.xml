@@ -22,6 +22,22 @@
     <default>?</default>
   </key>
   <graph edgedefault="undirected">
+    <data key="label">$initial</data>
+    <node id="a">
+      <data key="x">67.7650294522319</data>
+      <data key="y">299.82445028848963</data>
+    </node>
+    <node id="b">
+      <data key="x">12.38666428568347</data>
+      <data key="y">54.21823844010626</data>
+    </node>
+    <hyperedge id="z">
+      <data key="terminal">true</data>
+      <endpoint node="a"></endpoint>
+      <endpoint node="b"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
     <data key="label">A</data>
     <node id="1">
       <data key="x">67.7650294522319</data>

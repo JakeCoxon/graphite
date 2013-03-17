@@ -12,14 +12,17 @@ import com.jakemadethis.graphite.graph._
 import com.jakemadethis.graphite.ui.DerivationPair.LeftModel
 import com.jakemadethis.graphite.ui.DerivationPair.RightModel
 import collection.Map
+import edu.uci.ics.jung.algorithms.layout.StaticLayout
 
 abstract class DerivationModel(layout : Layout[Vertex,Hyperedge]) extends DefaultVisualizationModel(layout) {
+  
   def externalNodeId(vertex : Vertex) : Option[Int]
   val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
   override def setGraphLayout(layout : Layout[Vertex,Hyperedge], viewSize : Dimension) {
     require(graph == null || graph == layout.getGraph, "Cannot change graph")
     super.setGraphLayout(layout, viewSize)
   }
+  
 }
 
 
@@ -51,6 +54,7 @@ object DerivationPair {
   
   object LeftModel {
     def apply(label : String, size : Int) = {
+      require(size > 0)
       val graph = new HyperedgeGraph(label, size)
       val rand = new RandomLocationTransformer[Vertex](new Dimension(500,500))
       val layout = new HyperedgeLayout(graph, new Dimension(500,500))
@@ -59,7 +63,7 @@ object DerivationPair {
     }
   }
   class LeftModel(layout : Layout[Vertex,Hyperedge]) extends DerivationModel(layout) {
-    require(graph.getEdgeCount() == 1)
+    require(graph.getEdgeCount() <= 1)
     
     def hyperedge = graph.getEdges().head
     def vertices = graph.getIncidentVertices(hyperedge).toList
@@ -94,6 +98,8 @@ object DerivationPair {
  */
 class DerivationPair(val leftSide : LeftModel, val rightSide : RightModel) {
   
+  def label = leftSide.label
+  lazy val isInitial = false
   def numExternalNodes_=(size : Int) {
     require(size > 0)
     leftSide.size = size
@@ -102,4 +108,19 @@ class DerivationPair(val leftSide : LeftModel, val rightSide : RightModel) {
     
   
 }
+
+object InitialDerivation {
+  def emptyLeft = {
+    val g = new OrderedHypergraph[Vertex,Hyperedge]()
+    val layout = new StaticLayout[Vertex,Hyperedge](g)
+    new LeftModel(layout)
+  }
+}
+class InitialDerivation(_label : String, rightSide : RightModel) extends DerivationPair(InitialDerivation.emptyLeft, rightSide) {
+  override def label = _label
+  override lazy val isInitial = true
+  override def numExternalNodes_=(size : Int) = throw new UnsupportedOperationException()
+}
+
+
 
