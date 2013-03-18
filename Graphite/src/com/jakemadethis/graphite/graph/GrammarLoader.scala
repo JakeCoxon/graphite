@@ -27,32 +27,7 @@ import com.jakemadethis.graphite.ui.GuiGrammar
 import com.jakemadethis.graphite.ui.InitialDerivation
 
 object GrammarLoader {
-  val INITIAL_LABEL = "$initial"
-  
-  def newGrammar() = {
-    val grammar = new GuiGrammar()
-    val rightModel = newRightModel(0)
-    grammar.initialGraph = new InitialDerivation(INITIAL_LABEL, rightModel)
-    grammar
-  }
-  
-  private def newRightModel(size : Int) = {
-    val extNodes = (0 until size).map {i => new Vertex() -> i}.toMap
-    val graph = new OrderedHypergraph[Vertex,Hyperedge]()
-    extNodes.keys.foreach { v => graph.addVertex(v) }
-    
-    val pgraph = graph.asInstanceOf[Graph[Vertex,Hyperedge]]
-    val rand = new RandomLocationTransformer[Vertex](new Dimension(500, 500))
-    val layout = new StaticLayout[Vertex, Hyperedge](pgraph, rand, new Dimension(500, 500))
-      with AverageEdgeLayout[Vertex, Hyperedge]
-        
-    DerivationPair.RightModel(layout, extNodes)
-  }
-  def newDerivation(label : String, size : Int) = {
-    val leftSide = DerivationPair.LeftModel(label, size)
-    val rightSide = newRightModel(size)
-    new DerivationPair(leftSide, rightSide)
-  }
+
 }
 class GrammarLoader(reader : Reader) {
   
@@ -99,31 +74,37 @@ class GrammarLoader(reader : Reader) {
   
   val objs = graphreader.getGraphMLDocument().getGraphMetadata().map { meta =>
     
+    // Construct a temp object
     new {
       val label = meta.getProperty("label")
+      val isInitial = label == GuiGrammar.INITIAL_LABEL
       val graph = meta.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
-      val extNodes = collection.mutable.Map[Vertex,Int]()
-      graph.getVertices().foreach { v =>
-        allExternalNodes.get(v).map { id => extNodes += (v -> id) }
-      }
+      
+      // Map any vertices to externalnode id
+      def mapExternalNodeId(v : Vertex) = allExternalNodes.get(v).map {v -> _}
+      val extNodes = graph.getVertices().collect(Function.unlift(mapExternalNodeId)).toMap
+      
       val pgraph = graph.asInstanceOf[Graph[Vertex,Hyperedge]]
       val rand = new RandomLocationTransformer[Vertex](new Dimension(500, 500))
       val layout = new StaticLayout[Vertex, Hyperedge](pgraph, rand, new Dimension(500, 500))
         with AverageEdgeLayout[Vertex, Hyperedge]
       
+      // Set locations of all vertices
       graph.getVertices().foreach { v => 
         layout.setLocation(v, posMap(v))}
     }
     
   }
   
-  
-  val derivations = objs.filterNot {_.label == GrammarLoader.INITIAL_LABEL}.map { obj => 
+  // The derivations excluding the initial graph
+  val derivations = objs.filterNot {_.isInitial} map { obj => 
     val leftSide = DerivationPair.LeftModel(obj.label, obj.extNodes.size)
     val rightSide = DerivationPair.RightModel(obj.layout, obj.extNodes)
     new DerivationPair(leftSide, rightSide)
   }
-  val initial = objs.find {_.label == GrammarLoader.INITIAL_LABEL} map { obj =>
+  
+  // The initial graph
+  val initial = objs.find {_.isInitial} map { obj =>
     val rightSide = DerivationPair.RightModel(obj.layout, obj.extNodes)
     new InitialDerivation(obj.label, rightSide)
   }

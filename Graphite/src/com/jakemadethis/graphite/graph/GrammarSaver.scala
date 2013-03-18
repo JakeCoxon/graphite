@@ -31,19 +31,18 @@ class GrammarSaver(file : File, grammar : GuiGrammar) {
   
   val derivationMap = derivations.map { pair => pair.rightSide.graph -> pair }.toMap
   
-  var id = 0
-  val vIdMap = collection.mutable.Map[Vertex, Int]()
-  val eIdMap = collection.mutable.Map[Hyperedge, Int]()
-   
-  val writer = new GraphMLWriter[Vertex, Hyperedge](
-    (g, v) => {
-      val newid = vIdMap.getOrElseUpdate(v, { id += 1; id })
-      newid.toString
-    },
-    (g, e) => {
-      val newid = eIdMap.getOrElseUpdate(e, { id += 1; id })
-      newid.toString
-    })
+  class Incrementor[C] {
+    var id = 0
+    val map = collection.mutable.Map[C, Int]()
+    def apply(c : C) = map.getOrElseUpdate(c, { id += 1; id }).toString
+  }
+  
+  val vertexInc = new Incrementor[(Hypergraph[Vertex, Hyperedge], Vertex)]()
+  val edgeInc = new Incrementor[(Hypergraph[Vertex, Hyperedge], Hyperedge)]()
+  val getVertexId = Function.untupled(vertexInc.apply _)
+  val getEdgeId = Function.untupled(edgeInc.apply _)
+  
+  val writer = new GraphMLWriter[Vertex, Hyperedge](getVertexId, getEdgeId)
       
   
   writer.addGraphData("label", "The grammar label", "?") { g => derivationMap(g).label }

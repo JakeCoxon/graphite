@@ -3,19 +3,14 @@ package com.jakemadethis.graphite.ui
 import scala.swing._
 import com.jakemadethis.graphite.graph._
 import scala.collection.JavaConversions._
-import edu.uci.ics.jung.graph.Hypergraph
-import edu.uci.ics.jung.graph.Graph
+import edu.uci.ics.jung.graph.{Hypergraph,Graph}
 import edu.uci.ics.jung.algorithms.layout.StaticLayout
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
-import com.jakemadethis.graphite.visualization.BasicEdgeLayout
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel
-import edu.uci.ics.jung.visualization.VisualizationModel
-import com.jakemadethis.graphite.visualization.AverageEdgeLayout
-import com.jakemadethis.graphite.App
+import com.jakemadethis.graphite.visualization.{BasicEdgeLayout,AverageEdgeLayout}
+import edu.uci.ics.jung.visualization.{DefaultVisualizationModel,VisualizationModel}
 import scala.collection.immutable.Traversable
 import java.io.File
-import java.awt.Color
-import java.awt.Dimension
+import java.awt.{Color, Dimension}
 import com.jakemadethis.graphite.graph.GraphExtensions._
 import com.jakemadethis.graphite.GuiApp
 
@@ -26,9 +21,10 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   // Create graph panel with first model
   val graphpanel = new DerivationPanel(loadedGrammar.initialGraph)
   
-  val buttons = new BoxPanel(Orientation.Vertical) {
+  val derivButtons = new BoxPanel(Orientation.Vertical) {
     val map = collection.mutable.Map[DerivationPair, ToggleButton]()
     var toggled : ToggleButton = null
+    
     def setToggled(derivation : DerivationPair) {
       map.get(derivation) map {b =>
         if (toggled != null) toggled.selected = false
@@ -36,7 +32,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
         toggled.selected = true
       }
     }
-    def clear {
+    def clear() {
       toggled = null
       contents.clear
       map.clear
@@ -52,7 +48,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     
   def setDerivation(deriv : DerivationPair) {
     graphpanel.derivationPair = deriv
-    buttons.setToggled(deriv)
+    derivButtons.setToggled(deriv)
     sidebar.delButton.enabled = !deriv.isInitial
   }
   
@@ -68,9 +64,9 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     
     
     def refreshButtons() {
-      buttons.clear
+      derivButtons.clear
       
-      buttons += loadedGrammar.initialGraph -> new ToggleButton() {
+      derivButtons += loadedGrammar.initialGraph -> new ToggleButton() {
         action = Action("Initial") {
           setDerivation(loadedGrammar.initialGraph)
         }
@@ -80,7 +76,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     
       // Generate the sidebar
       loadedGrammar.derivations.zipWithIndex.foreach { case (derivation, num) =>
-        buttons += derivation -> new ToggleButton(){
+        derivButtons += derivation -> new ToggleButton(){
           action = Action("Rule "+(num+1)) {
             setDerivation(derivation)
           }
@@ -89,19 +85,19 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
         }
       }
       
-      buttons.setToggled(graphpanel.currentPair)
+      derivButtons.setToggled(graphpanel.currentPair)
       
-      buttons.revalidate
-      buttons.repaint
+      derivButtons.revalidate
+      derivButtons.repaint
     }
     refreshButtons()
     
-    contents += new ScrollPane(buttons)
+    contents += new ScrollPane(derivButtons)
     
     
     contents += button(Action("Add") {
       val label = "A"
-      val newDerivation = GrammarLoader.newDerivation(label, 2)
+      val newDerivation = GuiGrammar.newDerivation(label, 2)
       loadedGrammar.derivations += newDerivation
       refreshButtons()
       setDerivation(newDerivation)
@@ -111,7 +107,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     val delButton = button(Action("Delete") {
       val todel = graphpanel.currentPair
       loadedGrammar.derivations -= todel
-      if (buttons.toggled == buttons.map(todel)) {
+      if (derivButtons.toggled eq derivButtons.map(todel)) {
         setDerivation(loadedGrammar.initialGraph)
       }
       refreshButtons()
@@ -128,17 +124,8 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   
   setDerivation(loadedGrammar.initialGraph)
   
-  def graph = graphpanel.graph
-
   
-  val main = new BoxPanel(Orientation.Vertical) {
-    
-    
-    contents += graphpanel
-  }
-  
-  
-  val mainMenuBar = new MenuBar() {
+  menuBar = new MenuBar() {
     def menuItem(text: String)(op: => Unit) = {
       new MenuItem(Action(text)(op))
     }
@@ -166,11 +153,10 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       contents += menuItem("Clear") {}
     }
   }
-  menuBar = mainMenuBar
   
   contents = new BorderPanel() {
     layout(sidebar) = BorderPanel.Position.West
-    layout(main) = BorderPanel.Position.Center
+    layout(graphpanel) = BorderPanel.Position.Center
   }
   
   size = new Dimension(800, 600)

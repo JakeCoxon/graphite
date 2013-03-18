@@ -4,8 +4,14 @@ import edu.uci.ics.jung.graph.util.EdgeType
 import edu.uci.ics.jung.graph._
 import collection.JavaConversions._
 
+/**
+ * A graph consisting of a single edge with label `label' and `size' number of vertices
+ * This is for displaying a left-hand side of a derivation
+ * Modifying the graph after it has been constructed in unsupported
+ */
 class HyperedgeGraph(label : String, size : Int) extends OrderedHypergraph[Vertex, Hyperedge] {
   
+  //
   val edge = new Hyperedge(label, NonTerminal)
   val vs = (0 until size) map {x => new Vertex()}
   

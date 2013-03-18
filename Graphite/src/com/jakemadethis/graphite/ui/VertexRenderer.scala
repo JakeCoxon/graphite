@@ -49,12 +49,10 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
     
     vv.getModel() match {
       case model : DerivationModel =>
-        model.externalNodeId(v) match {
-          case Some(index) =>
-            val textRenderer = TextRenderer.getComponent(vv, index+1, null, Color.BLACK)
-            val size = textRenderer.getPreferredSize()
-            rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width/2, y.toInt - size.height/2 - 20, size.width, size.height, true)
-          case None => 
+        model.externalNodeId(v) map { index => 
+          val textRenderer = TextRenderer.getComponent(vv, index+1, null, Color.BLACK)
+          val size = textRenderer.getPreferredSize()
+          rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width/2, y.toInt - size.height/2 - 20, size.width, size.height, true)
         }
       case _ =>
     }

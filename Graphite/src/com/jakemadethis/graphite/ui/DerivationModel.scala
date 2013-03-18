@@ -54,7 +54,6 @@ object DerivationPair {
     def apply(label : String, size : Int) = {
       require(size > 0)
       val graph = new HyperedgeGraph(label, size)
-      println("Left graph", graph)
       val rand = new RandomLocationTransformer[Vertex](new Dimension(500,500))
       val layout = new HyperedgeLayout(graph, new Dimension(500,500))
       layout.lockEdge(graph.edge, true)
