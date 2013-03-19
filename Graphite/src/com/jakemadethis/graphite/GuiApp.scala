@@ -156,8 +156,10 @@ object GuiApp extends Reactor {
     val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
     
     (0 until number).foreach { i =>
-      val g = randomizer.generate(startder, size, { new HypergraphGenerator(_, new OrderedHypergraph()) }).graph
-      openGraph(g)
+      val path = randomizer.generatePath(startder, size)
+      println(path.seq)
+      //val g = randomizer.generate(startder, size, { new HypergraphGenerator(_, new OrderedHypergraph()) }).graph
+//      openGraph(g)
     }
   
     

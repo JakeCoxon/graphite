@@ -22,3 +22,6 @@ class Derivation[T](val nonTerminals: List[T], val terminalSize: Int) {
     new Derivation[T](newDerivation.nonTerminals ::: nonTerminals.tail, terminalSize + newDerivation.terminalSize)
   }
 }
+
+
+class DerivationPath[K](val seq : Seq[Derivation[K]])

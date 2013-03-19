@@ -46,4 +46,25 @@ class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K,
     generator
   }
   
+  def generatePath(startString : D, len : Int) = {
+    
+    var string : Derivation[K] = startString
+    var list = List[Derivation[K]]() :+ startString
+    
+    while (!string.isTerminal) {
+      val vals = grammar(string.head).map(probability(string, string.head, _, len))
+      
+      val prodId = 
+        if (vals.size == 1) 0 
+        else pick(vals)
+        
+      if (prodId == -1) throw new Error("There are no availible derivations")
+      
+      val derivation = grammar(string.head)(prodId)
+      string = string.derive(derivation)
+      list = list :+ string
+    }
+    new DerivationPath(list)
+  }
+  
 }
