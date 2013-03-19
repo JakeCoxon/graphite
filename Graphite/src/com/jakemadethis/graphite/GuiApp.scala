@@ -11,6 +11,7 @@ import com.jakemadethis.graphite.io.GrammarLoader
 import scala.collection.mutable.Subscriber
 import scala.swing.event._
 import com.jakemadethis.graphite.algorithm._
+import edu.uci.ics.jung.graph.Hypergraph
 
 /**
  * Object for controlling various loading/saving dialogs
@@ -100,6 +101,14 @@ object GuiApp extends Reactor {
     loadGrammar(file)
   }
   
+  /**
+   * Opens a single graph in a new window
+   */
+  def openGraph(graph : Hypergraph[Vertex,Hyperedge]) {
+    new GraphFrame(graph) {
+      open
+    }
+  }
   
   /**
    * Opens the load-graph dialog
@@ -124,7 +133,33 @@ object GuiApp extends Reactor {
     saveGrammar(grammar, file)
   }
   
-  
+  /**
+   * Performs the algorithm on a GuiGrammar (by converting to algorithm grammar first)
+   */
   def generateGraphs(guiGrammar : GuiGrammar, size : Int, number : Int) {
+    
+    def derivationFromPair(pair : DerivationPair) = {
+      val graph = pair.rightSide.graph
+      val extNodes = pair.rightSide.extNodes.toList.sortBy(_._2).map(_._1)
+      val label = pair.label
+      new HypergraphDerivation(graph, extNodes, label)
+    }
+    
+    val derivs = guiGrammar.derivations.map(derivationFromPair _)
+    val startder = new HypergraphDerivation(guiGrammar.initialGraph.rightSide.graph, Seq(), "")
+    val grammar = HypergraphGrammar(derivs)
+    println(grammar)
+    
+    val enumerator = new GrammarEnumerator(grammar)
+    enumerator.precompute(size)
+    
+    val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
+    
+    (0 until number).foreach { i =>
+      val g = randomizer.generate(startder, size, { new HypergraphGenerator(_, new OrderedHypergraph()) }).graph
+      openGraph(g)
+    }
+  
+    
   }
 }

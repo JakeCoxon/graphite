@@ -46,6 +46,10 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
       .reduce { util.convolution(_,_) }(len)
   }
   
+  def precompute(len : Int) {
+    (0 to len).foreach { i => funcs.values.map(_.apply(i))}
+  }
+  
   //
 
   

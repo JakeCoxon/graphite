@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://graphml.graphdrawing.org/xmlns/graphml">
+  <key for="graph" id="label">
+    <default>?</default>
+  </key>
+  <key for="node" id="external">
+    <default>-1</default>
+  </key>
+  <key for="node" id="x">
+    <default>?</default>
+  </key>
+  <key for="node" id="fake">
+    <default>false</default>
+  </key>
+  <key for="node" id="y">
+    <default>?</default>
+  </key>
+  <key for="hyperedge" id="terminal">
+    <default>true</default>
+  </key>
+  <key for="hyperedge" id="label">
+    <default>?</default>
+  </key>
+  <graph edgedefault="undirected">
+    <data key="label">$initial</data>
+    <node id="1">
+      <data key="x">173.58588135718452</data>
+      <data key="y">142.39855255340086</data>
+    </node>
+    <hyperedge id="1">
+      <data key="terminal">false</data>
+      <data key="label">A</data>
+      <endpoint node="1"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">A</data>
+    <node id="2">
+      <data key="x">501.8867584262025</data>
+      <data key="y">182.83242819897367</data>
+    </node>
+    <node id="3">
+      <data key="external">0</data>
+      <data key="x">498.2360986208561</data>
+      <data key="y">74.5403783102836</data>
+    </node>
+    <hyperedge id="2">
+      <data key="terminal">true</data>
+      <data key="label"></data>
+      <endpoint node="3"></endpoint>
+      <endpoint node="2"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">A</data>
+    <node id="4">
+      <data key="external">0</data>
+      <data key="x">365.02004136610464</data>
+      <data key="y">202.98137119029107</data>
+    </node>
+    <node id="5">
+      <data key="x">363.468144666611</data>
+      <data key="y">329.5518414926309</data>
+    </node>
+    <hyperedge id="3">
+      <data key="terminal">true</data>
+      <data key="label"></data>
+      <endpoint node="4"></endpoint>
+      <endpoint node="5"></endpoint>
+    </hyperedge>
+    <hyperedge id="4">
+      <data key="terminal">false</data>
+      <data key="label">A</data>
+      <endpoint node="5"></endpoint>
+    </hyperedge>
+  </graph>
+</graphml>
