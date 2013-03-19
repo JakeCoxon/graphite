@@ -1,4 +1,4 @@
-package com.jakemadethis.graphite.graph
+package com.jakemadethis.graphite.io
 
 import edu.uci.ics.jung.graph.Hypergraph
 import edu.uci.ics.jung.io.GraphMLMetadata

@@ -1,6 +1,4 @@
-package com.jakemadethis.graphite.graph
-
-import java.io.FileReader
+package com.jakemadethis.graphite.io
 import edu.uci.ics.jung.io.graphml.GraphMLReader2
 import org.apache.commons.collections15.Transformer
 import edu.uci.ics.jung.io.graphml.GraphMetadata
@@ -11,20 +9,20 @@ import edu.uci.ics.jung.io.graphml.HyperEdgeMetadata
 import edu.uci.ics.jung.io.GraphIOException
 import java.io.Reader
 import collection.JavaConversions._
-import edu.uci.ics.jung.visualization.VisualizationModel
 import edu.uci.ics.jung.algorithms.layout.StaticLayout
 import com.jakemadethis.graphite.visualization.AverageEdgeLayout
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
 import java.awt.Dimension
 import edu.uci.ics.jung.graph.Graph
-import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import java.awt.geom.Point2D
-import org.apache.commons.collections15.functors.MapTransformer
-import edu.uci.ics.jung.algorithms.layout.Layout
-import scala.collection.mutable.Buffer
 import com.jakemadethis.graphite.ui.DerivationPair
 import com.jakemadethis.graphite.ui.GuiGrammar
 import com.jakemadethis.graphite.ui.InitialDerivation
+import com.jakemadethis.graphite.graph.FakeVertex
+import com.jakemadethis.graphite.graph.Hyperedge
+import com.jakemadethis.graphite.graph.OrderedHypergraph
+import com.jakemadethis.graphite.graph.Termination
+import com.jakemadethis.graphite.graph.Vertex
 
 object GrammarLoader {
 

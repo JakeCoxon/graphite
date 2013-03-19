@@ -1,4 +1,4 @@
-package com.jakemadethis.graphite
+package com.jakemadethis.graphite.algorithm
 
 import com.jakemadethis.util.MultiSet
 

@@ -6,6 +6,8 @@ import com.jakemadethis.graphite.graph._
 import java.awt.FileDialog
 import scala.swing._
 import javax.swing.UIManager
+import com.jakemadethis.graphite.io.GrammarSaver
+import com.jakemadethis.graphite.io.GrammarLoader
 
 /**
  * Object for controlling various loading/saving dialogs

@@ -1,18 +1,13 @@
-package com.jakemadethis.graphite.graph
-
-import java.io.Writer
+package com.jakemadethis.graphite.io
 import edu.uci.ics.jung.graph.Hypergraph
-import java.io.BufferedWriter
 import collection.JavaConversions._
-import edu.uci.ics.jung.graph.UndirectedGraph
-import edu.uci.ics.jung.visualization.VisualizationModel
-import edu.uci.ics.jung.io.GraphMLMetadata
 import org.apache.commons.collections15.Transformer
 import java.awt.geom.Point2D
-import java.io.FileWriter
-import com.jakemadethis.graphite.graph.GraphMLWriter
 import java.io.File
 import com.jakemadethis.graphite.ui.GuiGrammar
+import com.jakemadethis.graphite.graph.FakeVertex
+import com.jakemadethis.graphite.graph.Hyperedge
+import com.jakemadethis.graphite.graph.Vertex
 
 class GrammarSaver(file : File, grammar : GuiGrammar) {
   implicit def convertFunctionToTransformer[A,B](f : A => B) : Transformer[A,B] = new Transformer[A,B]() {

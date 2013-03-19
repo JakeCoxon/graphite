@@ -3,6 +3,11 @@ package com.jakemadethis.graphite
 import com.jakemadethis.util._
 import scala.collection.mutable.Map
 import scala.collection.mutable.ArraySeq
+import com.jakemadethis.graphite.algorithm.CharGrammar
+import com.jakemadethis.graphite.algorithm.CharDerivation
+import com.jakemadethis.graphite.algorithm.GrammarRandomizer
+import com.jakemadethis.graphite.algorithm.GrammarEnumerator
+import com.jakemadethis.graphite.algorithm.StringGenerator
 
 
 object TestStringGrammar {

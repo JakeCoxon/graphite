@@ -6,6 +6,11 @@ import collection.JavaConversions._
 import com.jakemadethis.util.Time
 import com.jakemadethis.graphite.ui.GraphFrame
 import java.util.Date
+import com.jakemadethis.graphite.algorithm.GrammarRandomizer
+import com.jakemadethis.graphite.algorithm.GrammarEnumerator
+import com.jakemadethis.graphite.algorithm.HypergraphGenerator
+import com.jakemadethis.graphite.algorithm.HypergraphDerivation
+import com.jakemadethis.graphite.algorithm.HypergraphGrammar
 
 object TestTreeGrammar {
   def newGraph : Hypergraph[Vertex,Hyperedge] = new OrderedHypergraph[Vertex,Hyperedge]()

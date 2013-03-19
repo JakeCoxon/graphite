@@ -1,6 +1,4 @@
-package com.jakemadethis.graphite;
-//import scala.collection.mutable.Map
-import scala.collection.mutable.ArraySeq
+package com.jakemadethis.graphite.algorithm
 
 trait Grammar[K, D <: Derivation[K]] extends collection.Map[K, Seq[D]] {
 

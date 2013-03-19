@@ -3,12 +3,15 @@ package com.jakemadethis.graphite
 import com.jakemadethis.util._
 import com.jakemadethis.graphite.graph._
 import scala.collection.mutable.ArraySeq
-import com.jakemadethis.graphite.graph.HypergraphDerivation
+import com.jakemadethis.graphite.algorithm.HypergraphDerivation
 import com.jakemadethis.graphite.graph.OrderedHypergraph
 import edu.uci.ics.jung.graph.Graph
-import com.jakemadethis.graphite.graph.HypergraphGrammar
+import com.jakemadethis.graphite.algorithm.HypergraphGrammar
 import scala.collection.JavaConversions._
 import edu.uci.ics.jung.graph.Hypergraph
+import com.jakemadethis.graphite.algorithm.GrammarRandomizer
+import com.jakemadethis.graphite.algorithm.GrammarEnumerator
+import com.jakemadethis.graphite.algorithm.HypergraphGenerator
 
 
 object TestGraphGrammar {
