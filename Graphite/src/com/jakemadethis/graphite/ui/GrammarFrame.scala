@@ -13,6 +13,8 @@ import java.io.File
 import java.awt.{Color, Dimension}
 import com.jakemadethis.graphite.graph.GraphExtensions._
 import com.jakemadethis.graphite.GuiApp
+import scala.swing.Swing$
+import scala.swing.Separator
 
 
 class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends MainFrame {
@@ -92,10 +94,12 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     }
     refreshButtons()
     
-    contents += new ScrollPane(derivButtons)
+    contents += new ScrollPane(derivButtons) {
+      border = Swing.EmptyBorder(0)
+    }
     
     
-    contents += button(Action("Add") {
+    contents += button(Action("Add Rule") {
       val label = "A"
       val newDerivation = GuiGrammar.newDerivation(label, 2)
       loadedGrammar.derivations += newDerivation
@@ -113,6 +117,18 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       refreshButtons()
     })
     contents += delButton
+    
+    contents += Swing.VStrut(20)
+//    contents += new Separator(Orientation.Horizontal) {
+//      maximumSize = new Dimension(1000,10)
+//    }
+    contents += new Button() {
+      action = Action("Generate...") {
+      
+      }
+      focusable = false
+      maximumSize = dimension
+    }
   }
   
   
@@ -137,15 +153,17 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
       contents += menuItem("Open Grammar...") {
         GuiApp.loadGrammarDialog(GrammarFrame.this)
       }
-      contents += menuItem("Open Graph...") {
-        GuiApp.loadGraphDialog(GrammarFrame.this)
-      }
 //      contents += menuItem("Save Grammar") {
 //        if (file.isDefined) App.saveGrammar(grammarObject.grammar, models, file.get)
 //        else App.saveGrammarGui(GrammarFrame.this, grammar, models)
 //      }
       contents += menuItem("Save Grammar as...") {
         GuiApp.saveGrammarDialog(GrammarFrame.this, loadedGrammar)
+      }
+      
+      contents += new Separator()
+      contents += menuItem("Open Graph...") {
+        GuiApp.loadGraphDialog(GrammarFrame.this)
       }
     }
     contents += new Menu("Graph") {

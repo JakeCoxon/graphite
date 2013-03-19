@@ -144,9 +144,9 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
     if (pair.isInitial) {
       split.oldDividerLocation = split.dividerLocation
       split.dividerLocation = 0
-      leftVis.setVisible(false)
+      leftBox.visible = false
     } else {
-      leftVis.setVisible(true)
+      leftBox.visible = true
       leftVis.setModel(pair.leftSide)
       leftVis.repaint()
       split.dividerLocation = split.oldDividerLocation
