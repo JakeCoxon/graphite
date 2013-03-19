@@ -8,11 +8,14 @@ import scala.swing._
 import javax.swing.UIManager
 import com.jakemadethis.graphite.io.GrammarSaver
 import com.jakemadethis.graphite.io.GrammarLoader
+import scala.collection.mutable.Subscriber
+import scala.swing.event._
+import com.jakemadethis.graphite.algorithm._
 
 /**
  * Object for controlling various loading/saving dialogs
  */
-object GuiApp {
+object GuiApp extends Reactor {
 
   object XMLFilter extends FilenameFilter() {
     def accept(dir : File, name : String) = name.endsWith(".xml")
@@ -30,6 +33,19 @@ object GuiApp {
     loadGrammar(new File("data/grammar.xml"))
   }
   
+  reactions += {
+    case NewGrammar() =>
+      newGrammar()
+    case LoadGrammar(parent) =>
+      loadGrammarDialog(parent)
+    case SaveGrammar(parent, grammar, saveAs) =>
+      saveGrammarDialog(parent, grammar)
+    case LoadGraph(parent) =>
+      loadGraphDialog(parent)
+    case GenerateGraphs(grammar, size, number) =>
+      generateGraphs(grammar, size, number)
+  }
+  
   
   /**
    * Opens a frame with an empty grammar
@@ -37,7 +53,9 @@ object GuiApp {
   def newGrammar() {
     new GrammarFrame(GuiGrammar(), None) {
       open
+      GuiApp.listenTo(this)
     }
+    
   }
   
   
@@ -49,6 +67,7 @@ object GuiApp {
     
     new GrammarFrame(grammarLoader.grammar, Some(file)) {
       open
+      GuiApp.listenTo(this)
     }
     
     println("Loaded " + file.getAbsolutePath())
@@ -103,5 +122,9 @@ object GuiApp {
     
     val file = new File(d.getDirectory() + "/" + d.getFile())
     saveGrammar(grammar, file)
+  }
+  
+  
+  def generateGraphs(guiGrammar : GuiGrammar, size : Int, number : Int) {
   }
 }

@@ -19,6 +19,7 @@ import scala.swing.Separator
 
 class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends MainFrame {
   
+  val frame = this
   
   // Create graph panel with first model
   val graphpanel = new DerivationPanel(loadedGrammar.initialGraph)
@@ -124,12 +125,20 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
 //    }
     contents += new Button() {
       action = Action("Generate...") {
-      
+        def generate(obj : GenerateDialogObject) {
+          frame.publish(GenerateGraphs(loadedGrammar, obj.size, obj.number))
+        }
+        new GenerateDialog(GrammarFrame.this)(generate) {
+          centerOnScreen
+          open
+        }
       }
       focusable = false
       maximumSize = dimension
     }
   }
+  
+  
   
   
   
@@ -148,22 +157,22 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     
     contents += new Menu("File") {
       contents += menuItem("New Grammar") {
-        GuiApp.newGrammar()
+        frame.publish(NewGrammar())
       }
       contents += menuItem("Open Grammar...") {
-        GuiApp.loadGrammarDialog(GrammarFrame.this)
+        frame.publish(LoadGrammar(frame))
       }
 //      contents += menuItem("Save Grammar") {
 //        if (file.isDefined) App.saveGrammar(grammarObject.grammar, models, file.get)
 //        else App.saveGrammarGui(GrammarFrame.this, grammar, models)
 //      }
-      contents += menuItem("Save Grammar as...") {
-        GuiApp.saveGrammarDialog(GrammarFrame.this, loadedGrammar)
+      contents += menuItem("Save Grammar As...") {
+        frame.publish(SaveGrammar(frame, loadedGrammar, saveAs=true))
       }
       
       contents += new Separator()
       contents += menuItem("Open Graph...") {
-        GuiApp.loadGraphDialog(GrammarFrame.this)
+        frame.publish(LoadGraph(frame))
       }
     }
     contents += new Menu("Graph") {
@@ -179,3 +188,10 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   
   size = new Dimension(800, 600)
 }
+
+case class NewGrammar extends event.Event
+case class LoadGrammar(parent : Frame) extends event.Event
+case class SaveGrammar(parent : Frame, grammar : GuiGrammar, saveAs : Boolean) extends event.Event
+case class LoadGraph(parent : Frame) extends event.Event
+case class GenerateGraphs(grammar : GuiGrammar, size : Int, number : Int) extends event.Event
+
