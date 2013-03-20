@@ -9,7 +9,7 @@ import com.jakemadethis.graphite.graph.FakeVertex
 import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.Vertex
 
-class GrammarSaver(file : File, grammar : GuiGrammar) {
+class GuiGrammarSaver(file : File, grammar : GuiGrammar) {
   implicit def convertFunctionToTransformer[A,B](f : A => B) : Transformer[A,B] = new Transformer[A,B]() {
     def transform(obj : A) : B = f(obj)
   }

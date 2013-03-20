@@ -6,8 +6,7 @@ import com.jakemadethis.graphite.graph._
 import java.awt.FileDialog
 import scala.swing._
 import javax.swing.UIManager
-import com.jakemadethis.graphite.io.GrammarSaver
-import com.jakemadethis.graphite.io.GrammarLoader
+import com.jakemadethis.graphite.io.{GuiGrammarSaver,GuiGrammarLoader}
 import scala.collection.mutable.Subscriber
 import scala.swing.event._
 import com.jakemadethis.graphite.algorithm._
@@ -70,7 +69,7 @@ object GuiApp extends Reactor {
    * Opens a frame with the given grammar file loaded
    */
   def loadGrammar(file : File) {
-    val grammarLoader = new GrammarLoader(new FileReader(file))
+    val grammarLoader = new GuiGrammarLoader(new FileReader(file))
     
     new GrammarFrame(grammarLoader.grammar, Some(file)) {
       open
@@ -85,7 +84,7 @@ object GuiApp extends Reactor {
    * Saves a grammar and outputs a message
    */
   def saveGrammar(grammar : GuiGrammar, file : File) {
-    val saver = new GrammarSaver(file, grammar)
+    val saver = new GuiGrammarSaver(file, grammar)
     println("Saved " + file.getAbsolutePath())
   }
   

@@ -9,27 +9,41 @@ import edu.uci.ics.jung.io.graphml.HyperEdgeMetadata
 import edu.uci.ics.jung.io.GraphIOException
 import java.io.Reader
 import collection.JavaConversions._
+import edu.uci.ics.jung.algorithms.layout.StaticLayout
+import com.jakemadethis.graphite.visualization.AverageEdgeLayout
+import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
+import java.awt.Dimension
 import edu.uci.ics.jung.graph.Graph
-import com.jakemadethis.graphite.graph._
-import com.jakemadethis.graphite.algorithm._
+import java.awt.geom.Point2D
+import com.jakemadethis.graphite.ui.DerivationPair
 import com.jakemadethis.graphite.ui.GuiGrammar
+import com.jakemadethis.graphite.ui.InitialDerivation
+import com.jakemadethis.graphite.graph.FakeVertex
+import com.jakemadethis.graphite.graph.Hyperedge
+import com.jakemadethis.graphite.graph.OrderedHypergraph
+import com.jakemadethis.graphite.graph.Termination
+import com.jakemadethis.graphite.graph.Vertex
 
-object GrammarLoader {
+object GuiGrammarLoader {
 
 }
-class GrammarLoader(reader : Reader) {
+class GuiGrammarLoader(reader : Reader) {
   
   // This means vertices cannot be shared across graphs
-  private val allExternalNodes = collection.mutable.Map[Vertex, Int]()
+  val posMap = collection.mutable.Map[Vertex, Point2D]()
+  val allExternalNodes = collection.mutable.Map[Vertex, Int]()
   
   val graphTransformer = new Transformer[GraphMetadata, Hypergraph[Vertex, Hyperedge]]() {
     def transform(m : GraphMetadata) = new OrderedHypergraph()
   }
   val vertexTransformer = new Transformer[NodeMetadata, Vertex]() {
     def transform(m : NodeMetadata) = {
-      val v = if (m.getProperty("fake").toBoolean) throw new Exception("Invalid vertex") else new Vertex()
+      val v = if (m.getProperty("fake").toBoolean) new FakeVertex() else new Vertex()
+      val x = m.getProperty("x").toDouble
+      val y = m.getProperty("y").toDouble
       val ex = m.getProperty("external").toInt
       if (ex > -1) allExternalNodes(v) = ex
+      posMap(v) = new Point2D.Double(x, y)
       v
     }
   }
@@ -56,7 +70,7 @@ class GrammarLoader(reader : Reader) {
     case ex : GraphIOException => null
   }
   
-  private val objs = graphreader.getGraphMLDocument().getGraphMetadata().map { meta =>
+  val objs = graphreader.getGraphMLDocument().getGraphMetadata().map { meta =>
     
     // Construct a temp object
     new {
@@ -66,21 +80,36 @@ class GrammarLoader(reader : Reader) {
       
       // Map any vertices to externalnode id
       def mapExternalNodeId(v : Vertex) = allExternalNodes.get(v).map {v -> _}
-      val extNodes = graph.getVertices().collect(Function.unlift(mapExternalNodeId)).toList.sortBy(_._2).map(_._1)
+      val extNodes = graph.getVertices().collect(Function.unlift(mapExternalNodeId)).toMap
+      
+      val pgraph = graph.asInstanceOf[Graph[Vertex,Hyperedge]]
+      val rand = new RandomLocationTransformer[Vertex](new Dimension(500, 500))
+      val layout = new StaticLayout[Vertex, Hyperedge](pgraph, rand, new Dimension(500, 500))
+        with AverageEdgeLayout[Vertex, Hyperedge]
+      
+      // Set locations of all vertices
+      graph.getVertices().foreach { v => 
+        layout.setLocation(v, posMap(v))}
     }
     
   }
   
   // The derivations excluding the initial graph
   val derivations = objs.filterNot {_.isInitial} map { obj => 
-    new HypergraphDerivation(obj.graph, obj.extNodes, obj.label)
+    val leftSide = DerivationPair.LeftModel(obj.label, obj.extNodes.size)
+    val rightSide = DerivationPair.RightModel(obj.layout, obj.extNodes)
+    new DerivationPair(leftSide, rightSide)
   }
   
   // The initial graph
   val initial = objs.find {_.isInitial} map { obj =>
-    new HypergraphDerivation(obj.graph, Seq(), "")
+    val rightSide = DerivationPair.RightModel(obj.layout, obj.extNodes)
+    new InitialDerivation(obj.label, rightSide)
   }
   
-  val grammar = HypergraphGrammar(derivations)
+  val grammar = new GuiGrammar()
+  grammar.derivations ++= derivations
+  grammar.initialGraph = initial getOrElse
+    {throw new Exception("No initial graph")}
 }
 
