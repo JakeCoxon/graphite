@@ -53,7 +53,7 @@ class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge])
   addPostRenderPaintable(new FakeVertexRenderer(vv))
     
     
-  setBorder(Swing.MatteBorder(1,1,1,1,Color.BLACK))
+  setBorder(Swing.BeveledBorder(Swing.Lowered))
   setFocusable(true)
   
   def graph = getGraphLayout().getGraph()

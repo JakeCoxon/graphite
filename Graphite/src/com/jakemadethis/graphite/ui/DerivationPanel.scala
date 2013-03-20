@@ -40,6 +40,7 @@ import com.jakemadethis.graphite.graph._
 
 class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.NoOrientation) {
   
+  border = Swing.EmptyBorder
   var currentPair : DerivationPair = derivPair
   
   val leftVis = new GraphPanel(derivPair.leftSide)
@@ -130,6 +131,7 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
     dividerLocation = 300
     resizeWeight = 0.3
     var oldDividerLocation = 300
+    border = Swing.EmptyBorder
   }
   
   contents += split

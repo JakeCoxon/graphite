@@ -25,6 +25,9 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   val graphpanel = new DerivationPanel(loadedGrammar.initialGraph)
   
   val derivButtons = new BoxPanel(Orientation.Vertical) {
+    
+    background = Color.WHITE
+    
     val map = collection.mutable.Map[DerivationPair, ToggleButton]()
     var toggled : ToggleButton = null
     
@@ -57,8 +60,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
   
     
   val sidebar = new BoxPanel(Orientation.Vertical) {
-    size = new Dimension(200, 10)
-    background = Color.WHITE
+    preferredSize = new Dimension(150, 10)
     
     val dimension = new Dimension(1000,30)
     def button(action : Action) = new NoFocusButton(action) {
@@ -85,6 +87,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
           }
           maximumSize = dimension
           focusable = false
+          
         }
       }
       
@@ -109,7 +112,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     })
     
     
-    val delButton = button(Action("Delete") {
+    val delButton = button(Action("Delete Rule") {
       val todel = graphpanel.currentPair
       loadedGrammar.derivations -= todel
       if (derivButtons.toggled eq derivButtons.map(todel)) {
