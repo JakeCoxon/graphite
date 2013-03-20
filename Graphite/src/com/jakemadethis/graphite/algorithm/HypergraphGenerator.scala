@@ -3,13 +3,21 @@ package com.jakemadethis.graphite.algorithm
 import edu.uci.ics.jung.graph._
 import com.jakemadethis.graphite.graph._
 import collection.JavaConversions._
+import com.jakemadethis.util.OptionIf._
 
 object HypergraphGenerator {
   
   def apply(graph : Hypergraph[Vertex, Hyperedge], path : Derivation.Path[HypergraphDerivation]) = {
+    val startGraph = applyToGraph(graph, path.head, Seq())
     path.tail.foldLeft(graph) { case (graph, derivation) => 
   
-      val edge = getNonTerminalEdge(graph, derivation.label).getOrElse(throw new Error("NT not found"))
+      val edge = getNonTerminalEdge(graph, derivation.label).getOrElse {
+        val nts = graph.getEdges.filter(_.isNonTerminal).map(_.label).optionIf(_.size > 0).
+            map { list => "Available nonterminals are "+list.mkString(",") }.
+            getOrElse("No available nonterminals")
+            
+        throw new Error("Nonterminal '"+derivation.label+"' not found. "+nts)
+      }
       val incidents = new IterableWrapper(graph.getIncidentVertices(edge))
       
       val vs = graph.getIncidentVertices(edge)

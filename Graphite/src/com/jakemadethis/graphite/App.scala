@@ -33,8 +33,8 @@ object App {
   
   class Options(args : List[String]) {
     def isOption(str : String) = str.startsWith("--")
-    val keyValuePattern = """--([a-zA-Z0-9-]+)=([a-zA-Z0-9]+)""".r
-    val switchPattern = """--([a-zA-Z0-9-]+)""".r
+    val keyValuePattern = """--([a-zA-Z0-9\-]+)=([a-zA-Z0-9]+)""".r
+    val switchPattern = """--([a-zA-Z0-9\-]+)""".r
     
     type OptionMap = Map[Symbol, String]
     
