@@ -12,6 +12,7 @@ import scala.collection.mutable.Subscriber
 import scala.swing.event._
 import com.jakemadethis.graphite.algorithm._
 import edu.uci.ics.jung.graph.Hypergraph
+import collection.JavaConversions._
 
 /**
  * Object for controlling various loading/saving dialogs
@@ -43,8 +44,8 @@ object GuiApp extends Reactor {
       saveGrammarDialog(parent, grammar)
     case LoadGraph(parent) =>
       loadGraphDialog(parent)
-    case GenerateGraphs(grammar, size, number) =>
-      generateGraphs(grammar, size, number)
+    case GenerateGraphs(parent, grammar, size, number) =>
+      generateGraphs(parent, grammar, size, number)
   }
   
   
@@ -136,7 +137,12 @@ object GuiApp extends Reactor {
   /**
    * Performs the algorithm on a GuiGrammar (by converting to algorithm grammar first)
    */
-  def generateGraphs(guiGrammar : GuiGrammar, size : Int, number : Int) {
+  def generateGraphs(parent : Frame, guiGrammar : GuiGrammar, size : Int, number : Int) {
+    
+    if (guiGrammar.derivations.exists(_.isInvalid)) {
+      println("Invalid graph")
+      return
+    }
     
     def derivationFromPair(pair : DerivationPair) = {
       val graph = pair.rightSide.graph
@@ -150,18 +156,57 @@ object GuiApp extends Reactor {
     val grammar = HypergraphGrammar(derivs)
     println(grammar)
     
-    val enumerator = new GrammarEnumerator(grammar)
-    enumerator.precompute(size)
-    
-    val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-    
-    (0 until number).foreach { i =>
-      val path = randomizer.generatePath(startder, size)
-      println(path.seq)
-      //val g = randomizer.generate(startder, size, { new HypergraphGenerator(_, new OrderedHypergraph()) }).graph
-//      openGraph(g)
+    val loading = new Dialog(parent) {
+      lazy val message = new Label("Generating")
+      lazy val closebtn = new Button(Action("Close") {
+        close
+      }) { enabled = false }
+      
+      contents = new BoxPanel(Orientation.Vertical) {
+        contents += message
+        contents += closebtn
+      }
+      
+      def ! (s : String) {
+        Swing.onEDT { message.text = s }
+      }
+      def done { closebtn.enabled = true }
+      
+      
+      open; centerOnScreen
     }
-  
+    def error(message : String) = Swing.onEDT {
+      Dialog.showMessage(null, message, "Generating Error", Dialog.Message.Error, null)
+      loading.close
+    }
+    
+    val thread = new Thread(new Runnable {
+      def run() {
+        loading ! "Precompting"
+        val enumerator = new GrammarEnumerator(grammar)
+        enumerator.precompute(size)
+        
+        if (enumerator.count(startder, size) == 0) {
+          error("No available derivations at size "+size)
+          return
+        }
+        
+        val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
+        
+        (0 until number).foreach { i =>
+          loading ! "Generating " + i +" of "+number
+          
+          val path = randomizer.generatePath(startder, size)
+          //println(path.seq)
+          //val g = randomizer.generate(startder, size, { new HypergraphGenerator(_, new OrderedHypergraph()) }).graph
+    //      openGraph(g)
+        }
+        loading ! "Done"
+        loading.done
+      }
+    })
+    
+    thread.start()
     
   }
 }

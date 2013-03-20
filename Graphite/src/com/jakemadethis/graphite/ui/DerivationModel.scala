@@ -91,6 +91,8 @@ class DerivationPair(val leftSide : LeftModel, val rightSide : RightModel) {
   def label = leftSide.label
   lazy val isInitial = false
   
+  def isInvalid = rightSide.graph.getVertices().exists(_.isInstanceOf[FakeVertex])
+  
   def numExternalNodes = rightSide.numExternalNodes
   
   def edit(newLabel : String, newSize : Int) {

@@ -126,7 +126,7 @@ class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends Main
     contents += new Button() {
       action = Action("Generate...") {
         def generate(obj : GenerateDialogObject) {
-          frame.publish(GenerateGraphs(loadedGrammar, obj.size, obj.number))
+          frame.publish(GenerateGraphs(frame, loadedGrammar, obj.size, obj.number))
         }
         new GenerateDialog(GrammarFrame.this)(generate) {
           centerOnScreen
@@ -193,5 +193,5 @@ case class NewGrammar extends event.Event
 case class LoadGrammar(parent : Frame) extends event.Event
 case class SaveGrammar(parent : Frame, grammar : GuiGrammar, saveAs : Boolean) extends event.Event
 case class LoadGraph(parent : Frame) extends event.Event
-case class GenerateGraphs(grammar : GuiGrammar, size : Int, number : Int) extends event.Event
+case class GenerateGraphs(parent : Frame, grammar : GuiGrammar, size : Int, number : Int) extends event.Event
 

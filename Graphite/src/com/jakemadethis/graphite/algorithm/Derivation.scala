@@ -3,6 +3,8 @@ package com.jakemadethis.graphite.algorithm
 import com.jakemadethis.util.MultiSet
 
 object Derivation {
+  type Path[D <: Derivation[_]] = Seq[D]
+  
   def empty[T]() = new Derivation[T](List(), 0)
   def apply[T](seq : Seq[T], terminalSize: Int): Derivation[T] = {
     Derivation(List() ++ seq, terminalSize)
@@ -24,4 +26,3 @@ class Derivation[T](val nonTerminals: List[T], val terminalSize: Int) {
 }
 
 
-class DerivationPath[K](val seq : Seq[Derivation[K]])

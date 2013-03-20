@@ -4,7 +4,45 @@ import edu.uci.ics.jung.graph._
 import com.jakemadethis.graphite.graph._
 import collection.JavaConversions._
 
-
+object HypergraphGenerator {
+  
+  def apply(graph : Hypergraph[Vertex, Hyperedge], path : Derivation.Path[HypergraphDerivation]) = {
+    path.tail.foldLeft(graph) { case (graph, derivation) => 
+  
+      val edge = getNonTerminalEdge(graph, derivation.label).getOrElse(throw new Error("NT not found"))
+      val incidents = new IterableWrapper(graph.getIncidentVertices(edge))
+      
+      val vs = graph.getIncidentVertices(edge)
+      if (vs.size != derivation.deriveType) throw new Error("Hypergraph type does not match hyperedge type")
+      graph.removeEdge(edge)
+      applyToGraph(graph, derivation, incidents)
+    }
+  }
+  
+  private def applyToGraph(graph : Hypergraph[Vertex, Hyperedge], derivation : HypergraphDerivation, incidents : Iterable[Vertex]) = {
+    val extMap = derivation.externalNodes.zip(incidents).toMap
+    
+    val vMap = extMap ++ derivation.graph.getVertices().filterNot(extMap.contains(_)).map { v =>
+      val copy = v.copy
+      graph.addVertex(copy)
+      (v -> copy)
+    }.toMap
+    
+    derivation.graph.getEdges().foreach { e => 
+      val copy = e.copy
+      val vs = derivation.graph.getIncidentVertices(e).map(vMap(_))
+      graph.addEdge(copy, vs)
+    }
+    
+    graph
+    
+  }
+  
+  private def getNonTerminalEdge(graph : Hypergraph[Vertex, Hyperedge], label : String) = {
+    // Note this is linear, probably can make this faster
+    graph.getEdges().find(_.label == label)
+  }
+}
 class HypergraphGenerator(start : HypergraphDerivation, val graph : Hypergraph[Vertex, Hyperedge]) 
     extends Generator[String, HypergraphDerivation] {
   
