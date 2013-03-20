@@ -13,6 +13,8 @@ import scala.swing.event._
 import com.jakemadethis.graphite.algorithm._
 import edu.uci.ics.jung.graph.Hypergraph
 import collection.JavaConversions._
+import javax.swing.plaf.metal.MetalLookAndFeel
+import javax.swing.plaf.metal.OceanTheme
 
 /**
  * Object for controlling various loading/saving dialogs
@@ -26,13 +28,16 @@ object GuiApp extends Reactor {
   /**
    * Starts the Gui App, sets swing options such as look&feel, loads default grammar
    */
-  def start() {
+  def start(file : Option[String]) {
     
-    System.setProperty("apple.laf.useScreenMenuBar", "true");
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Graphite");
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-              
-    loadGrammar(new File("data/grammar.xml"))
+    System.setProperty("apple.laf.useScreenMenuBar", "true")
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Graphite")
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+    
+    if (file.isDefined) 
+      loadGrammar(new File(file.get))
+    else
+      newGrammar()
   }
   
   reactions += {
