@@ -48,6 +48,9 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
   
   def count(derivation : D, len : Int) = countAll(derivation.nonTerminalSet, len-derivation.terminalSize)
   
+  def countRange(derivation : D, min : Int, max : Int) = 
+    (min to max).foldLeft(BigInt(0)) { case (result, i) => result + count(derivation, i) }
+  
   def precompute(len : Int) {
     (0 to len).foreach { i => funcs.values.map(_.apply(i))}
   }
