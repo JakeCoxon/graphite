@@ -7,6 +7,7 @@ import com.jakemadethis.graphite.graph.OrderedHypergraph
 import com.jakemadethis.graphite.algorithm.{HypergraphGenerator,GrammarRandomizer,GrammarEnumerator}
 import com.jakemadethis.util.Time
 import collection.JavaConversions._
+import com.jakemadethis.graphite.algorithm.Validator
 
 object ConsoleApp {
   
@@ -57,8 +58,8 @@ object ConsoleApp {
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     val initial = loader.initial.getOrElse {throw new Error("No initial graph")}
     
-    
-    val enumerator = new GrammarEnumerator(loader.grammar)
+    val grammar = Validator.validateGraph(loader.grammar)
+    val enumerator = new GrammarEnumerator(grammar)
     
     // Count the number of terminal graphs with a given size
     def timeCountSingle(size : Int) = Time.get {
@@ -99,38 +100,43 @@ object ConsoleApp {
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     val initial = loader.initial.getOrElse {throw new Error("No initial graph")}
     
-    val enumerator = new GrammarEnumerator(loader.grammar)
+    
     
     // Case classes for output, in order to filter for verbose outputs
     case class OutputTotalGraphs(num : BigInt)
     case class OutputGenerating(num : Int, total : Int)
     case class OutputGraphData(vs : Int, es : Int)
-    case class OutputDone()
+    case class OutputDone(time : Long)
     
     // Runs the algorithm
     def run(send : (Any) => Unit) {
-      enumerator.precompute(size)
+      val grammar = Validator.validateGraph(loader.grammar)
+      val enumerator = new GrammarEnumerator(grammar)
       
-      val count = enumerator.count(initial, size)
-      if (count == 0) {
-        println("No available derivations at size %,d".format(size))
-        return
+      val (_, time) = Time.get {
+        enumerator.precompute(size)
+        
+        val count = enumerator.count(initial, size)
+        if (count == 0) {
+          println("No available derivations at size %,d".format(size))
+          return
+        }
+        send(OutputTotalGraphs(count))
+        
+        val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
+        
+        for ( i <- 1 to number ) {
+          
+          send(OutputGenerating(i, number))
+          
+          val path = randomizer.generatePath(initial, size)
+          //val graph = HypergraphGenerator(new OrderedHypergraph(), path)
+          
+          //send(OutputGraphData(graph.getVertexCount(), graph.getEdgeCount()))
+          
+        }
       }
-      send(OutputTotalGraphs(count))
-      
-      val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-      
-      for ( i <- 1 to number ) {
-        
-        send(OutputGenerating(i, number))
-        
-        val path = randomizer.generatePath(initial, size)
-        //val graph = HypergraphGenerator(new OrderedHypergraph(), path)
-        
-        //send(OutputGraphData(graph.getVertexCount(), graph.getEdgeCount()))
-        
-      }
-      send(OutputDone())
+      send(OutputDone(time))
     }
     
     def verboseOutput(message : Any) {
@@ -138,6 +144,7 @@ object ConsoleApp {
         case OutputTotalGraphs(num) => println("Total number of terminal graphs: %s".format(toStdForm(num)))
         case OutputGenerating(num, total) => println("Generating %,d of %,d: ".format(num, number))
         case OutputGraphData(v, e) => println("Vertices(%,d) + Edges(%,d) = %,d".format(v, e, v+e))
+        case OutputDone(time) => println("Time to compute: %,d milliseconds".format(time/1000))
         case _ =>
       }
     }
@@ -145,12 +152,13 @@ object ConsoleApp {
     def regularOutput(message : Any) {
       message match {
         case OutputGenerating(num, total) => print("\rGenerating %,d of %,d".format(num, number))
-        case OutputDone() => println()
+        case OutputDone(time) => println(); println("Time to compute: %,d milliseconds".format(time/1000))
         case _ =>
       }
     }
     
-    val (_, time) = Time.get(run(if (verbose) verboseOutput else regularOutput))
-    println("Time to compute: %,d milliseconds".format(time/1000))
+    if (verbose) run(verboseOutput) 
+    else run(regularOutput)
+    
   }
 }
