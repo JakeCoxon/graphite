@@ -43,11 +43,8 @@ object Validator {
     println("Converting to non-epsilon")
     
     val newDerivs = grammar.derivations.toList.flatMap { derivation => 
-      println()
-      println(derivation)
       val eps = derivation.graph.getEdges.filter { e => epsilonNonTerminals.contains(e.label) }.toList
       val all = derivation.graph.getEdges
-      println(all)
       
       if (isEpsilon(derivation, epsilonNonTerminals)) {
         Nil
@@ -59,7 +56,6 @@ object Validator {
         val epsComb = (0 to eps.size).flatMap{ i => eps.combinations(i) }
         // Build list of all the edges except the above combination
         val edgeComb = epsComb.map { comb => all.filterNot { comb.contains(_) } }
-        println(edgeComb)
         // Make a copy of derivation with only these calculated edges 
         val copy = edgeComb.map { copyDerivationWithOnlyEdges(derivation, _) }
         
@@ -68,17 +64,6 @@ object Validator {
         filteredCopy
       }
     }
-    
-//    println("---")
-//    for (d <- newDerivs) {
-//      println(d.label)
-//      println(d.graph.getEdges.mkString(" "))
-//      println()
-//      
-//      new GraphFrame(d.graph) { open }
-//    }
-    
-    
     
     HypergraphGrammar(newDerivs)
   }
