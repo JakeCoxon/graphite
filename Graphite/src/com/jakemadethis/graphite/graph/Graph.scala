@@ -13,6 +13,7 @@ object NonTerminal extends Termination
 
 class Vertex() {
   def copy = new Vertex()
+  override def toString = "Vertex"
 }
 class FakeVertex extends Vertex {
   override def copy = 
@@ -29,6 +30,7 @@ class Hyperedge(val label: String, val termination : Termination) {
   def isTerminal = termination.isTerminal
   def isNonTerminal = termination.isNonTerminal
   def copy = new Hyperedge(label, termination)
+  override def toString = label match { case null => "Hyperedge" case label => label }
 }
 class Edge(override val label:String, override val termination : Termination) extends Hyperedge(label, termination) {
   override def copy = new Edge(label, termination)
