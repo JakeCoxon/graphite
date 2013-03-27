@@ -179,12 +179,12 @@ object GuiApp extends Reactor {
       }) { enabled = false }
       
       contents = new BoxPanel(Orientation.Vertical) {
-        contents += message
-        contents += closebtn
+        contents += new FlowPanel(message)
+        contents += new FlowPanel(closebtn)
       }
       
       def ! (s : String) {
-        Swing.onEDT { message.text = s }
+        Swing.onEDT { message.text = s; pack }
       }
       def done { close }
       
