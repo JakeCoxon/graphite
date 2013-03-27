@@ -209,7 +209,7 @@ object GuiApp extends Reactor {
         
         val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
         
-        val paths = (0 until number).map { i =>
+        val paths = (1 to number).map { i =>
           loading ! "Generating " + i +" of "+number
           
           val path = randomizer.generatePath(startder, size)
