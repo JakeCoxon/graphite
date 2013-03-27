@@ -50,6 +50,9 @@ object Validator {
     
     println("Converting to non-epsilon")
     
+    var numAdded = 0
+    var numRemoved = 0
+    
     val newDerivs = grammar.derivations.toList.flatMap { derivation => 
       // Make a list of epsilon non-terminals (non-terminals that may derive to an epsilon).
       // This can have repetitions of non-terminals
@@ -58,6 +61,7 @@ object Validator {
       
       if (isEpsilon(derivation, epsilonNonTerminals)) {
         // This derivation derives to exactly an epsilon so remove it
+        numRemoved += 1
         Nil
       } else if (eps.isEmpty) {
         // This derivation doesn't derive to an epsilon but doesn't have any epsilon non-terminals
@@ -72,9 +76,12 @@ object Validator {
         
         // Only add these to the grammar if they themselves don't lead to epsilon
         val filteredCopy = copy.filterNot { d => isEpsilon(d, epsilonNonTerminals) }
+        numAdded += filteredCopy.size - 1 // One of these will be equiv to the original
         filteredCopy
       }
     }
+    
+    println("Added %d and removed %d derivations".format(numAdded, numRemoved))
     
     HypergraphGrammar(newDerivs)
   }
