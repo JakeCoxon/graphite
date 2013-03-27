@@ -7,7 +7,8 @@ import com.jakemadethis.graphite.ui.GraphFrame
 
 object Validator {
   
-  
+  /** Throws an exception if the graph is invalid and converts graph into a 
+   *  form that is workable with the algorithm **/
   def validateGraph(grammar : HypergraphGrammar) = {
     if (grammar.derivations.exists(d => isInvalidGraph(d.graph))) {
       throw new RuntimeException("Invalid graph")
@@ -23,33 +24,43 @@ object Validator {
    *  This means no derivation leads to an empty graph */
   private def convertEpsilonFree(grammar : HypergraphGrammar) : HypergraphGrammar = {
     
-    /** Gets whether this derivation lead to an epsilon **/
+    /** Gets whether this derivation *can* derive to *exactly* an epsilon using a set
+     *  of known non-terminals that may also derive to exactly an epsilon. **/
     def isEpsilon(derivation : HypergraphDerivation, epsilonNonTerminals : Set[String]) : Boolean = {
       if (derivation.graph.getVertexCount > derivation.externalNodes.size) return false
       if (derivation.graph.getEdgeCount == 0) return true
+      // Make sure all edges are *non-terminals* and will derive to an epsilon
       derivation.graph.getEdges.forall { e => epsilonNonTerminals.contains(e.label) }
     }
     
+    /** Recursively finds a set of non-terminals that may derive to *exactly* an epsilon **/
     def getEpsilonNonTerminals(epsilonNonTerminals : Set[String]) : Set[String] = {
       val epsilonDerivs = grammar.derivations.filter { isEpsilon(_, epsilonNonTerminals) }
       val newNts = epsilonDerivs.map {_.label}.toSet -- epsilonNonTerminals
+      // Terminate if set is unchanged otherwise, call again
       if (newNts.isEmpty) epsilonNonTerminals
       else getEpsilonNonTerminals(epsilonNonTerminals ++ newNts)
     }
     
     val epsilonNonTerminals = getEpsilonNonTerminals(Set())
     
+    // Return unmodified grammar if there are no non-terminals that may derive
+    // to an epsilon
     if (epsilonNonTerminals.isEmpty) return grammar
+    
     println("Converting to non-epsilon")
     
     val newDerivs = grammar.derivations.toList.flatMap { derivation => 
+      // Make a list of epsilon non-terminals (non-terminals that may derive to an epsilon).
+      // This can have repetitions of non-terminals
       val eps = derivation.graph.getEdges.filter { e => epsilonNonTerminals.contains(e.label) }.toList
       val all = derivation.graph.getEdges
       
       if (isEpsilon(derivation, epsilonNonTerminals)) {
+        // This derivation derives to exactly an epsilon so remove it
         Nil
       } else if (eps.isEmpty) {
-        // eps is empty if derivation leads to an epsilon
+        // This derivation doesn't derive to an epsilon but doesn't have any epsilon non-terminals
         List(derivation)
       } else {
         // Construct every combination of epsilon edges of any size
@@ -68,6 +79,7 @@ object Validator {
     HypergraphGrammar(newDerivs)
   }
   
+  /** Copy a derivation but remove any edges that arent in `edges' **/
   private def copyDerivationWithOnlyEdges(derivation : HypergraphDerivation, edges : Traversable[Hyperedge]) = {
     val graph = new OrderedHypergraph[Vertex, Hyperedge]()
     val vMap = derivation.graph.getVertices.map { v => v -> v.copy }.toMap
