@@ -11,20 +11,88 @@ import java.awt.Dimension
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import javax.swing.WindowConstants
 import scala.swing._
+import com.jakemadethis.graphite.algorithm.{Derivation,HypergraphDerivation}
+import com.jakemadethis.graphite.algorithm.HypergraphGenerator
+import java.awt.Color
 
-class GraphFrame(graph : Hypergraph[Vertex, Hyperedge]) extends MainFrame {
+class GraphFrame(devPaths : Seq[Derivation.Path[HypergraphDerivation]]) extends MainFrame {
   
-  val pseudoGraph = graph.asInstanceOf[Graph[Vertex, Hyperedge]]
+  type Model = DefaultVisualizationModel[Vertex, Hyperedge]
+  val genGraphs = devPaths.map(new GeneratableGraph(_))
+  
+  val graphpanel = new GraphPanel(genGraphs.head.model)
+
+  val graphButtons = new BoxPanel(Orientation.Vertical) {
+    
+    background = Color.WHITE
+    
+    var toggled : ToggleButton = null
+    
+    def setToggled(button : ToggleButton) {
+      if (toggled != null) toggled.selected = false
+      toggled = button
+      toggled.selected = true
+    }
+    def clear() {
+      toggled = null
+      contents.clear
+    }
+    def +=(t : (GeneratableGraph, ToggleButton)) {
+      val (graph, button) = t
+      contents += button
+      if (toggled == null) setToggled(button)
+    }
+  }
+  
+  val sidebar = new BoxPanel(Orientation.Vertical) {
+    preferredSize = new Dimension(150, 10)
+    
+    val dimension = new Dimension(1000,30)
+    
+    genGraphs.zipWithIndex.foreach { case (graph, num) =>
+      graphButtons += graph -> new ToggleButton() {
+        val b = this
+        action = Action("Graph "+(num+1)) {
+          graphButtons.setToggled(b)
+          graphpanel.setModel(graph.model)
+          graphpanel.repaint()
+        }
+        maximumSize = dimension
+        focusable = false
+        
+      }
+    }
       
-  object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, 
-      new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
-    with AverageEdgeLayout[Vertex, Hyperedge]
+    contents += new ScrollPane(graphButtons) {
+      border = Swing.EmptyBorder(0)
+    }
+    
+    
+  }
   
-  val graphmodel = new DefaultVisualizationModel(glayout)
   
-  val graphpanel = new GraphPanel(graphmodel)
-  contents = Component.wrap(graphpanel)
+  contents = new BorderPanel() {
+    layout(sidebar) = BorderPanel.Position.West
+    layout(Component.wrap(graphpanel)) = BorderPanel.Position.Center
+  }
   
   size = new Dimension(800,600)
   
+}
+
+class GeneratableGraph(path : Derivation.Path[HypergraphDerivation]) {
+  
+  lazy val model : DefaultVisualizationModel[Vertex, Hyperedge] = makeModel()
+  
+  def makeModel() = {
+    val graph = HypergraphGenerator(new OrderedHypergraph(), path)
+    val pseudoGraph = graph.asInstanceOf[Graph[Vertex, Hyperedge]]
+    
+    object glayout extends StaticLayout[Vertex, Hyperedge](pseudoGraph, 
+        new RandomLocationTransformer(new Dimension(500, 500)), new Dimension(500, 500))
+      with AverageEdgeLayout[Vertex, Hyperedge]
+    
+    println("Generated")
+    new DefaultVisualizationModel(glayout)
+  }
 }

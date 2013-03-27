@@ -36,10 +36,10 @@ object ConsoleApp {
     
     else {
       
-      println("graphite [--gui=bool] filename")
-      println("graphite --size=int [--number=int] [--verbose] filename")
+      println("graphite")
+      println("graphite --gui filename")
+      println("graphite --size=int [--number=int] [--verbose] [--open] filename")
       println("graphite --count=int filename")
-      println("  gui        : Whether to display the gui or not")
       println("  size       : The size of graph to generate")
       println("  number     : The number of graphs to generate. Default 1")
       println("  count      : Counts the number of terminal graphs with this size")
@@ -95,6 +95,7 @@ object ConsoleApp {
     val size = opts.get('size).get.toInt
     val number = opts.get('number).map{_.toInt}.getOrElse(1)
     val verbose = opts.getBool('verbose).getOrElse(false)
+    val gui = opts.getBool('open).getOrElse(false)
     
     println("Loading file: "+filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
@@ -113,7 +114,7 @@ object ConsoleApp {
       val grammar = Validator.validateGraph(loader.grammar)
       val enumerator = new GrammarEnumerator(grammar)
       
-      val (_, time) = Time.get {
+      val (paths, time) = Time.get {
         enumerator.precompute(size)
         
         val count = enumerator.count(initial, size)
@@ -125,7 +126,7 @@ object ConsoleApp {
         
         val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
         
-        for ( i <- 1 to number ) {
+        val paths = (1 to number).map { i => 
           
           send(OutputGenerating(i, number))
           
@@ -133,10 +134,17 @@ object ConsoleApp {
           //val graph = HypergraphGenerator(new OrderedHypergraph(), path)
           
           //send(OutputGraphData(graph.getVertexCount(), graph.getEdgeCount()))
-          
+          path
         }
+        
+        paths
       }
       send(OutputDone(time))
+      
+      if (gui) {
+        GuiApp.setup
+        GuiApp.openGraphs(paths)
+      }
     }
     
     def verboseOutput(message : Any) {

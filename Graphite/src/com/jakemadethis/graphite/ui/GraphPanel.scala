@@ -59,4 +59,10 @@ class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge])
   def graph = getGraphLayout().getGraph()
   def graphLayout = getGraphLayout()
   def model_=(model : VisualizationModel[Vertex, Hyperedge]) { setModel(model) }
+  
+  override def setModel(model : VisualizationModel[Vertex, Hyperedge]) {
+    super.setModel(model)
+    getPickedEdgeState().clear()
+    getPickedVertexState().clear()
+  }
 }

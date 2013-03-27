@@ -91,9 +91,9 @@ object TestTreeGrammar {
       for (x <- 0 to 3) {
         val g = genGraph
         printgraph(g)
-        new GraphFrame(g) {
-          open
-        }
+//        new GraphFrame(g) {
+//          open
+//        }
       }
     }
     

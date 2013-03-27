@@ -24,14 +24,17 @@ object GuiApp extends Reactor {
     def accept(dir : File, name : String) = name.endsWith(".xml")
   }
   
+  def setup {
+    System.setProperty("apple.laf.useScreenMenuBar", "true")
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Graphite")
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+  }
+  
   /**
    * Starts the Gui App, sets swing options such as look&feel, loads default grammar
    */
   def start(file : Option[String]) {
-    
-    System.setProperty("apple.laf.useScreenMenuBar", "true")
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Graphite")
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+    setup
     
     if (file.isDefined) 
       loadGrammar(new File(file.get))
@@ -110,7 +113,16 @@ object GuiApp extends Reactor {
    * Opens a single graph in a new window
    */
   def openGraph(graph : Hypergraph[Vertex,Hyperedge]) {
-    new GraphFrame(graph) {
+//    new GraphFrame(graph) {
+//      open
+//    }
+  }
+  
+  /**
+   * Opens a collection of graphs in the form of derivation paths 
+   */
+  def openGraphs(graphs : Seq[Derivation.Path[HypergraphDerivation]]) {
+    new GraphFrame(graphs) {
       open
     }
   }
@@ -174,7 +186,7 @@ object GuiApp extends Reactor {
       def ! (s : String) {
         Swing.onEDT { message.text = s }
       }
-      def done { closebtn.enabled = true }
+      def done { close }
       
       
       open; centerOnScreen
@@ -197,16 +209,16 @@ object GuiApp extends Reactor {
         
         val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
         
-        (0 until number).foreach { i =>
+        val paths = (0 until number).map { i =>
           loading ! "Generating " + i +" of "+number
           
           val path = randomizer.generatePath(startder, size)
-          //println(path.seq)
-          //val g = randomizer.generate(startder, size, { new HypergraphGenerator(_, new OrderedHypergraph()) }).graph
-    //      openGraph(g)
+          path
         }
         loading ! "Done"
         loading.done
+        
+        openGraphs(paths) 
       }
     })
     

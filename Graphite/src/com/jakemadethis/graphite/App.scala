@@ -25,8 +25,8 @@ object App {
   def main(args: Array[String]) {
     val opts = new Options(args.toList)
     val help = opts.getBool('help)
-    val gui = opts.getBool('gui).getOrElse(!opts.get('infile).isDefined)
     val file = opts.get('infile)
+    val gui = opts.getBool('gui).getOrElse(!file.isDefined)
     if (gui && !help.isDefined) GuiApp.start(file)
     else ConsoleApp.start(file, opts)
   }
