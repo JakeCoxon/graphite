@@ -142,9 +142,9 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
   
   def derivationPair = currentPair
   def derivationPair_=(pair : DerivationPair) {
-    currentPair = pair
     if (pair.isInitial) {
-      split.oldDividerLocation = split.dividerLocation
+      if (!currentPair.isInitial)
+        split.oldDividerLocation = split.dividerLocation
       split.dividerLocation = 0
       leftBox.visible = false
     } else {
@@ -153,6 +153,8 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
       leftVis.repaint()
       split.dividerLocation = split.oldDividerLocation
     }
+    
+    currentPair = pair
     rightVis.setModel(pair.rightSide)
     rightVis.repaint()
   }

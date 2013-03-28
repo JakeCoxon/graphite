@@ -15,6 +15,11 @@ import java.awt.Color
 import edu.uci.ics.jung.graph.util.Context
 import edu.uci.ics.jung.graph._
 import edu.uci.ics.jung.visualization.VisualizationModel
+import edu.uci.ics.jung.visualization.Layer
+import collection.JavaConversions._
+import java.awt.geom.Point2D
+import edu.uci.ics.jung.visualization.VisualizationServer.Paintable
+import java.awt.Graphics
 
 class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge]) 
     extends VisualizationViewer[Vertex, Hyperedge](model_, new Dimension(500, 500)) 
@@ -51,6 +56,37 @@ class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge])
   })
   
   addPostRenderPaintable(new FakeVertexRenderer(vv))
+  
+  addPostRenderPaintable(new Paintable() {
+    
+    def paint(g : Graphics) {
+      val rc = vv.getRenderContext()
+      val graphlayout = vv.getGraphLayout()
+      
+      
+      val view = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)
+      val layout = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)
+
+      val scale = view.getScale()
+      
+      val vs = graphlayout.getGraph.getVertices().toList
+      val ps = vs.map(v => layout.transform(graphlayout.transform(v)))
+      val xs = ps.map(_.getX())
+      val ys = ps.map(_.getY())
+      val midX = (xs.min + xs.max) / 2
+      val midY = (ys.min + ys.max) / 2
+      
+      g.setColor(Color.RED)
+      g.drawRect(midX.toInt, midY.toInt, 2, 2)
+    
+      val ctr = view.inverseTransform(vv.getCenter())
+      
+      g.drawRect(ctr.getX().toInt, ctr.getY().toInt, 2, 2)
+    }
+  
+    
+    def useTransform = false
+  })
     
     
   setBorder(Swing.BeveledBorder(Swing.Lowered))
@@ -60,9 +96,37 @@ class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge])
   def graphLayout = getGraphLayout()
   def model_=(model : VisualizationModel[Vertex, Hyperedge]) { setModel(model) }
   
+  def center() {
+    val view = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW)
+    val layout = vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT)
+
+    val vs = getGraphLayout.getGraph.getVertices().toList
+    val ps = vs.map(v => view.transform(layout.transform(getGraphLayout.transform(v))))
+    val xs = ps.map(_.getX())
+    val ys = ps.map(_.getY())
+    val midX = (xs.min + xs.max) / 2
+    val midY = (ys.min + ys.max) / 2
+
+    val p = new Point2D.Double(midX, midY)
+    
+    val ctr = vv.getCenter(); 
+    val pnt = view.inverseTransform(ctr);
+
+    val scale = view.getScale();
+
+    val deltaX = -(p.getX() - pnt.getX()) / scale;
+    val deltaY = -(p.getY() - pnt.getY()) / scale;
+    val delta = new Point2D.Double(deltaX, deltaY);
+
+//    layout.translate(deltaX, deltaY);
+    layout.setTranslate(0, 0)
+    view.setTranslate(0, 0)
+  }
+  
   override def setModel(model : VisualizationModel[Vertex, Hyperedge]) {
     super.setModel(model)
     getPickedEdgeState().clear()
     getPickedVertexState().clear()
+    center
   }
 }
