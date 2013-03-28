@@ -18,9 +18,15 @@ private object util {
   
   type Func = BigInt => BigInt
   
+  /** convolution(f1, f2) makes a function f(t) that performs a convolution 
+   *  from 0 to t.
+   *  It is assumed that f1(0) = 0 and f2(0) = 0 */
   def convolution(f1: Func, f2: Func)(num : BigInt) : BigInt = {
-    (BigInt(0) to num).map { i => f1(i) * f2(num-i) }.sum
+    (BigInt(1) to num-1).map { i => f1(i) * f2(num-i) }.sum
   }
+  
+  /** Makes a convolution of `f' with itself `reps' times.
+   *  If reps is 0 then returns d0 the identity function **/
   def selfConvolution(f : Func, reps : Int) : Func = {
     if (reps == 0) return d0
     (1 until reps).foldLeft(f) { (result, _) => convolution(result, f) }
