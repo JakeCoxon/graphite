@@ -26,13 +26,13 @@ object App {
     val opts = new Options(args.toList)
     val help = opts.getBool('help)
     val file = opts.get('infile)
-    val gui = opts.getBool('gui).getOrElse(!file.isDefined)
+    val process = opts.get('process).map(Symbol(_))
+    val gui = process.map {_ == 'gui}.getOrElse(true)
     if (gui && !help.isDefined) GuiApp.start(file)
-    else ConsoleApp.start(file, opts)
+    else ConsoleApp.start(file, process.get, opts)
   }
   
   class Options(args : List[String]) {
-    def isOption(str : String) = str.startsWith("--")
     val keyValuePattern = """--([a-zA-Z0-9\-]+)=([\S]+)""".r
     val switchPattern = """--([a-zA-Z0-9\-]+)""".r
     
@@ -46,7 +46,10 @@ object App {
         case switchPattern(switch) :: tail =>
           nextOption(map ++ Map(Symbol(switch) -> "true"), tail)
         case string :: tail =>
-          nextOption(map ++ Map('infile -> string), tail)
+          if (!map.contains('process)) 
+            nextOption(map ++ Map('process -> string), tail)
+          else
+            nextOption(map ++ Map('infile -> string), tail)
       }
     }
     val map = nextOption(Map(), args)

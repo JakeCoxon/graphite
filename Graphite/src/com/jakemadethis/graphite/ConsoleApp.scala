@@ -23,36 +23,41 @@ object ConsoleApp {
     }
   }
   
-  def start(fileOption : Option[String], opts : App.Options) {
+  def start(fileOption : Option[String], process : Symbol, opts : App.Options) {
     def valid(sym : Symbol*) = sym.forall(opts.get(_).isDefined)
     
-    if (valid('infile, 'size)) {
+    if (process == 'generate && valid('infile, 'size)) {
       generate(fileOption, opts)
     }
     
-    else if (valid('infile, 'count)) {
-      count(fileOption, opts)
+    else if (process == 'enumerate && valid('infile, 'size)) {
+      enumerate(fileOption, opts)
     }
     
     else {
       
       println("graphite")
-      println("graphite --gui filename")
-      println("graphite --size=int [--number=int] [--verbose] [--open] filename")
-      println("graphite --count=int filename")
-      println("  size       : The size of graph to generate")
-      println("  number     : The number of graphs to generate. Default 1")
-      println("  count      : Counts the number of terminal graphs with this size")
-      println("  verbose    : Output detailed infomation. Default false")
+      println("  Opens the graphite gui")
+      println("graphite gui filename")
+      println("  Opens the graphite gui with a specified file")
+      println("graphite generate --size=int [--number=int] [--verbose] [--open] filename")
+      println("  Generates a number of graphs with a specified size")
+      println("    size       : The size of graph to generate, optionally use a range eg 1..10")
+      println("    number     : The number of graphs to generate. Default 1")
+      println("    verbose    : Output detailed infomation. Default false")
+      println("    open       : Whether to open the graphs after generated. Default false")
+      println("graphite enumerate --size=int filename")
+      println("  Counts the number of graphs with a specified size")
+      println("    size       : Counts the number of terminal graphs with this size")
     }
     
     
   }
   
-  def count(fileOption : Option[String], opts : App.Options) {
+  def enumerate(fileOption : Option[String], opts : App.Options) {
     val filename = fileOption.get
     val rangePattern = """([0-9]+)\.\.([0-9]+)""".r
-    val sizeStr = opts.get('count).get
+    val sizeStr = opts.get('size).get
     
     println("Loading file: "+filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
