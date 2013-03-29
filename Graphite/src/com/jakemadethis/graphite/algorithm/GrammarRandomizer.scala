@@ -5,10 +5,10 @@ import scala.util.Random
 class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K, D], rng : Random) {
   val grammar = enumerator.grammar
   
-  def probability(string: Derivation[K], nt: K, derivation : Derivation[K], len: Int) = {
-    val size = len - string.terminalSize
-    val nts = string.nonTerminalSet
-    enumerator.countAll(nts - nt + derivation.nonTerminalSet, 
+  def probability(currentState: Derivation.State[K], nt: K, derivation : Derivation[K], len: Int) = {
+    val size = len - currentState.terminalSize
+    val nts = currentState.nonTerminalLabelSet
+    enumerator.countAll(nts - nt + derivation.nonTerminalLabelSet, 
         size - derivation.terminalSize)
   }
   
@@ -26,11 +26,11 @@ class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K,
   def generate[G <: Generator[K, D]]
       (startString : D, len : Int, factory : D => G) : G = {
     
-    var string : Derivation[K] = startString
+    var state : Derivation.State[K] = startString
     val generator : G = factory(startString)
     
-    while (!string.isTerminal) {
-      val vals = grammar(string.head).map(probability(string, string.head, _, len))
+    while (!state.isTerminal) {
+      val vals = grammar(state.headLabel).map(probability(state, state.headLabel, _, len))
       
       val prodId = 
         if (vals.size == 1) 0 
@@ -38,21 +38,21 @@ class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K,
         
       if (prodId == -1) throw new Error("There are no availible derivations")
       
-      val derivation = grammar(string.head)(prodId)
+      val derivation = grammar(state.headLabel)(prodId)
       
-      generator.derive(string.head, derivation)
-      string = string.derive(derivation)
+      generator.derive(state.headLabel, derivation)
+      state = state.deriveState(state)
     }
     generator
   }
   
   def generatePath(startString : D, len : Int) : Derivation.Path[D] = {
     
-    var string : Derivation[K] = startString
+    var state : Derivation.State[K] = startString
     var list = List[D]() :+ startString
     
-    while (!string.isTerminal) {
-      val vals = grammar(string.head).map(probability(string, string.head, _, len))
+    while (!state.isTerminal) {
+      val vals = grammar(state.headLabel).map(probability(state, state.headLabel, _, len))
       
       val prodId = 
         if (vals.size == 1) 0 
@@ -60,8 +60,8 @@ class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K,
         
       if (prodId == -1) throw new Error("There are no availible derivations")
       
-      val derivation = grammar(string.head)(prodId)
-      string = string.derive(derivation)
+      val derivation = grammar(state.headLabel)(prodId)
+      state = state.deriveState(derivation)
       list = list :+ derivation
     }
     list

@@ -2,14 +2,13 @@ package com.jakemadethis.graphite.algorithm
 import scala.collection.JavaConversions._
 import com.jakemadethis.graphite._
 import edu.uci.ics.jung.graph.Hypergraph
-import com.jakemadethis.graphite.algorithm.StringGrammar
-import com.jakemadethis.graphite.algorithm.Generator
 import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.Vertex
+import com.jakemadethis.graphite.graph.OrderedHypergraph
 
 private object graphutil {
-  def nonTerminalStrings(graph : Hypergraph[Vertex, Hyperedge]) = {
-    graph.getEdges().filter(_.isNonTerminal).map(_.label).toList
+  def wrapNonTerminalStrings(graph : Hypergraph[Vertex, Hyperedge]) = {
+    graph.getEdges().filter(_.isNonTerminal).map(_.label).map{new Derivation.Item(_)}.toList
   }
   def terminalSize(graph : Hypergraph[Vertex, Hyperedge], externalNodes : Seq[Vertex]) = {
     graph.getEdges().count(_.isTerminal) + graph.getVertexCount() - externalNodes.size
@@ -17,9 +16,9 @@ private object graphutil {
 }
 
 
-class HypergraphDerivation(val graph : Hypergraph[Vertex, Hyperedge], 
-    val externalNodes : Seq[Vertex], val label : String) 
-  extends Derivation(graphutil.nonTerminalStrings(graph), graphutil.terminalSize(graph, externalNodes)) {
+class HypergraphDerivation(label : String, val graph : Hypergraph[Vertex, Hyperedge], 
+    val externalNodes : Seq[Vertex]) 
+  extends Derivation(label, graphutil.wrapNonTerminalStrings(graph), graphutil.terminalSize(graph, externalNodes)) {
   def deriveType = externalNodes.size
 }
 
@@ -31,7 +30,28 @@ object HypergraphGrammar {
     }
     new HypergraphGrammar(map)
   }
+  
+  object factory extends DerivationFactory[String, HypergraphDerivation] {
+    
+    /** Copy a derivation but remove any edges that arent in `edges' **/
+    def copyWithoutNonTerminals(deriv: HypergraphDerivation, filter : Set[Derivation.Item[String]]) = {
+        
+      val graph = new OrderedHypergraph[Vertex, Hyperedge]()
+      val vMap = deriv.graph.getVertices.map { v => v -> v.copy }.toMap
+      vMap.values.foreach { graph.addVertex(_) }
+      
+      val extNodes = deriv.externalNodes.map(vMap)
+      val newEdges = filter.foreach { edge => 
+        val vs = deriv.graph.getIncidentVertices(edge).map(vMap)
+        graph.addEdge(edge.copy, vs)
+      }
+      
+      new HypergraphDerivation(graph, extNodes, deriv.label)
+
+    }
+  }
+  
 }
-class HypergraphGrammar(map_ : Map[String, Seq[HypergraphDerivation]]) extends StringGrammar[HypergraphDerivation] {
-  def map = map_
+class HypergraphGrammar(map : Map[String, Seq[HypergraphDerivation]]) 
+  extends Grammar.StringGrammar[HypergraphDerivation](map) {
 }

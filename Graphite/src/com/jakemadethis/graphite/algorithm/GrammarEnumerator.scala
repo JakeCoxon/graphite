@@ -52,7 +52,7 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
       .reduce { util.convolution(_,_) }(len)
   }
   
-  def count(derivation : D, len : Int) = countAll(derivation.nonTerminalSet, len-derivation.terminalSize)
+  def count(derivation : D, len : Int) = countAll(derivation.nonTerminalLabelSet, len-derivation.terminalSize)
   
   def countRange(derivation : D, min : Int, max : Int) = 
     (min to max).foldLeft(BigInt(0)) { case (result, i) => result + count(derivation, i) }
@@ -76,7 +76,7 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
 
         val conv = 
           if (derivation.isTerminal) util.d0 
-          else derivation.nonTerminals.map(getf _).reduceLeft(util.convolution(_, _))
+          else derivation.nonTerminalLabels.map(getf _).reduceLeft(util.convolution(_, _))
         
         sumSubtractN(sum_result, conv, derivation.terminalSize)
     }
