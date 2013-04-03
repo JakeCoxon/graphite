@@ -2,14 +2,14 @@ package com.jakemadethis.graphite.algorithm
 
 import scala.util.Random
 
-class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K, D], rng : Random) {
+class GrammarRandomizer[D <: Production](enumerator : GrammarEnumerator[D], rng : Random) {
   val grammar = enumerator.grammar
   
-  def probability(string: Derivation[K], nt: K, derivation : Derivation[K], len: Int) = {
+  def probability(string: Derivation.State, nt: Grammar.Symbol, prod : Production, len: Int) = {
     val size = len - string.terminalSize
-    val nts = string.nonTerminalSet
-    enumerator.countAll(nts - nt + derivation.nonTerminalSet, 
-        size - derivation.terminalSize)
+    val nts = string.nonTerminalLabelSet
+    enumerator.countAll(nts - nt.label + prod.nonTerminalLabelSet, 
+        size - prod.terminalSize)
   }
   
   private def pick(seq : Seq[BigInt]) : Int = {
@@ -23,36 +23,36 @@ class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K,
     return -1 // todo: When does this happen?
   }
     
-  def generate[G <: Generator[K, D]]
-      (startString : D, len : Int, factory : D => G) : G = {
-    
-    var string : Derivation[K] = startString
-    val generator : G = factory(startString)
-    
-    while (!string.isTerminal) {
-      val vals = grammar(string.head).map(probability(string, string.head, _, len))
-      
-      val prodId = 
-        if (vals.size == 1) 0 
-        else pick(vals)
-        
-      if (prodId == -1) throw new Error("There are no availible derivations")
-      
-      val derivation = grammar(string.head)(prodId)
-      
-      generator.derive(string.head, derivation)
-      string = string.derive(derivation)
-    }
-    generator
-  }
+//  def generate[G <: Generator[K, D]]
+//      (startString : Derivation[K], len : Int, factory : D => G) : G = {
+//    
+//    var string : Derivation[K] = startString
+//    val generator : G = factory(startString)
+//    
+//    while (!string.isTerminal) {
+//      val vals = grammar(string.head).map(probability(string, string.head, _, len))
+//      
+//      val prodId = 
+//        if (vals.size == 1) 0 
+//        else pick(vals)
+//        
+//      if (prodId == -1) throw new Error("There are no availible derivations")
+//      
+//      val derivation = grammar(string.head)(prodId)
+//      
+//      generator.derive(string.head, derivation)
+//      string = string.derive(derivation)
+//    }
+//    generator
+//  }
   
-  def generatePath(startString : D, len : Int) : Derivation.Path[D] = {
+  def generatePath(startProduction : D, len : Int) : Derivation.Path[D] = {
     
-    var string : Derivation[K] = startString
-    var list = List[D]() :+ startString
+    var string : Derivation.State = startProduction
+    var list = List[(String,D)]() :+ "" -> startProduction
     
     while (!string.isTerminal) {
-      val vals = grammar(string.head).map(probability(string, string.head, _, len))
+      val vals = grammar(string.head.label).map(probability(string, string.head, _, len))
       
       val prodId = 
         if (vals.size == 1) 0 
@@ -60,9 +60,10 @@ class GrammarRandomizer[K, D <: Derivation[K]](enumerator : GrammarEnumerator[K,
         
       if (prodId == -1) throw new Error("There are no availible derivations")
       
-      val derivation = grammar(string.head)(prodId)
-      string = string.derive(derivation)
-      list = list :+ derivation
+      val label = string.head.label
+      val chosenProduction = grammar(label)(prodId)
+      string = string.deriveState(chosenProduction)
+      list :+= label -> chosenProduction
     }
     list
   }

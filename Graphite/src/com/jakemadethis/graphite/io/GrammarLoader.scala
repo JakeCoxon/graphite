@@ -73,14 +73,14 @@ class GrammarLoader(reader : Reader) {
   
   // The derivations excluding the initial graph
   val derivations = objs.filterNot {_.isInitial} map { obj => 
-    new HypergraphDerivation(obj.graph, obj.extNodes, obj.label)
+    obj.label -> HypergraphProduction(obj.graph, obj.extNodes)
   }
   
   // The initial graph
   val initial = objs.find {_.isInitial} map { obj =>
-    new HypergraphDerivation(obj.graph, Seq(), "")
+    HypergraphProduction(obj.graph, Seq())
   }
   
-  val grammar = HypergraphGrammar(derivations)
+  val grammar = Grammar(derivations)
 }
 

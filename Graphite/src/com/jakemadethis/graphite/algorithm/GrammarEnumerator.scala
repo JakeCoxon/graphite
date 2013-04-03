@@ -38,21 +38,21 @@ private object util {
   }
 }
 
-class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
+class GrammarEnumerator[D <: Production](val grammar: Grammar[D]) {
   
-  val funcs = Map[K, BigInt => BigInt]()
+  val funcs = Map[String, BigInt => BigInt]()
   
   
   
-  def count(nt: K, len : Int) = funcs(nt)(len)
+  def count(nt: String, len : Int) = funcs(nt)(len)
   
-  def countAll(set: MultiSet[K], len : Int) : BigInt = {
+  def countAll(set: MultiSet[String], len : Int) : BigInt = {
     if (set.isEmpty) return util.d0(len)
     set.map { case (k, num) => util.selfConvolution(funcs(k), num) }
       .reduce { util.convolution(_,_) }(len)
   }
   
-  def count(derivation : D, len : Int) = countAll(derivation.nonTerminalSet, len-derivation.terminalSize)
+  def count(prod : D, len : Int) = countAll(prod.nonTerminalLabelSet, len-prod.terminalSize)
   
   def countRange(derivation : D, min : Int, max : Int) = 
     (min to max).foldLeft(BigInt(0)) { case (result, i) => result + count(derivation, i) }
@@ -64,19 +64,18 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
   //
 
   
-  private def getf(nt : K)(x : BigInt) = funcs(nt)(x)
+  private def getf(nt : String)(x : BigInt) = funcs(nt)(x)
   private def sumSubtractN(fOrig: util.Func, f1: util.Func, T: BigInt)(n : BigInt) = {
     fOrig(n) + f1(n - T)
   }
   
   grammar.foreach({ case (nt, prods) =>
-    
     val summation = prods.zipWithIndex.foldLeft(util.sum_identity) { 
       case (sum_result, (derivation, prod_id)) => 
 
         val conv = 
           if (derivation.isTerminal) util.d0 
-          else derivation.nonTerminals.map(getf _).reduceLeft(util.convolution(_, _))
+          else derivation.nonTerminalLabels.map(getf _).reduceLeft(util.convolution(_, _))
         
         sumSubtractN(sum_result, conv, derivation.terminalSize)
     }
@@ -86,23 +85,23 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
     
 }
 
-abstract class Generator[K, D <: Derivation[K]] {
-  def derive(nonTerminal : K, derivation : D)
+abstract class Generator[D <: Production] {
+  def derive(nonTerminal : Grammar.Symbol, derivation : D)
 }
 
-class StringGenerator(start : CharDerivation) extends Generator[Char, CharDerivation] {
-  
-  var string = List[Char]()
-
-  derive(0, start)
-  
-  def derive(c : Char, der : CharDerivation) {
-    val pos = string.indices.find { string(_).isUpper }.getOrElse(0)
-    string = string.take(pos) ::: der.string.toList ::: string.drop(pos+1)
-  }
-  
-  
-  def makeString() : String = {
-    string.mkString
-  }
-}
+//class StringGenerator(start : CharProduction) extends Generator[Char, CharDerivation] {
+//  
+//  var string = List[Char]()
+//
+//  derive(0, start)
+//  
+//  def derive(c : Char, der : CharDerivation) {
+//    val pos = string.indices.find { string(_).isUpper }.getOrElse(0)
+//    string = string.take(pos) ::: der.string.toList ::: string.drop(pos+1)
+//  }
+//  
+//  
+//  def makeString() : String = {
+//    string.mkString
+//  }
+//}

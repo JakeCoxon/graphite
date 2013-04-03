@@ -121,7 +121,7 @@ object GuiApp extends Reactor {
   /**
    * Opens a collection of graphs in the form of derivation paths 
    */
-  def openGraphs(graphs : Seq[Derivation.Path[HypergraphDerivation]]) {
+  def openGraphs(graphs : Seq[Derivation.Path[HypergraphProduction]]) {
     new GraphFrame(graphs) {
       open
     }
@@ -164,12 +164,12 @@ object GuiApp extends Reactor {
       val graph = pair.rightSide.graph
       val extNodes = pair.rightSide.extNodes.toList.sortBy(_._2).map(_._1)
       val label = pair.label
-      new HypergraphDerivation(graph, extNodes, label)
+      label -> HypergraphProduction(graph, extNodes)
     }
     
     val derivs = guiGrammar.derivations.map(derivationFromPair _)
-    val startder = new HypergraphDerivation(guiGrammar.initialGraph.rightSide.graph, Seq(), "")
-    val grammar = HypergraphGrammar(derivs)
+    val startder = HypergraphProduction(guiGrammar.initialGraph.rightSide.graph, Seq())
+    val grammar = Grammar(derivs)
     println(grammar)
     
     val loading = new Dialog(parent) {

@@ -1,40 +1,84 @@
 package com.jakemadethis.graphite.algorithm
 
-trait Grammar[K, D <: Derivation[K]] extends collection.Map[K, Seq[D]] {
-
-  def map : Map[K, Seq[D]]
-  def iterator = map.iterator
-  def get(key : K) = map.get(key)
-  def + [B1 >: Seq[D]](kv: (K, B1)) = throw new UnsupportedOperationException()
-  def -(key: K) = throw new UnsupportedOperationException()
-  def derivations = {
-    values.foldLeft(Stream.empty[D]) { (result, seq) =>
-      result #::: seq.toStream
-    }
-  }
-}
-
-
-class CharGrammar(map_ : Map[Char, Seq[CharDerivation]]) extends Grammar[Char, CharDerivation] {
-  def map = map_
-}
-trait StringGrammar[D <: Derivation[String]] extends Grammar[String, D] 
-
-class CharDerivation(val string : String, nts : Seq[Char]) 
-  extends Derivation[Char](List(nts:_*), string.size - nts.size)
+class Grammar[D <: Production](map : Map[String, Seq[D]]) extends Iterable[(String, Seq[D])] {
   
-object CharDerivation {
-  def apply(str : String) = new CharDerivation(str, str.filter(_.isUpper))
+  import Grammar._
+  
+  def apply(key : String) = map(key)
+  def iterator = map.iterator
+  def get(key : String) = map.get(key)
+  val productions = {
+    map.foldLeft(List[(String,D)]()) { 
+      case (result, (key, seq)) =>
+        result ++ seq.map {key -> _}
+      }
+  }
+  def nonTerminals = map.keys.toSet
 }
 
-object CharGrammar {
-  def apply(seq : (Char, Seq[String])*) = {
-    val s = seq.map { tuple =>
-      tuple._1 -> tuple._2.map(CharDerivation(_))
+
+
+object Grammar {
+  class Symbol(val label : String)
+  
+  def apply[D <: Production](seq : Traversable[(String,D)]) = {
+    val map = seq.foldLeft(Map[String, Seq[D]]()) { (result, a) => 
+      result + (a._1 -> (result.getOrElse(a._1, Seq()) :+ a._2))
     }
-    new CharGrammar(Map[Char, Seq[CharDerivation]](s:_*))
+    new Grammar(map)
   }
 }
+
+
+
+object Derivation {
+  import Grammar._
+  import com.jakemadethis.util.MultiSet
+  
+  type Path[D <: Production] = Seq[(String,D)]
+  
+  
+  class State(val nonTerminals: List[Symbol], val terminalSize: Int) {
+      
+    def head = nonTerminals.head
+    def headLabel = head.label
+  
+    //def nonTerminalSize = nonTerminals.size
+    def isTerminal = nonTerminals.isEmpty
+
+    val nonTerminalLabels = nonTerminals.map(_.label)
+    val nonTerminalLabelSet = MultiSet(nonTerminalLabels)
+    
+  
+    def deriveState(newDerivation : State) = {
+      new State(newDerivation.nonTerminals ::: nonTerminals.tail, terminalSize + newDerivation.terminalSize)
+    }
+  }
+  
+}
+
+abstract class Production(nonTerminals: List[Grammar.Symbol], terminalSize: Int) 
+  extends Derivation.State(nonTerminals, terminalSize){
+  
+  //def map(sym : Symbol) : Any
+}
+
+
+//class CharDerivation(label : Char, val string : String, nts : Seq[Char]) 
+//  extends Derivation[Char](label, List(nts:_*), string.size - nts.size)
+//  
+//object CharDerivation {
+//  def apply(label : Char, str : String) = new CharDerivation(label, str, str.filter(_.isUpper))
+//}
+//
+//object CharGrammar {
+//  def apply(seq : (Char, Seq[String])*) = {
+//    val s = seq.map { tuple =>
+//      tuple._1 -> tuple._2.map(CharDerivation(tuple._1, _))
+//    }
+//    new CharGrammar(Map[Char, Seq[CharDerivation]](s:_*))
+//  }
+//}
 
 
 

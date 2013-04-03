@@ -2,14 +2,13 @@ package com.jakemadethis.graphite.algorithm
 import scala.collection.JavaConversions._
 import com.jakemadethis.graphite._
 import edu.uci.ics.jung.graph.Hypergraph
-import com.jakemadethis.graphite.algorithm.StringGrammar
 import com.jakemadethis.graphite.algorithm.Generator
 import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.Vertex
 
 private object graphutil {
-  def nonTerminalStrings(graph : Hypergraph[Vertex, Hyperedge]) = {
-    graph.getEdges().filter(_.isNonTerminal).map(_.label).toList
+  def edgeSymbolMap(graph : Hypergraph[Vertex, Hyperedge]) = {
+    graph.getEdges().filter(_.isNonTerminal).map(edge => new Grammar.Symbol(edge.label) -> edge).toMap
   }
   def terminalSize(graph : Hypergraph[Vertex, Hyperedge], externalNodes : Seq[Vertex]) = {
     graph.getEdges().count(_.isTerminal) + graph.getVertexCount() - externalNodes.size
@@ -17,21 +16,25 @@ private object graphutil {
 }
 
 
-class HypergraphDerivation(val graph : Hypergraph[Vertex, Hyperedge], 
-    val externalNodes : Seq[Vertex], val label : String) 
-  extends Derivation(graphutil.nonTerminalStrings(graph), graphutil.terminalSize(graph, externalNodes)) {
+class HypergraphProduction(val graph : Hypergraph[Vertex, Hyperedge], 
+    val externalNodes : Seq[Vertex], edgeSymbolMap : Map[Grammar.Symbol, Hyperedge], terminalSize : Int) 
+  extends Production(edgeSymbolMap.keys.toList, terminalSize) {
+  
   def deriveType = externalNodes.size
+  
+  def map(sym : Grammar.Symbol) = edgeSymbolMap(sym)
+}
+
+object HypergraphProduction {
+  def apply(graph : Hypergraph[Vertex, Hyperedge], externalNodes : Seq[Vertex]) = {
+    val edgeSymbolMap = graphutil.edgeSymbolMap(graph)
+    val terminalSize = graphutil.terminalSize(graph, externalNodes)
+    new HypergraphProduction(graph, externalNodes, edgeSymbolMap, terminalSize)
+  }
 }
 
 object HypergraphGrammar {
-  def apply(seq : HypergraphDerivation*) : HypergraphGrammar = apply(seq)
-  def apply(seq : TraversableOnce[HypergraphDerivation]) = {
-    val map = seq.foldLeft(Map[String, Seq[HypergraphDerivation]]()) { (result, a) => 
-      result + (a.label -> (result.getOrElse(a.label, Seq()) :+ a))
-    }
-    new HypergraphGrammar(map)
-  }
-}
-class HypergraphGrammar(map_ : Map[String, Seq[HypergraphDerivation]]) extends StringGrammar[HypergraphDerivation] {
-  def map = map_
+  type HG = Grammar[HypergraphProduction]
+  
+  
 }

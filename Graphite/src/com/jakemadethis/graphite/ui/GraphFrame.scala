@@ -11,11 +11,11 @@ import java.awt.Dimension
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import javax.swing.WindowConstants
 import scala.swing._
-import com.jakemadethis.graphite.algorithm.{Derivation,HypergraphDerivation}
+import com.jakemadethis.graphite.algorithm.{Derivation,HypergraphProduction}
 import com.jakemadethis.graphite.algorithm.HypergraphGenerator
 import java.awt.Color
 
-class GraphFrame(devPaths : Seq[Derivation.Path[HypergraphDerivation]]) extends MainFrame {
+class GraphFrame(devPaths : Seq[Derivation.Path[HypergraphProduction]]) extends MainFrame {
   
   type Model = DefaultVisualizationModel[Vertex, Hyperedge]
   val genGraphs = devPaths.map(new GeneratableGraph(_))
@@ -80,7 +80,7 @@ class GraphFrame(devPaths : Seq[Derivation.Path[HypergraphDerivation]]) extends 
   
 }
 
-class GeneratableGraph(path : Derivation.Path[HypergraphDerivation]) {
+class GeneratableGraph(path : Derivation.Path[HypergraphProduction]) {
   
   lazy val model : DefaultVisualizationModel[Vertex, Hyperedge] = makeModel()
   
