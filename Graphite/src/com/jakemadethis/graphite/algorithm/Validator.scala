@@ -4,6 +4,8 @@ import edu.uci.ics.jung.graph.Hypergraph
 import com.jakemadethis.graphite.graph._
 import collection.JavaConversions._
 import com.jakemadethis.graphite.ui.GraphFrame
+import com.jakemadethis.graphite.algorithm.convert.SingleProductions
+import com.jakemadethis.graphite.algorithm.convert.EpsilonFree
 
 object Validator {
   
@@ -14,8 +16,8 @@ object Validator {
       throw new RuntimeException("Invalid graph")
     }
     
-    //convertEpsilonFree(grammar)
-    grammar
+    SingleProductions.convert(
+      EpsilonFree.convert(grammar))
   }
   
   def isInvalidGraph(graph : Hypergraph[Vertex, Hyperedge]) = 
