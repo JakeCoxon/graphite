@@ -42,7 +42,6 @@ private object util {
 
 class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
   
-  val preconv = true
   val funcs = Map[K, BigInt => BigInt]()
   val conv_funcs = Map[K, Map[Int, BigInt => BigInt]]()
   
@@ -51,12 +50,8 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
   
   def countAll(set: MultiSet[K], len : Int) : BigInt = {
     if (set.isEmpty) return util.d0(len)
-    if (preconv) {
-      set.map { case (k, num) => conv_funcs(k)(num) }
-        .reduce { util.convolution(_,_) }(len)
-    }else
-      set.map { case (k, num) => util.selfConvolution(funcs(k), num) }
-        .reduce { util.convolution(_,_) }(len)
+    set.map { case (k, num) => conv_funcs(k)(num) }
+      .reduce { util.convolution(_,_) }(len)
   }
   
   def count(derivation : D, len : Int) = countAll(derivation.nonTerminalSet, len-derivation.terminalSize)
@@ -65,24 +60,21 @@ class GrammarEnumerator[K, D <: Derivation[K]](val grammar: Grammar[K, D]) {
     (min to max).foldLeft(BigInt(0)) { case (result, i) => result + count(derivation, i) }
   
   def precompute(len : Int) {
-    (0 to len).foreach { i => funcs.values.map(_.apply(i))}
+    for (i <- 0 to len) funcs.values.foreach(_.apply(i))
     
-    if (preconv) {
-      for (n <- funcs.keys) {
-        conv_funcs(n) = (0 to len).foldLeft(Map[Int, BigInt => BigInt]()) { (result, i) => 
-          val f = i match {
-            case 0 => util.d0
-            case 1 => funcs(n)
-            case i => util.makeMemo(x => util.convolution(conv_funcs(n)(i-1), funcs(n))(x))
-          }
-          result += i -> f; result
+    for (n <- funcs.keys) {
+      conv_funcs(n) = (0 to len).foldLeft(Map[Int, BigInt => BigInt]()) { (result, i) => 
+        val f = i match {
+          case 0 => util.d0
+          case 1 => funcs(n)
+          case i => util.makeMemo(x => util.convolution(conv_funcs(n)(i-1), funcs(n))(x))
         }
-        for (i <- 0 to len) {
-          for (j <- 0 to len) {
-            conv_funcs(n)(i)(j)
-          }
+        result += i -> f; result
+      }
+      for (i <- 0 to len) {
+        for (j <- 0 to len) {
+          conv_funcs(n)(i)(j)
         }
-        println(n)
       }
     }
   }
