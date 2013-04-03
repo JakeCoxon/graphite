@@ -29,7 +29,7 @@ object App {
     val process = opts.get('process).map(Symbol(_))
     val gui = process.map {_ == 'gui}.getOrElse(true)
     if (gui && !help.isDefined) GuiApp.start(file)
-    else ConsoleApp.start(file, process.get, opts)
+    else ConsoleApp.start(file, process.getOrElse('help), opts)
   }
   
   class Options(args : List[String]) {
