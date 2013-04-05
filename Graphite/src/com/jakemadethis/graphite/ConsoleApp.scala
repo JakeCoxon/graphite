@@ -7,7 +7,7 @@ import com.jakemadethis.graphite.graph.OrderedHypergraph
 import com.jakemadethis.graphite.algorithm.{HypergraphGenerator,GrammarRandomizer,GrammarEnumerator}
 import com.jakemadethis.util.Time
 import collection.JavaConversions._
-import com.jakemadethis.graphite.algorithm.Validator
+import com.jakemadethis.graphite.algorithm.converters.PrepareGrammar
 
 object ConsoleApp {
   
@@ -63,7 +63,7 @@ object ConsoleApp {
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     val initial = loader.initial.getOrElse {throw new Error("No initial graph")}
     
-    val grammar = Validator.validateGraph(loader.grammar)
+    val grammar = PrepareGrammar(loader.grammar)
     val enumerator = new GrammarEnumerator(grammar)
     
     // Count the number of terminal graphs with a given size
@@ -116,7 +116,7 @@ object ConsoleApp {
     
     // Runs the algorithm
     def run(send : (Any) => Unit) {
-      val grammar = Validator.validateGraph(loader.grammar)
+      val grammar = PrepareGrammar(loader.grammar)
       val enumerator = new GrammarEnumerator(grammar)
       
       val (paths, time) = Time.get {

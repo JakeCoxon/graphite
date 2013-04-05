@@ -1,15 +1,15 @@
-package com.jakemadethis.graphite.algorithm.convert
+package com.jakemadethis.graphite.algorithm.converters
 
 import com.jakemadethis.graphite.graph._
 import com.jakemadethis.graphite.algorithm._
 import collection.JavaConversions._
 
-object EpsilonFree {
+object ToEpsilonFree extends Function[HypergraphGrammar.HG, HypergraphGrammar.HG] {
   
   
   /** Converts a grammar into an epsilon-free grammar
    *  This means no derivation leads to an empty graph */
-  def convert(grammar : Grammar[HypergraphProduction]) : Grammar[HypergraphProduction] = {
+  def apply(grammar : HypergraphGrammar.HG) : HypergraphGrammar.HG = {
     
     /** Gets whether this derivation *can* derive to *exactly* an epsilon using a set
      *  of known non-terminals that may also derive to exactly an epsilon. **/
@@ -35,16 +35,27 @@ object EpsilonFree {
     // to an epsilon
     if (epsilonNonTerminals.isEmpty) return grammar
     
+    val invalidNts = epsilonNonTerminals.filter { nt =>
+      grammar(nt).forall { prod => isEpsilon(prod, Set()) }
+    }
+    
+    if (!invalidNts.isEmpty) 
+      throw new GrammarError("A non-terminal (%s) derives just epsilons".format(invalidNts.mkString(",")))
+    
     println("Converting to non-epsilon")
     
     var numAdded = 0
     var numRemoved = 0
     
+    
+    
     val newProds = grammar.productions.toList.flatMap { case (prodLabel, prod) => 
       // Make a list of epsilon non-terminals (non-terminals that may derive to an epsilon).
       // This can have repetitions of non-terminals
       val eps = prod.graph.getEdges.filter { e => epsilonNonTerminals.contains(e.label) }.toList
-      val all = prod.graph.getEdges
+      val nonEps = prod.graph.getEdges.filterNot { e => epsilonNonTerminals.contains(e.label) }.toList
+      
+      //val all = prod.graph.getEdges
       
       if (isEpsilon(prod, epsilonNonTerminals)) {
         // This production derives to exactly an epsilon so remove it
@@ -57,7 +68,8 @@ object EpsilonFree {
         // Construct every combination of epsilon edges of any size
         val epsComb = (0 to eps.size).flatMap{ i => eps.combinations(i) }
         // Build list of all the edges except the above combination
-        val edgeComb = epsComb.map { comb => all.filterNot { comb.contains(_) } }
+        //val edgeComb = epsComb.map { comb => filterNot { comb.contains(_) } }
+        val edgeComb = epsComb.map { comb => nonEps ++ comb }
         // Make a copy of production with only these calculated edges 
         val copy = edgeComb.map { prodLabel -> copyProductionWithOnlyEdges(prod, _) }
         

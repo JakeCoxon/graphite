@@ -1,9 +1,12 @@
-package com.jakemadethis.graphite.algorithm.convert
+package com.jakemadethis.graphite.algorithm.converters
 
 import com.jakemadethis.graphite.algorithm._
 
 
-object SingleProductions {
+object RemoveSingleProductions extends Function[Grammar[HypergraphProduction], Grammar[HypergraphProduction]] {
+  
+  def apply(grammar : Grammar[HypergraphProduction]) = convert(grammar)
+  
   def convert[D <: Production](grammar : Grammar[D]) = {
     
     /** Gets whether this derivation derives to *exactly* the given non-terminals **/

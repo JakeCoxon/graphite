@@ -42,6 +42,7 @@ class MultiSet[K](map : Map[K, Int]) extends Traversable[(K, Int)] {
   override def isEmpty = map.isEmpty
   
   def multiplicity(key : K) : Int = map.getOrElse(key, 0)
+  def contains(key : K) = map.contains(key)
   
   def updated(k : K, v : Int) = new MultiSet(map.updated(k, v))
   override def toString = map.toString
