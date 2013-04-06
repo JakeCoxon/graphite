@@ -36,7 +36,6 @@ object RemoveSingleProductions extends Function[Grammar[HypergraphProduction], G
     val ntMap = grammar.nonTerminals.map { nt =>
       nt -> getSingleProductionsTo(Set(nt))
     }.toMap
-    println(ntMap)
     
     val prods = grammar.productions.toList.flatMap { case(label, prod) =>
       if (isSingleProduction(prod))
@@ -46,7 +45,6 @@ object RemoveSingleProductions extends Function[Grammar[HypergraphProduction], G
       }
          
     }
-    println(prods)
     
     Grammar(prods)
     

@@ -8,6 +8,9 @@ import com.jakemadethis.graphite.algorithm.{HypergraphGenerator,GrammarRandomize
 import com.jakemadethis.util.Time
 import collection.JavaConversions._
 import com.jakemadethis.graphite.algorithm.converters.PrepareGrammar
+import com.jakemadethis.graphite.algorithm.HypergraphGrammar
+import com.jakemadethis.graphite.algorithm.HypergraphProduction
+import com.jakemadethis.graphite.algorithm.Derivation
 
 object ConsoleApp {
   
@@ -34,6 +37,10 @@ object ConsoleApp {
       enumerate(fileOption, opts)
     }
     
+    else if (process == 'benchmark && valid('infile, 'size)) {
+      benchmark(fileOption, opts)
+    }
+    
     else {
       
       println("graphite")
@@ -48,7 +55,11 @@ object ConsoleApp {
       println("    open       : Whether to open the graphs after generated. Default false")
       println("graphite enumerate --size=int filename")
       println("  Counts the number of graphs with a specified size")
-      println("    size       : Counts the number of terminal graphs with this size")
+      println("    size       : The size of graph to count")
+      println("graphite benchmark --size=int [--number=int] filename")
+      println("  Generates graphs with sizes iterating from 1 to a given size")
+      println("    size       : The maximum size graph to generate")
+      println("    number     : Each iteration should generate this number of graphs. Default 1")
     }
     
     
@@ -108,56 +119,14 @@ object ConsoleApp {
     
     
     
-    // Case classes for output, in order to filter for verbose outputs
-    case class OutputTotalGraphs(num : BigInt)
-    case class OutputGenerating(num : Int, total : Int)
-    case class OutputGraphData(vs : Int, es : Int)
-    case class OutputDone(time : Long)
-    
-    // Runs the algorithm
-    def run(send : (Any) => Unit) {
-      val grammar = PrepareGrammar(loader.grammar)
-      val enumerator = new GrammarEnumerator(grammar)
-      
-      val (paths, time) = Time.get {
-        enumerator.precompute(size)
-        
-        val count = enumerator.count(initial, size)
-        if (count == 0) {
-          println("No available derivations at size %,d".format(size))
-          return
-        }
-        send(OutputTotalGraphs(count))
-        
-        val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-        
-        val paths = (1 to number).map { i => 
-          
-          send(OutputGenerating(i, number))
-          
-          val path = randomizer.generatePath(initial, size)
-          //val graph = HypergraphGenerator(new OrderedHypergraph(), path)
-          
-          //send(OutputGraphData(graph.getVertexCount(), graph.getEdgeCount()))
-          path
-        }
-        
-        paths
-      }
-      send(OutputDone(time))
-      
-      if (gui) {
-        GuiApp.setup
-        GuiApp.openGraphs(paths)
-      }
-    }
     
     def verboseOutput(message : Any) {
       message match {
         case OutputTotalGraphs(num) => println("Total number of terminal graphs: %s".format(toStdForm(num)))
         case OutputGenerating(num, total) => println("Generating %,d of %,d: ".format(num, number))
         case OutputGraphData(v, e) => println("Vertices(%,d) + Edges(%,d) = %,d".format(v, e, v+e))
-        case OutputDone(time) => println("Time to compute: %,d milliseconds".format(time/1000))
+        case OutputDone(size, number, time) => println("Time to compute: %,d milliseconds".format(time/1000))
+        case OutputNoAvailableDerivations(size) => println("No available derivations at size %,d".format(size))
         case _ =>
       }
     }
@@ -165,13 +134,89 @@ object ConsoleApp {
     def regularOutput(message : Any) {
       message match {
         case OutputGenerating(num, total) => print("\rGenerating %,d of %,d".format(num, number))
-        case OutputDone(time) => println(); println("Time to compute: %,d milliseconds".format(time/1000))
+        case OutputDone(size, number, time) => println(); println("Time to compute: %,d milliseconds".format(time/1000))
+        case OutputNoAvailableDerivations(size) => println("No available derivations at size %,d".format(size))
         case _ =>
       }
     }
     
-    if (verbose) run(verboseOutput) 
-    else run(regularOutput)
+    val runfunc = run(grammar, size, number) _
+    val paths = 
+      if (verbose) runfunc(verboseOutput) 
+              else runfunc(regularOutput)
+    
+    if (gui && paths.isDefined) {
+      GuiApp.setup
+      GuiApp.openGraphs(paths.get)
+    }
     
   }
+  
+  def benchmark(fileOption : Option[String], opts : App.Options) {
+    val filename = fileOption.get
+    val size = opts.get('size).get.toInt
+    val number = opts.get('number).map{_.toInt}.getOrElse(1)
+    
+    println("Loading file: "+filename)
+    val loader = new GrammarLoader(new FileReader(new File(filename)))
+    if (loader.grammar.isEmpty)
+      return println("Grammar is invalid")
+      
+    val grammar = PrepareGrammar(loader.grammar.get)
+    
+    
+    
+    def output(message : Any) {
+      message match {
+        case OutputDone(size, number, time) => println("Size %s: %,d milliseconds".format(size, time/1000))
+        case _ =>
+      }
+    }
+    
+    (1 to size).foreach { i =>
+      run(grammar, i, number)(output)
+    }
+  }
+  
+  
+  type Path = Derivation.Path[HypergraphProduction]
+  
+  /** Runs the algorithm **/
+  def run(grammar : HypergraphGrammar.HG, size : Int, number : Int)(send : (Any) => Unit) : Option[Seq[Path]] = {
+    val enumerator = new GrammarEnumerator(grammar)
+    
+    val (paths, time) = Time.get {
+      enumerator.precompute(size)
+      
+      val count = enumerator.count(grammar.initial, size)
+      if (count == 0) {
+        send(OutputNoAvailableDerivations(size))
+        return None
+      }
+      send(OutputTotalGraphs(count))
+      
+      val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
+      
+      val paths = (1 to number).map { i => 
+        
+        send(OutputGenerating(i, number))
+        
+        val path = randomizer.generatePath(grammar.initial, size)
+        path
+      }
+      
+      paths
+    }
+    send(OutputDone(size, number, time))
+    
+    Some(paths)
+  }
+  
+
+  // Case classes for output, in order to filter for verbose outputs
+  case class OutputTotalGraphs(num : BigInt)
+  case class OutputGenerating(num : Int, total : Int)
+  case class OutputGraphData(vs : Int, es : Int)
+  case class OutputDone(size : Int, number : Int, time : Long)
+  case class OutputNoAvailableDerivations(size : Int)
 }
