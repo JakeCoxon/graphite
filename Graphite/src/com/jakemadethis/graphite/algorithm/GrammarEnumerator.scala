@@ -2,6 +2,8 @@ package com.jakemadethis.graphite.algorithm
 import scala.collection.mutable.Map
 import scala.util.Random
 import com.jakemadethis.util.MultiSet
+import scala.collection.mutable.Buffer
+import scala.collection.mutable.ArrayBuffer
 
 private object util {
   
@@ -41,14 +43,14 @@ private object util {
 class GrammarEnumerator[D <: Production](val grammar: Grammar[D]) {
   
   val funcs = Map[String, BigInt => BigInt]()
-  
+  val conv_funcs = Map[String, Map[Int, BigInt => BigInt]]()
   
   
   def count(nt: String, len : Int) = funcs(nt)(len)
   
   def countAll(set: MultiSet[String], len : Int) : BigInt = {
     if (set.isEmpty) return util.d0(len)
-    set.map { case (k, num) => util.selfConvolution(funcs(k), num) }
+    set.map { case (k, num) => conv_funcs(k)(num) }
       .reduce { util.convolution(_,_) }(len)
   }
   
@@ -58,7 +60,23 @@ class GrammarEnumerator[D <: Production](val grammar: Grammar[D]) {
     (min to max).foldLeft(BigInt(0)) { case (result, i) => result + count(derivation, i) }
   
   def precompute(len : Int) {
-    (0 to len).foreach { i => funcs.values.map(_.apply(i))}
+    for (i <- 0 to len) funcs.values.foreach(_.apply(i))
+    
+    for (n <- funcs.keys) {
+      conv_funcs(n) = (0 to len).foldLeft(Map[Int, BigInt => BigInt]()) { (result, i) => 
+        val f = i match {
+          case 0 => util.d0
+          case 1 => funcs(n)
+          case i => util.makeMemo(x => util.convolution(conv_funcs(n)(i-1), funcs(n))(x))
+        }
+        result += i -> f; result
+      }
+      for (i <- 0 to len) {
+        for (j <- 0 to len) {
+          conv_funcs(n)(i)(j)
+        }
+      }
+    }
   }
   
   //
