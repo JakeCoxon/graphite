@@ -82,7 +82,7 @@ object ToEpsilonFree extends Function[HypergraphGrammar.HG, HypergraphGrammar.HG
     
     println("Added %d and removed %d productions".format(numAdded, numRemoved))
     
-    Grammar(newProds)
+    Grammar(newProds, grammar.initial)
   }
   
   /** Copy a derivation but remove any edges that arent in `edges' **/

@@ -8,9 +8,8 @@ import scala.collection.mutable.Buffer
 object GraphTestUtils {
   object GrammarBuilder {
     
-    def apply(strProds : (Char, String)*)(implicit random : Random) = {
-      val productions = strProds.map { strProd =>
-        val (nt, str) = strProd
+    def apply(strProds : (Char, String)*)(initial : Char)(implicit random : Random) = {
+      def convert(str : String) = {
         val edges = str.map { char =>
           new Hyperedge(char.toString, Termination.terminal(char.isLower))
         }
@@ -27,9 +26,13 @@ object GraphTestUtils {
         for ((e, i) <- edges.zipWithIndex) 
           graph.addEdge(e, vertices(i), vertices(i+1))
         
-        nt.toString() -> HypergraphProduction(graph, extNodes)
+        HypergraphProduction(graph, extNodes)
       }
-      Grammar(productions)
+    
+      val productions = strProds.map { case(nt, prod) =>
+        nt.toString() -> convert(prod)
+      }
+      Grammar(productions, convert(initial.toString))
     }
   }
   

@@ -4,7 +4,6 @@ import edu.uci.ics.jung.visualization.DefaultVisualizationModel
 import edu.uci.ics.jung.algorithms.layout.Layout
 import edu.uci.ics.jung.graph.Hypergraph
 import collection.JavaConversions._
-import com.jakemadethis.graphite.graph.HyperedgeGraph
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer
 import java.awt.Dimension
 import com.jakemadethis.graphite.visualization.HyperedgeLayout
@@ -53,7 +52,7 @@ object DerivationPair {
   object LeftModel {
     def apply(label : String, size : Int) = {
       require(size > 0)
-      val graph = new HyperedgeGraph(label, size)
+      val graph = new GraphHandle(label, size)
       val rand = new RandomLocationTransformer[Vertex](new Dimension(500,500))
       val layout = new HyperedgeLayout(graph, new Dimension(500,500))
       layout.lockEdge(graph.edge, true)
@@ -70,7 +69,7 @@ object DerivationPair {
     }
     
     protected[DerivationPair] def edit(newLabel : String, newSize : Int) {
-      getGraphLayout().setGraph(new HyperedgeGraph(newLabel, newSize))
+      getGraphLayout().setGraph(new GraphHandle(newLabel, newSize))
     }
     
     

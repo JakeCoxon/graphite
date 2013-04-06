@@ -72,20 +72,21 @@ object ConsoleApp {
     
     println("Loading file: "+filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
-    val initial = loader.initial.getOrElse {throw new Error("No initial graph")}
+    if (loader.grammar.isEmpty) 
+      return println("Grammar is invalid")
     
-    val grammar = PrepareGrammar(loader.grammar)
+    val grammar = PrepareGrammar(loader.grammar.get)
     val enumerator = new GrammarEnumerator(grammar)
     
     // Count the number of terminal graphs with a given size
     def timeCountSingle(size : Int) = Time.get {
       enumerator.precompute(size)
-      enumerator.count(initial, size)
+      enumerator.count(grammar.initial, size)
     }
     // Count the number of terminal graphs with a given range
     def timeCountRange(min : Int, max : Int) = Time.get {
       enumerator.precompute(max)
-      enumerator.countRange(initial, min, max)
+      enumerator.countRange(grammar.initial, min, max)
     }
     
     // Run the relevant counting function
@@ -115,8 +116,10 @@ object ConsoleApp {
     
     println("Loading file: "+filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
-    val initial = loader.initial.getOrElse {throw new Error("No initial graph")}
+    if (loader.grammar.isEmpty) 
+      return println("Grammar is invalid")
     
+    val grammar = PrepareGrammar(loader.grammar.get)
     
     
     

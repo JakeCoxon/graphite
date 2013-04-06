@@ -81,6 +81,6 @@ class GrammarLoader(reader : Reader) {
     HypergraphProduction(obj.graph, Seq())
   }
   
-  val grammar = Grammar(derivations)
+  val grammar = initial.map { ini => Grammar(derivations, ini) }
 }
 

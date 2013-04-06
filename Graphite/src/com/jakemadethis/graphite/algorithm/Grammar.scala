@@ -1,6 +1,6 @@
 package com.jakemadethis.graphite.algorithm
 
-class Grammar[D <: Production](map : Map[String, Seq[D]]) extends Iterable[(String, Seq[D])] {
+class Grammar[D <: Production](map : Map[String, Seq[D]], val initial : D) extends Iterable[(String, Seq[D])] {
   
   import Grammar._
   
@@ -21,11 +21,11 @@ class Grammar[D <: Production](map : Map[String, Seq[D]]) extends Iterable[(Stri
 object Grammar {
   class Symbol(val label : String)
   
-  def apply[D <: Production](seq : Traversable[(String,D)]) = {
+  def apply[D <: Production](seq : Traversable[(String,D)], initial : D) = {
     val map = seq.foldLeft(Map[String, Seq[D]]()) { (result, a) => 
       result + (a._1 -> (result.getOrElse(a._1, Seq()) :+ a._2))
     }
-    new Grammar(map)
+    new Grammar(map, initial)
   }
 }
 

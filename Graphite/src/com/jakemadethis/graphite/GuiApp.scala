@@ -168,8 +168,8 @@ object GuiApp extends Reactor {
     }
     
     val derivs = guiGrammar.derivations.map(derivationFromPair _)
-    val startder = HypergraphProduction(guiGrammar.initialGraph.rightSide.graph, Seq())
-    val grammar = Grammar(derivs)
+    val initial = HypergraphProduction(guiGrammar.initialGraph.rightSide.graph, Seq())
+    val grammar = Grammar(derivs, initial)
     println(grammar)
     
     val loading = new Dialog(parent) {
@@ -202,7 +202,7 @@ object GuiApp extends Reactor {
         val enumerator = new GrammarEnumerator(grammar)
         enumerator.precompute(size)
         
-        if (enumerator.count(startder, size) == 0) {
+        if (enumerator.count(grammar.initial, size) == 0) {
           error("No available derivations at size "+size)
           return
         }
@@ -212,7 +212,7 @@ object GuiApp extends Reactor {
         val paths = (1 to number).map { i =>
           loading ! "Generating " + i +" of "+number
           
-          val path = randomizer.generatePath(startder, size)
+          val path = randomizer.generatePath(grammar.initial, size)
           path
         }
         loading ! "Done"

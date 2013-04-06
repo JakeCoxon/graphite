@@ -46,7 +46,7 @@ object RemoveSingleProductions extends Function[Grammar[HypergraphProduction], G
          
     }
     
-    Grammar(prods)
+    Grammar(prods, grammar.initial)
     
   }
   

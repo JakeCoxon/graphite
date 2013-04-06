@@ -9,7 +9,7 @@ import collection.JavaConversions._
  * This is for displaying a left-hand side of a derivation
  * Modifying the graph after it has been constructed in unsupported
  */
-class HyperedgeGraph(label : String, size : Int) extends OrderedHypergraph[Vertex, Hyperedge] {
+class GraphHandle(label : String, size : Int) extends OrderedHypergraph[Vertex, Hyperedge] {
   
   //
   val edge = new Hyperedge(label, NonTerminal)

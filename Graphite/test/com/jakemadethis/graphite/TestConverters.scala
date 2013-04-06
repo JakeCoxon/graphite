@@ -24,7 +24,7 @@ class TestConverters extends FlatSpec {
       'A' -> "Bbb",
       'B' -> "",
       'B' -> "b"
-    )
+    )('A')
     val output = ToEpsilonFree(egrammar)
     printG(output)
     
@@ -37,7 +37,7 @@ class TestConverters extends FlatSpec {
       'A' -> "AABaa", 
       'A' -> "B",
       'B' -> ""
-    )
+    )('A')
     intercept[GrammarError] { ToEpsilonFree(egrammar) }
   }
   
