@@ -11,23 +11,16 @@ import com.jakemadethis.graphite.algorithm.converters.PrepareGrammar
 import com.jakemadethis.graphite.algorithm.HypergraphGrammar
 import com.jakemadethis.graphite.algorithm.HypergraphProduction
 import com.jakemadethis.graphite.algorithm.Derivation
+import com.jakemadethis.util.Logger
+import com.jakemadethis.util.NumUtil._
 
 object ConsoleApp {
   
-  private def toStdForm(num : BigInt) = {
-    val str = num.toString
-    if (str.length <= 8) {
-      "%,d".format(num)
-    } else {
-      val a = str.charAt(0)
-      val b = str.substring(1, 3)
-      val exp = str.length - 1
-      a + "." + b + " * 10^" + exp
-    }
-  }
-  
   def start(fileOption : Option[String], process : Symbol, opts : App.Options) {
     def valid(sym : Symbol*) = sym.forall(opts.get(_).isDefined)
+    
+    val verbose = opts.getBool('verbose).getOrElse(false)
+    implicit val logger =  if (verbose) VerboseLogger else BasicLogger
     
     if (process == 'generate && valid('infile, 'size)) {
       generate(fileOption, opts)
@@ -65,15 +58,15 @@ object ConsoleApp {
     
   }
   
-  def enumerate(fileOption : Option[String], opts : App.Options) {
+  def enumerate(fileOption : Option[String], opts : App.Options)(implicit logger : Logger) {
     val filename = fileOption.get
     val rangePattern = """([0-9]+)\.\.([0-9]+)""".r
     val sizeStr = opts.get('size).get
     
-    println("Loading file: "+filename)
+    logger ! "Loading file: %s".format(filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     if (loader.grammar.isEmpty) 
-      return println("Grammar is invalid")
+      return logger @! "Grammar is invalid"
     
     val grammar = PrepareGrammar(loader.grammar.get)
     val enumerator = new GrammarEnumerator(grammar)
@@ -102,51 +95,25 @@ object ConsoleApp {
     }
     
     
-    println("Number of terminal graphs with size "+sizeOutput+": %s".format(toStdForm(count)))
-    println("Time to compute: %,d milliseconds".format(time/1000))
+    logger ! "Number of terminal graphs with size %s: %s".format(sizeOutput, count.toStdForm)
+    logger ! "Time to compute: %,d milliseconds".format(time/1000)
   }
     
-  def generate(fileOption : Option[String], opts : App.Options) {
+  def generate(fileOption : Option[String], opts : App.Options)(implicit logger : Logger) {
     
     val filename = fileOption.get
     val size = opts.get('size).get.toInt
     val number = opts.get('number).map{_.toInt}.getOrElse(1)
-    val verbose = opts.getBool('verbose).getOrElse(false)
     val gui = opts.getBool('open).getOrElse(false)
     
-    println("Loading file: "+filename)
+    logger ! "Loading file: %s".format(filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     if (loader.grammar.isEmpty) 
-      return println("Grammar is invalid")
+      return logger @! "Grammar is invalid"
     
     val grammar = PrepareGrammar(loader.grammar.get)
     
-    
-    
-    def verboseOutput(message : Any) {
-      message match {
-        case OutputTotalGraphs(num) => println("Total number of terminal graphs: %s".format(toStdForm(num)))
-        case OutputGenerating(num, total) => println("Generating %,d of %,d: ".format(num, number))
-        case OutputGraphData(v, e) => println("Vertices(%,d) + Edges(%,d) = %,d".format(v, e, v+e))
-        case OutputDone(size, number, time) => println("Time to compute: %,d milliseconds".format(time/1000))
-        case OutputNoAvailableDerivations(size) => println("No available derivations at size %,d".format(size))
-        case _ =>
-      }
-    }
-    
-    def regularOutput(message : Any) {
-      message match {
-        case OutputGenerating(num, total) => print("\rGenerating %,d of %,d".format(num, number))
-        case OutputDone(size, number, time) => println(); println("Time to compute: %,d milliseconds".format(time/1000))
-        case OutputNoAvailableDerivations(size) => println("No available derivations at size %,d".format(size))
-        case _ =>
-      }
-    }
-    
-    val runfunc = run(grammar, size, number) _
-    val paths = 
-      if (verbose) runfunc(verboseOutput) 
-              else runfunc(regularOutput)
+    val paths = App.runAlgorithm(grammar, size, number)
     
     if (gui && paths.isDefined) {
       GuiApp.setup
@@ -155,71 +122,64 @@ object ConsoleApp {
     
   }
   
-  def benchmark(fileOption : Option[String], opts : App.Options) {
+  def benchmark(fileOption : Option[String], opts : App.Options)(implicit logger : Logger) {
     val filename = fileOption.get
     val size = opts.get('size).get.toInt
     val number = opts.get('number).map{_.toInt}.getOrElse(1)
     
-    println("Loading file: "+filename)
+    logger ! "Loading file: %s".format(filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     if (loader.grammar.isEmpty)
-      return println("Grammar is invalid")
+      return logger @! "Grammar is invalid"
       
     val grammar = PrepareGrammar(loader.grammar.get)
     
-    
-    
-    def output(message : Any) {
-      message match {
-        case OutputDone(size, number, time) => println("Size %s: %,d milliseconds".format(size, time/1000))
-        case _ =>
-      }
-    }
-    
     (1 to size).foreach { i =>
-      run(grammar, i, number)(output)
+      App.runAlgorithm(grammar, i, number)(BenchmarkLogger)
     }
   }
   
   
-  type Path = Derivation.Path[HypergraphProduction]
+  case class VerboseMessage(msg : String)
   
-  /** Runs the algorithm **/
-  def run(grammar : HypergraphGrammar.HG, size : Int, number : Int)(send : (Any) => Unit) : Option[Seq[Path]] = {
-    val enumerator = new GrammarEnumerator(grammar)
+  object VerboseLogger extends Logger {
+    import App._
+  
+    override def receive = verboseReceive orElse super.receive
     
-    val (paths, time) = Time.get {
-      enumerator.precompute(size)
-      
-      val count = enumerator.count(grammar.initial, size)
-      if (count == 0) {
-        send(OutputNoAvailableDerivations(size))
-        return None
-      }
-      send(OutputTotalGraphs(count))
-      
-      val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-      
-      val paths = (1 to number).map { i => 
-        
-        send(OutputGenerating(i, number))
-        
-        val path = randomizer.generatePath(grammar.initial, size)
-        path
-      }
-      
-      paths
+    def verboseReceive : PartialFunction[Any,Unit] = {
+      case Done(size, number, time) => println("Time to compute: %,d milliseconds".format(time/1000))
+      case msg @ GraphData(_,_)   => println(msg)
+      case msg @ TotalGraphs(_)   => println(msg)
+      case msg @ Generating(_, _) => println(msg)
+      case msg @ NoDerivations(_) => println(msg)
+      case msg : String => println(msg)
     }
-    send(OutputDone(size, number, time))
-    
-    Some(paths)
   }
   
-
-  // Case classes for output, in order to filter for verbose outputs
-  case class OutputTotalGraphs(num : BigInt)
-  case class OutputGenerating(num : Int, total : Int)
-  case class OutputGraphData(vs : Int, es : Int)
-  case class OutputDone(size : Int, number : Int, time : Long)
-  case class OutputNoAvailableDerivations(size : Int)
+  object BasicLogger extends Logger {
+    import App._
+    
+    override def receive = basicReceive orElse super.receive
+    
+    def basicReceive : PartialFunction[Any,Unit] = {
+      case Done(size, number, time) => println(); println("Time to compute: %,d milliseconds".format(time/1000))
+      case msg @ Generating(_, _) => print("\r"+msg)
+      case msg @ NoDerivations(_) => println(msg)
+      case msg : String => println(msg)
+    }
+  }
+  
+  
+  object BenchmarkLogger extends Logger {
+    import App._
+    
+    override def receive = benchReceive orElse super.receive
+    
+    def benchReceive : PartialFunction[Any,Unit] = {
+      case (_, Done(size, number, time)) => println("Size %s: %,d milliseconds".format(size, time/1000))
+    }
+  }
+  
+  
 }

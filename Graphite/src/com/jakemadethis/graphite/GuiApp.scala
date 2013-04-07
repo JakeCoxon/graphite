@@ -14,6 +14,7 @@ import edu.uci.ics.jung.graph.Hypergraph
 import collection.JavaConversions._
 import javax.swing.plaf.metal.MetalLookAndFeel
 import javax.swing.plaf.metal.OceanTheme
+import com.jakemadethis.util.Logger
 
 /**
  * Object for controlling various loading/saving dialogs
@@ -170,9 +171,8 @@ object GuiApp extends Reactor {
     val derivs = guiGrammar.derivations.map(derivationFromPair _)
     val initial = HypergraphProduction(guiGrammar.initialGraph.rightSide.graph, Seq())
     val grammar = Grammar(derivs, initial)
-    println(grammar)
     
-    val loading = new Dialog(parent) {
+    val loadingDialog = new Dialog(parent) {
       lazy val message = new Label("Generating")
       lazy val closebtn = new Button(Action("Close") {
         close
@@ -187,38 +187,31 @@ object GuiApp extends Reactor {
         Swing.onEDT { message.text = s; pack }
       }
       def done { close }
+      def error(message : String) = Swing.onEDT {
+        Dialog.showMessage(null, message, "Generating Error", Dialog.Message.Error, null)
+        close
+      }
       
       
       open; centerOnScreen
     }
-    def error(message : String) = Swing.onEDT {
-      Dialog.showMessage(null, message, "Generating Error", Dialog.Message.Error, null)
-      loading.close
+    loadingDialog ! "Precompting"
+    
+    object logger extends Logger {
+      import App._
+      
+      override def receive : PartialFunction[Any,Unit] = {
+        case Logger.Error(msg) => loadingDialog.error(msg)
+        case msg @ NoDerivations(_) => loadingDialog.error(msg.toString)
+        case msg @ Generating(_, _) => loadingDialog ! msg.toString
+        case Done(_, _, _) => loadingDialog.done
+      }
     }
     
     val thread = new Thread(new Runnable {
       def run() {
-        loading ! "Precompting"
-        val enumerator = new GrammarEnumerator(grammar)
-        enumerator.precompute(size)
-        
-        if (enumerator.count(grammar.initial, size) == 0) {
-          error("No available derivations at size "+size)
-          return
-        }
-        
-        val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-        
-        val paths = (1 to number).map { i =>
-          loading ! "Generating " + i +" of "+number
-          
-          val path = randomizer.generatePath(grammar.initial, size)
-          path
-        }
-        loading ! "Done"
-        loading.done
-        
-        openGraphs(paths) 
+        val paths = App.runAlgorithm(grammar, size, number)(logger)
+        paths.foreach { openGraphs(_) }
       }
     })
     

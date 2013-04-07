@@ -16,7 +16,10 @@ import java.awt.FileDialog
 import java.io.FilenameFilter
 import java.awt.FileDialog
 import com.jakemadethis.graphite.ui.GuiGrammar
-
+import com.jakemadethis.graphite.algorithm._
+import com.jakemadethis.util.Time
+import com.jakemadethis.util.Logger
+import com.jakemadethis.util.NumUtil._
 
 object App {
   
@@ -58,6 +61,59 @@ object App {
       map.get(key).map(_.toBoolean)
       
     def get(key : Symbol) = map.get(key)
+  }
+  
+  
+  
+  
+  type Path = Derivation.Path[HypergraphProduction]
+  
+  /** Runs the algorithm and provides logging **/
+  def runAlgorithm(grammar : HypergraphGrammar.HG, size : Int, number : Int)(implicit logger : Logger) : Option[Seq[Path]] = {
+    val enumerator = new GrammarEnumerator(grammar)
+    
+    val (paths, time) = Time.get {
+      enumerator.precompute(size)
+      
+      val count = enumerator.count(grammar.initial, size)
+      if (count == 0) {
+        logger ! NoDerivations(size)
+        return None
+      }
+      logger ! TotalGraphs(count)
+      
+      val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
+      
+      val paths = (1 to number).map { i => 
+        
+        logger ! Generating(i, number)
+        
+        val path = randomizer.generatePath(grammar.initial, size)
+        path
+      }
+      
+      paths
+    }
+    logger ! Done(size, number, time)
+    
+    Some(paths)
+  }
+  
+  
+
+  // Case classes for output, in order to filter for verbose outputs
+  case class TotalGraphs(num : BigInt) {
+    override def toString = "Total number of terminal graphs: %s".format(num.toStdForm)
+  }
+  case class Generating(num : Int, total : Int) {
+    override def toString = "Generating %,d of %,d".format(num, total)
+  }
+  case class GraphData(vs : Int, es : Int)
+  case class Done(size : Int, number : Int, time : Long) {
+    override def toString = "Done"
+  }
+  case class NoDerivations(size : Int) {
+    override def toString = "No available derivations at size %,d".format(size)
   }
   
 }
