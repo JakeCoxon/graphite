@@ -11,6 +11,7 @@ object Logger {
 }
 
 class Logger {
+  type P = PartialFunction[Any, Unit]
   
   def !(message : Any) = receiveIfDefined(message)
   def log(message : String, data : Product) = receiveIfDefined(message.format(data.productElements.toSeq : _*) -> data)

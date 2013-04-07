@@ -78,25 +78,28 @@ object App {
       val count = enumerator.count(grammar.initial, size)
       if (count == 0) {
         logger ! NoDerivations(size)
-        return None
+        None
       }
-      logger ! TotalGraphs(count)
-      
-      val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
-      
-      val paths = (1 to number).map { i => 
+      else {
+        logger ! TotalGraphs(count)
         
-        logger ! Generating(i, number)
+        val randomizer = new GrammarRandomizer(enumerator, scala.util.Random)
         
-        val path = randomizer.generatePath(grammar.initial, size)
-        path
-      }
-      
-      paths
+        val paths = (1 to number).map { i => 
+          
+          logger ! Generating(i, number)
+          
+          val path = randomizer.generatePath(grammar.initial, size)
+          path
+        }
+        
+        Some(paths)
+      } : Option[IndexedSeq[Path]]
     }
-    logger ! Done(size, number, time)
+    if (paths.isDefined)
+      logger ! Done(size, number, time)
     
-    Some(paths)
+    paths
   }
   
   

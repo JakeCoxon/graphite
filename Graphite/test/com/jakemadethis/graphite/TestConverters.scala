@@ -20,7 +20,7 @@ class TestConverters extends FlatSpec {
   }
   
   it should "duplicate productions deriving epsilons" in {
-    val egrammar = GrammarBuilder(
+    val egrammar = StringToGraphGrammar(
       'A' -> "Bbb",
       'B' -> "",
       'B' -> "b"
@@ -33,7 +33,7 @@ class TestConverters extends FlatSpec {
   }
   
   it should "fail on productions that derive just epsilons" in {
-    val egrammar = GrammarBuilder(
+    val egrammar = StringToGraphGrammar(
       'A' -> "AABaa", 
       'A' -> "B",
       'B' -> ""
