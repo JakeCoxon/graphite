@@ -40,12 +40,13 @@ object ConsoleApp {
       println("  Opens the graphite gui")
       println("graphite gui filename")
       println("  Opens the graphite gui with a specified file")
-      println("graphite generate --size=int [--number=int] [--verbose] [--open] filename")
+      println("graphite generate --size=int [--number=int] [--verbose] [--distinct] [--open] filename")
       println("  Generates a number of graphs with a specified size")
       println("    size       : The size of graph to generate, optionally use a range eg 1..10")
       println("    number     : The number of graphs to generate. Default 1")
       println("    verbose    : Output detailed infomation. Default false")
-      println("    open       : Whether to open the graphs after generated. Default false")
+      println("    distinct   : Print the distinct graphs when it's finished.")
+      println("    open       : Whether to open the graphs after generated.")
       println("graphite enumerate --size=int filename")
       println("  Counts the number of graphs with a specified size")
       println("    size       : The size of graph to count")
@@ -104,6 +105,7 @@ object ConsoleApp {
     val filename = fileOption.get
     val size = opts.get('size).get.toInt
     val number = opts.get('number).map{_.toInt}.getOrElse(1)
+    val printDistinct = opts.getBool('distinct).getOrElse(false)
     val gui = opts.getBool('open).getOrElse(false)
     
     logger ! "Loading file: %s".format(filename)
@@ -114,6 +116,22 @@ object ConsoleApp {
     val grammar = PrepareGrammar(loader.grammar.get)
     
     val paths = App.runAlgorithm(grammar, size, number)
+    
+    if (printDistinct && paths.isDefined) {
+      logger ! "Distinct graphs:"
+      val map = grammar.productions.zipWithIndex.map { case (p, i) => p._2 -> i }.toMap
+      val distinctMap = collection.mutable.Map[Seq[HypergraphProduction], Int]()
+      
+      paths.get.foreach { p =>
+        val v = p.tail.map(_._2)
+        val num = distinctMap.getOrElse(v, 0) + 1
+        distinctMap(v) = num
+      }
+      distinctMap.toList.zipWithIndex.foreach {case ((k, v), id) =>
+        // k.map(map(_)).mkString(",")
+        logger ! "%,d -> %,d".format(id, v)
+      }
+    }
     
     if (gui && paths.isDefined) {
       GuiApp.setup
@@ -177,7 +195,7 @@ object ConsoleApp {
     override def receive = benchReceive orElse super.receive
     
     def benchReceive : PartialFunction[Any,Unit] = {
-      case (_, Done(size, number, time)) => println("Size %s: %,d milliseconds".format(size, time/1000))
+      case Done(size, number, time) => println("Size %s: %,d milliseconds".format(size, time/1000))
     }
   }
   
