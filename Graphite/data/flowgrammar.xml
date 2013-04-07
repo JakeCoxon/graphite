@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://graphml.graphdrawing.org/xmlns/graphml">
+  <key for="graph" id="label">
+    <default>?</default>
+  </key>
+  <key for="node" id="external">
+    <default>-1</default>
+  </key>
+  <key for="node" id="fake">
+    <default>false</default>
+  </key>
+  <key for="hyperedge" id="terminal">
+    <default>true</default>
+  </key>
+  <key for="hyperedge" id="label">
+    <default>?</default>
+  </key>
+  <graph edgedefault="undirected">
+    <data key="label">$initial</data>
+    <node id="1"></node>
+    <node id="2"></node>
+    <hyperedge id="1">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="2"></endpoint>
+      <endpoint node="1"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="3">
+      <data key="external">1</data>
+    </node>
+    <node id="4">
+      <data key="external">0</data>
+    </node>
+    <node id="5"></node>
+    <hyperedge id="2">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="5"></endpoint>
+      <endpoint node="3"></endpoint>
+    </hyperedge>
+    <hyperedge id="3">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="4"></endpoint>
+      <endpoint node="5"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="6">
+      <data key="external">1</data>
+    </node>
+    <node id="7">
+      <data key="external">0</data>
+    </node>
+    <hyperedge id="4">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="7"></endpoint>
+      <endpoint node="6"></endpoint>
+      <endpoint node="6"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="8">
+      <data key="external">0</data>
+    </node>
+    <node id="9">
+      <data key="external">1</data>
+    </node>
+    <hyperedge id="5">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="8"></endpoint>
+      <endpoint node="8"></endpoint>
+      <endpoint node="9"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="10">
+      <data key="external">0</data>
+    </node>
+    <node id="11">
+      <data key="external">1</data>
+    </node>
+    <hyperedge id="6">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="10"></endpoint>
+      <endpoint node="11"></endpoint>
+      <endpoint node="10"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="12">
+      <data key="external">0</data>
+    </node>
+    <node id="13">
+      <data key="external">1</data>
+    </node>
+    <hyperedge id="7">
+      <data key="terminal">true</data>
+      <data key="label">c</data>
+      <endpoint node="12"></endpoint>
+      <endpoint node="13"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="14"></node>
+    <node id="15">
+      <data key="external">1</data>
+    </node>
+    <node id="16">
+      <data key="external">0</data>
+    </node>
+    <node id="17">
+      <data key="external">2</data>
+    </node>
+    <hyperedge id="8">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="16"></endpoint>
+      <endpoint node="15"></endpoint>
+      <endpoint node="14"></endpoint>
+    </hyperedge>
+    <hyperedge id="9">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="14"></endpoint>
+      <endpoint node="17"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="18">
+      <data key="external">2</data>
+    </node>
+    <node id="19">
+      <data key="external">1</data>
+    </node>
+    <node id="20">
+      <data key="external">0</data>
+    </node>
+    <node id="21"></node>
+    <hyperedge id="10">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="21"></endpoint>
+      <endpoint node="19"></endpoint>
+    </hyperedge>
+    <hyperedge id="11">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="20"></endpoint>
+      <endpoint node="21"></endpoint>
+      <endpoint node="18"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="22">
+      <data key="external">2</data>
+    </node>
+    <node id="23"></node>
+    <node id="24">
+      <data key="external">1</data>
+    </node>
+    <node id="25">
+      <data key="external">0</data>
+    </node>
+    <hyperedge id="12">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="25"></endpoint>
+      <endpoint node="23"></endpoint>
+      <endpoint node="22"></endpoint>
+    </hyperedge>
+    <hyperedge id="13">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="23"></endpoint>
+      <endpoint node="25"></endpoint>
+      <endpoint node="24"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="26">
+      <data key="external">1</data>
+    </node>
+    <node id="27"></node>
+    <node id="28">
+      <data key="external">0</data>
+    </node>
+    <node id="29">
+      <data key="external">2</data>
+    </node>
+    <hyperedge id="14">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="28"></endpoint>
+      <endpoint node="26"></endpoint>
+      <endpoint node="27"></endpoint>
+    </hyperedge>
+    <hyperedge id="15">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="27"></endpoint>
+      <endpoint node="29"></endpoint>
+      <endpoint node="28"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="30">
+      <data key="external">0</data>
+    </node>
+    <node id="31">
+      <data key="external">1</data>
+    </node>
+    <node id="32"></node>
+    <node id="33">
+      <data key="external">2</data>
+    </node>
+    <hyperedge id="16">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="32"></endpoint>
+      <endpoint node="31"></endpoint>
+      <endpoint node="33"></endpoint>
+    </hyperedge>
+    <hyperedge id="17">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="30"></endpoint>
+      <endpoint node="31"></endpoint>
+      <endpoint node="32"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="34">
+      <data key="external">1</data>
+    </node>
+    <node id="35">
+      <data key="external">0</data>
+    </node>
+    <node id="36">
+      <data key="external">2</data>
+    </node>
+    <node id="37"></node>
+    <hyperedge id="18">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="37"></endpoint>
+      <endpoint node="34"></endpoint>
+      <endpoint node="36"></endpoint>
+    </hyperedge>
+    <hyperedge id="19">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="35"></endpoint>
+      <endpoint node="37"></endpoint>
+      <endpoint node="36"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="38"></node>
+    <node id="39">
+      <data key="external">1</data>
+    </node>
+    <node id="40">
+      <data key="external">0</data>
+    </node>
+    <node id="41">
+      <data key="external">2</data>
+    </node>
+    <hyperedge id="20">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="40"></endpoint>
+      <endpoint node="38"></endpoint>
+    </hyperedge>
+    <hyperedge id="21">
+      <data key="terminal">false</data>
+      <data key="label">D</data>
+      <endpoint node="38"></endpoint>
+      <endpoint node="39"></endpoint>
+      <endpoint node="41"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">D</data>
+    <node id="42">
+      <data key="external">1</data>
+    </node>
+    <node id="43">
+      <data key="external">2</data>
+    </node>
+    <node id="44">
+      <data key="external">0</data>
+    </node>
+    <hyperedge id="22">
+      <data key="terminal">true</data>
+      <data key="label">d</data>
+      <endpoint node="44"></endpoint>
+      <endpoint node="42"></endpoint>
+      <endpoint node="43"></endpoint>
+    </hyperedge>
+  </graph>
+</graphml>

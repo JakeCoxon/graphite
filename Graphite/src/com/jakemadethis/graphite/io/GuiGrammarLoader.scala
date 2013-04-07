@@ -39,11 +39,13 @@ class GuiGrammarLoader(reader : Reader) {
   val vertexTransformer = new Transformer[NodeMetadata, Vertex]() {
     def transform(m : NodeMetadata) = {
       val v = if (m.getProperty("fake").toBoolean) new FakeVertex() else new Vertex()
-      val x = m.getProperty("x").toDouble
-      val y = m.getProperty("y").toDouble
+      if (m.getProperty("x") != null && m.getProperty("y") != null) {
+        val x = m.getProperty("x").toDouble
+        val y = m.getProperty("y").toDouble
+        posMap(v) = new Point2D.Double(x, y)
+      }
       val ex = m.getProperty("external").toInt
       if (ex > -1) allExternalNodes(v) = ex
-      posMap(v) = new Point2D.Double(x, y)
       v
     }
   }
@@ -89,7 +91,9 @@ class GuiGrammarLoader(reader : Reader) {
       
       // Set locations of all vertices
       graph.getVertices().foreach { v => 
-        layout.setLocation(v, posMap(v))}
+        if (posMap.containsKey(v))
+          layout.setLocation(v, posMap(v))
+      }
     }
     
   }
