@@ -15,6 +15,9 @@ import java.awt.Color
 import edu.uci.ics.jung.graph.util.Context
 import edu.uci.ics.jung.graph._
 import edu.uci.ics.jung.visualization.VisualizationModel
+import edu.uci.ics.jung.visualization.renderers.Renderer.EdgeLabel
+import edu.uci.ics.jung.visualization.RenderContext
+import edu.uci.ics.jung.algorithms.layout.Layout
 
 class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge]) 
     extends VisualizationViewer[Vertex, Hyperedge](model_, new Dimension(500, 500)) 
@@ -42,11 +45,14 @@ class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge])
     setVertexRenderer(new VertexRenderer(vv))
     setEdgeRenderer(new EdgeRenderer(vv))
     
-    setEdgeLabelRenderer(new HyperedgeLabelRenderer[Vertex, Hyperedge]() {
-      setDrawPredicate(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
-        def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
-      })
+    setEdgeLabelRenderer(new EdgeLabel[Vertex, Hyperedge] {
+      def labelEdge(rc : RenderContext[Vertex, Hyperedge], layout : Layout[Vertex,Hyperedge], e : Hyperedge, label : String) {}
     })
+//    setEdgeLabelRenderer(new HyperedgeLabelRenderer[Vertex, Hyperedge]() {
+//      setDrawPredicate(new Predicate[Context[Hypergraph[Vertex, Hyperedge], Hyperedge]]() {
+//        def evaluate(c : Context[Hypergraph[Vertex, Hyperedge], Hyperedge]) = true
+//      })
+//    })
     
   })
   

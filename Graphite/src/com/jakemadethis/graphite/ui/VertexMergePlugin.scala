@@ -42,6 +42,8 @@ class VertexMergePlugin extends MouseDropPlugin[Vertex, Hyperedge] {
     val pickedEdges = vv.getPickedEdgeState().getPicked()
     val pickedVertices = vv.getPickedVertexState().getPicked()
     
+    // Unmerge vertices
+    
     val notshift = e.getModifiers() != InputEvent.SHIFT_MASK
     if (notshift && hoverVertices.size > 0 && pickedVertices.size == 1 && !hoverVertices.last.isInstanceOf[FakeVertex]) {
       val drag = hoverVertices.last
@@ -49,7 +51,9 @@ class VertexMergePlugin extends MouseDropPlugin[Vertex, Hyperedge] {
       oldEdgeSelection.filter(incidents.contains(_)).filterNot(edgeLayout.isEdgeLocked(_)).lastOption map { edge =>
         val tentacle = incidents.toList.indexOf(drag)
         val fake = new FakeVertex()
-        val newincs = graph.getIncidentVertices(edge) map { v => if (v == drag) fake else v }
+        val oldincs = graph.getIncidentVertices(edge).toList
+        val id = oldincs.indexOf(drag)
+        val newincs = (oldincs.take(id) :+ fake) ++ oldincs.drop(id+1)
         graph.removeEdge(edge)
         graph.addEdge(edge, newincs)
         vv.getGraphLayout().setLocation(fake, vv.getGraphLayout().transform(drag))

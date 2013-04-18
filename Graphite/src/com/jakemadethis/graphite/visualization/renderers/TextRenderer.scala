@@ -11,13 +11,13 @@ object TextRenderer extends JLabel {
   setFocusable(false)
   setBorder(new EmptyBorder(0,0,0,0))
   
-  def getComponent(vv : JComponent, value : AnyVal, font : Font, color : Color) = {
+  def getComponent(vv : JComponent, value : Any, font : Font, color : Color) = {
     setForeground(color)
     if (font != null) setFont(font)
     setValue(value)
     this
   }
   
-  def setValue(value : AnyVal) = setText(
+  def setValue(value : Any) = setText(
       if (value == null) "" else value.toString())
 }

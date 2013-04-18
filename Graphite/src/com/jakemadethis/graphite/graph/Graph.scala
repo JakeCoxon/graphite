@@ -13,7 +13,7 @@ object NonTerminal extends Termination
 
 class Vertex() {
   def copy = new Vertex()
-  override def toString = "Vertex"
+  //override def toString = "Vertex"
 }
 class FakeVertex extends Vertex {
   override def copy = 

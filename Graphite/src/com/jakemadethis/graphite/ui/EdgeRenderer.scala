@@ -14,42 +14,145 @@ import com.jakemadethis.graphite.graph.Hyperedge
 import com.jakemadethis.graphite.graph.Vertex
 import edu.uci.ics.jung.visualization.VisualizationViewer
 import com.jakemadethis.graphite.visualization.HoverSupport
+import com.jakemadethis.graphite.visualization.renderers.TextRenderer
+import java.awt.geom.AffineTransform
+import java.awt.Rectangle
+import java.awt.geom.Point2D
+import com.jakemadethis.graphite.graph.FakeVertex
+import java.awt.geom.QuadCurve2D
+import java.awt.geom.Line2D
 
-class EdgeRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSupport[Vertex,Hyperedge]) extends Renderer.Edge[Vertex, Hyperedge] {
-  def paintEdge(rc : RenderContext[Vertex, Hyperedge], layout : Layout[Vertex, Hyperedge], edge : Hyperedge) {
+class EdgeRenderer(vv: VisualizationViewer[Vertex, Hyperedge] with HoverSupport[Vertex, Hyperedge]) extends Renderer.Edge[Vertex, Hyperedge] {
+  def paintEdge(rc: RenderContext[Vertex, Hyperedge], layout: Layout[Vertex, Hyperedge], edge: Hyperedge) {
     val gd = rc.getGraphicsContext()
     val oldPaint = gd.getPaint()
-    
+
     val pickedEdgeState = vv.getPickedEdgeState()
     val hoverEdgeState = vv.getHoverEdgeState()
     val hovered = hoverEdgeState.getPicked().size > 0 && hoverEdgeState.getPicked().last == edge
-    
-    val c = if (pickedEdgeState.isPicked(edge)) 
-      Color.GREEN.darker() 
+
+    val c = if (pickedEdgeState.isPicked(edge))
+      Color.GREEN.darker()
     else if (hovered)
-      Color.GREEN.darker().darker() 
+      Color.GREEN.darker().darker()
     else
       Color.BLACK
-      
+
     gd.setPaint(c)
-    
-    val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex,Hyperedge]]
-    
-    val points = graph.getIncidentVertices(edge).map { v => 
+
+    val graph = layout.getGraph().asInstanceOf[Hypergraph[Vertex, Hyperedge]]
+
+    val incs = graph.getIncidentVertices(edge).toSeq
+    val points = incs.map { v =>
       rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v))
     }
-    
+
     val edgeLayout = EdgeLayout(layout)
     val edgeLoc = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, edgeLayout.getEdgeLocation(edge))
-    
+
     gd.setStroke(new BasicStroke(2))
-    points.foreach { p =>
-      gd.drawLine(edgeLoc.getX().toInt, edgeLoc.getY().toInt, p.getX().toInt, p.getY().toInt)
+
+    val drawTentacleLabels = pickedEdgeState.isPicked(edge) || hovered
+
+    def curveShape(index : Int, total : Int) = {
+      def alt(i : Int) = if (i % 2 == 1) -1 else 1
+      def the(i : Int) = math.ceil(i/2f).toFloat
+      val controlY = if (total % 2 == 1) {
+        if (index == 0) 0
+        else 40 * alt(index) * the(index)
+      } else {
+        40 * alt(index+1) * the(index+1) - 20 * alt(index+1)
+      } 
+      new QuadCurve2D.Float(0.0f, 0.0f, 0.5f, controlY, 1.0f, 0.0f)
     }
     
+    val grouped = points.groupBy { p => p }
+    grouped.foreach {
+      case (p, points) =>
+        val shapes = (0 until points.size).map { i =>
+          curveShape(i, points.size)
+        }
+        
+        val xform = AffineTransform.getTranslateInstance(edgeLoc.getX, edgeLoc.getY)
+        val dx = p.getX - edgeLoc.getX
+        val dy = p.getY - edgeLoc.getY
+        val thetaRadians = math.atan2(dy, dx)
+        xform.rotate(thetaRadians);
+        val dist = math.sqrt(dx*dx + dy*dy);
+        xform.scale(dist, 1.0);
+          
+        shapes.foreach { shape =>
+          
+          val edgeShape = xform.createTransformedShape(shape)
+          gd.draw(edgeShape)
+          
+        }
+          
+    }
+    
+    //gd.drawLine(edgeLoc.getX().toInt, edgeLoc.getY().toInt, p.getX().toInt, p.getY().toInt)
+          
+
+    if (edge.label == null || edge.label.size == 0 && points.toSet.size == 2) {
+
+      val d = points(1).distance(points(0))
+      val dx = (points(1).getX - points(0).getX) / d
+      val dy = (points(1).getY - points(0).getY) / d
+      val p0 = points(0)
+      // Shift p1 down by radius of vertex
+      val p1 = if (incs(1).isInstanceOf[FakeVertex]) points(1) else
+        new Point2D.Double(points(1).getX - dx * 10, points(1).getY - dy * 10)
+
+      val alpha = 10
+      val beta = 5
+
+      val arrowp0 = new Point2D.Double(p1.getX - dx * alpha + dy * beta, p1.getY - dy * alpha - dx * beta)
+      val arrowp1 = new Point2D.Double(p1.getX - dx * alpha - dy * beta, p1.getY - dy * alpha + dx * beta)
+      gd.drawLine(p1.getX.toInt, p1.getY.toInt, arrowp0.getX.toInt, arrowp0.getY.toInt)
+      gd.drawLine(p1.getX.toInt, p1.getY.toInt, arrowp1.getX.toInt, arrowp1.getY.toInt)
+
+    }
+    else {
+
+      if (pickedEdgeState.isPicked(edge) || hovered) {
+        points.zipWithIndex.foreach {
+          case (p, i) =>
+            val x = (p.getX() + edgeLoc.getX()) / 2
+            val y = (p.getY() + edgeLoc.getY()) / 2
+            val textRenderer = TextRenderer.getComponent(vv, i + 1, null, Color.BLACK)
+            val size = textRenderer.getPreferredSize()
+            rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width / 2, y.toInt - size.height / 2, size.width, size.height, true)
+
+        }
+      }
+
+      // Label
+
+      val textRenderer = TextRenderer.getComponent(vv, edge.label, null, Color.BLACK)
+      val size = textRenderer.getPreferredSize()
+
+      val old = gd.getTransform()
+      val xform = new AffineTransform(old)
+      xform.translate(edgeLoc.getX(), edgeLoc.getY())
+
+      gd.setTransform(xform)
+      gd.setStroke(new BasicStroke(1))
+      val rect = new Rectangle(-10, -10, 20, 20)
+      gd.setPaint(Color.WHITE)
+      gd.fill(rect)
+      gd.setPaint(Color.GRAY)
+      gd.draw(rect)
+
+      xform.translate(-size.width / 2, -size.height / 2)
+      gd.setTransform(xform)
+
+      gd.setTransform(old)
+      rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), edgeLoc.getX.toInt - size.width / 2, edgeLoc.getY.toInt - size.height / 2, size.width, size.height, true)
+    }
+
     gd.setPaint(oldPaint)
   }
-  def setEdgeArrowRenderingSupport(edgeArrowRenderingSupport : EdgeArrowRenderingSupport[_,_]) {
+  def setEdgeArrowRenderingSupport(edgeArrowRenderingSupport: EdgeArrowRenderingSupport[_, _]) {
   }
   def getEdgeArrowRenderingSupport() = null
 }

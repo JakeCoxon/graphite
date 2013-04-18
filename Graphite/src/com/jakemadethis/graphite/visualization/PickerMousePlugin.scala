@@ -26,27 +26,12 @@ class PickerMousePlugin[V,E] extends AbstractGraphMousePlugin(0)
     
     downPoint = e.getPoint()
     val vv = e.getSource().asInstanceOf[VisualizationViewer[V,E] with HoverSupport[V,E]]
+    val graph = vv.getGraphLayout().getGraph()
     val pickedVertexState = vv.getPickedVertexState()
     val pickedEdgeState = vv.getPickedEdgeState()
     val hoverVertexState = vv.getHoverVertexState()
     val hoverEdgeState = vv.getHoverEdgeState()
     
-    // Vertices
-    if (pickedVertexState != null && hoverVertexState.getPicked().size > 0) {
-      val hover = hoverVertexState.getPicked().last
-      if (e.getModifiers() == SINGLE_SELECT) {
-        if (!pickedVertexState.isPicked(hover)) {
-          pickedVertexState.clear()
-          pickedEdgeState.clear()
-          pickedVertexState.pick(hover, true)
-        }
-      }
-      else if (e.getModifiers() == MULTI_SELECT) {
-        if (hoverVertexState.getPicked().size > 0) {
-          pickedVertexState.pick(hover, true)
-        }
-      }
-    }
 
     // Edges
     if (pickedEdgeState != null && hoverEdgeState.getPicked().size > 0) {
@@ -61,6 +46,27 @@ class PickerMousePlugin[V,E] extends AbstractGraphMousePlugin(0)
       else if (e.getModifiers() == MULTI_SELECT) {
         if (hoverEdgeState.getPicked().size > 0) {
           pickedEdgeState.pick(hover, true)
+        }
+      }
+    }
+    
+    
+    // Vertices
+    if (pickedVertexState != null && hoverVertexState.getPicked().size > 0) {
+      val hover = hoverVertexState.getPicked().last
+      if (e.getModifiers() == SINGLE_SELECT) {
+        if (!pickedVertexState.isPicked(hover)) {
+          pickedVertexState.clear()
+          pickedEdgeState.getPicked().filterNot { edge =>
+            graph.getIncidentVertices(edge).contains(hover)
+          }.foreach { edge => pickedEdgeState.pick(edge, false) }
+          //pickedEdgeState.clear()
+          pickedVertexState.pick(hover, true)
+        }
+      }
+      else if (e.getModifiers() == MULTI_SELECT) {
+        if (hoverVertexState.getPicked().size > 0) {
+          pickedVertexState.pick(hover, true)
         }
       }
     }
