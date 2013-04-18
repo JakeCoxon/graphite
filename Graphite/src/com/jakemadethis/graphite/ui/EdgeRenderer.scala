@@ -53,38 +53,55 @@ class EdgeRenderer(vv: VisualizationViewer[Vertex, Hyperedge] with HoverSupport[
     gd.setStroke(new BasicStroke(2))
 
     val drawTentacleLabels = pickedEdgeState.isPicked(edge) || hovered
-
-    def curveShape(index : Int, total : Int) = {
-      def alt(i : Int) = if (i % 2 == 1) -1 else 1
-      def the(i : Int) = math.ceil(i/2f).toFloat
-      val controlY = if (total % 2 == 1) {
-        if (index == 0) 0
-        else 40 * alt(index) * the(index)
-      } else {
-        40 * alt(index+1) * the(index+1) - 20 * alt(index+1)
-      } 
-      new QuadCurve2D.Float(0.0f, 0.0f, 0.5f, controlY, 1.0f, 0.0f)
+    
+    def alt(id : Int, total : Int) = {
+      // -2  -1  0  1
+      // -2  -1  0  1  2
+      val i = id - total/2
+      // -1.5  -0.5  0.5  1.5
+      // -2  -1  0  1  2
+      if (total % 2 == 0) i + 0.5f else i
     }
     
-    val grouped = points.groupBy { p => p }
+    def curveShape(index : Int, total : Int) = {
+      val controlY = alt(index, total) * 40f
+      new QuadCurve2D.Float(0.0f, 0.0f, 0.5f, controlY, 1.0f, 0.0f)
+    }
+    def curveTextPoint(index : Int, total : Int) = {
+      val controlY = alt(index, total) * 20f
+      new Point2D.Double(0.5f, controlY)
+    }
+    
+    val grouped = points.zipWithIndex.groupBy { p => p._1 }
     grouped.foreach {
       case (p, points) =>
-        val shapes = (0 until points.size).map { i =>
-          curveShape(i, points.size)
+        val shapes = points.zipWithIndex.map { case ((p, tentId), i) =>
+          val shape = curveShape(i, points.size)
+          val point = curveTextPoint(i, points.size)
+          (shape, point, tentId)
         }
         
         val xform = AffineTransform.getTranslateInstance(edgeLoc.getX, edgeLoc.getY)
         val dx = p.getX - edgeLoc.getX
         val dy = p.getY - edgeLoc.getY
         val thetaRadians = math.atan2(dy, dx)
-        xform.rotate(thetaRadians);
-        val dist = math.sqrt(dx*dx + dy*dy);
-        xform.scale(dist, 1.0);
+        xform.rotate(thetaRadians)
+        val dist = math.sqrt(dx*dx + dy*dy)
+        xform.scale(dist, 1.0)
+        
           
-        shapes.foreach { shape =>
+        shapes.foreach { case(shape, textp, tentId) =>
           
           val edgeShape = xform.createTransformedShape(shape)
           gd.draw(edgeShape)
+          
+          if (drawTentacleLabels) {
+            xform.transform(textp, textp)
+            
+            val textRenderer = TextRenderer.getComponent(vv, tentId+1, null, Color.BLACK)
+            val size = textRenderer.getPreferredSize()
+            rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), textp.getX.toInt - size.width / 2, textp.getY.toInt - size.height / 2, size.width, size.height, true)
+          }
           
         }
           
@@ -113,18 +130,6 @@ class EdgeRenderer(vv: VisualizationViewer[Vertex, Hyperedge] with HoverSupport[
 
     }
     else {
-
-      if (pickedEdgeState.isPicked(edge) || hovered) {
-        points.zipWithIndex.foreach {
-          case (p, i) =>
-            val x = (p.getX() + edgeLoc.getX()) / 2
-            val y = (p.getY() + edgeLoc.getY()) / 2
-            val textRenderer = TextRenderer.getComponent(vv, i + 1, null, Color.BLACK)
-            val size = textRenderer.getPreferredSize()
-            rc.getGraphicsContext().draw(textRenderer, rc.getRendererPane(), x.toInt - size.width / 2, y.toInt - size.height / 2, size.width, size.height, true)
-
-        }
-      }
 
       // Label
 

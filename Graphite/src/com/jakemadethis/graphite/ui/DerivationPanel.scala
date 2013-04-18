@@ -110,7 +110,10 @@ class DerivationPanel(derivPair : DerivationPair) extends BoxPanel(Orientation.N
             val vs = oldvs.take(d.sizing) ++ 
               ((oldvs.size until d.sizing) map {i => new FakeVertex()})
             oldvs.drop(d.sizing) filter {_.isInstanceOf[FakeVertex]} foreach {graph.removeVertex(_)}
-            graph.addEdge(new Hyperedge(d.label, d.termination), vs)
+            val newedge = new Hyperedge(d.label, d.termination)
+            graph.addEdge(newedge, vs)
+            rightVis.getPickedEdgeState().pick(edge, false)
+            rightVis.getPickedEdgeState().pick(newedge, true)
             rightVis.repaint()
           }
           
