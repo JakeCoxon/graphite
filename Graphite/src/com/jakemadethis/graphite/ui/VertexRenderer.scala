@@ -29,10 +29,10 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
     if (!v.isInstanceOf[FakeVertex]) {
       
       val pickedEdgeState = vv.getPickedEdgeState()
-      if (graph.getIncidentEdges(v).exists(pickedEdgeState.isPicked(_))) {
-        circle(rc, x, y, 10, Color.BLACK)
-      }
-      else {
+//      if (graph.getIncidentEdges(v).exists(pickedEdgeState.isPicked(_))) {
+//        circle(rc, x, y, 10, Color.BLACK)
+//      }
+//      else {
         val pickedVertexState = vv.getPickedVertexState()
         val hoverVertexState = vv.getHoverVertexState()
         val hovered = hoverVertexState.getPicked().size > 0 && hoverVertexState.getPicked().last == v
@@ -43,7 +43,7 @@ class VertexRenderer(vv : VisualizationViewer[Vertex,Hyperedge] with HoverSuppor
           else
             Color.BLACK
         circle(rc, x, y, 10, c)
-      }
+//      }
     }
     
     
