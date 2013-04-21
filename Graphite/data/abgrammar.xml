@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns/graphml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://graphml.graphdrawing.org/xmlns/graphml">
+  <key for="graph" id="label">
+    <default>?</default>
+  </key>
+  <key for="node" id="external">
+    <default>-1</default>
+  </key>
+  <key for="node" id="x">
+    <default>?</default>
+  </key>
+  <key for="node" id="fake">
+    <default>false</default>
+  </key>
+  <key for="node" id="y">
+    <default>?</default>
+  </key>
+  <key for="hyperedge" id="terminal">
+    <default>true</default>
+  </key>
+  <key for="hyperedge" id="label">
+    <default>?</default>
+  </key>
+  <graph edgedefault="undirected">
+    <data key="label">$initial</data>
+    <node id="1">
+      <data key="x">127.31563366476831</data>
+      <data key="y">292.5849771239592</data>
+    </node>
+    <node id="2">
+      <data key="x">130.1765287706491</data>
+      <data key="y">182.63473393643574</data>
+    </node>
+    <hyperedge id="1">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="1"></endpoint>
+      <endpoint node="2"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="3">
+      <data key="external">1</data>
+      <data key="x">50.61124468026715</data>
+      <data key="y">290.68711659888424</data>
+    </node>
+    <node id="4">
+      <data key="external">0</data>
+      <data key="x">46.23397226683851</data>
+      <data key="y">40.33962927197257</data>
+    </node>
+    <node id="5">
+      <data key="x">274.9129466509946</data>
+      <data key="y">156.3689252453704</data>
+    </node>
+    <hyperedge id="2">
+      <data key="terminal">true</data>
+      <data key="label">b</data>
+      <endpoint node="5"></endpoint>
+      <endpoint node="3"></endpoint>
+    </hyperedge>
+    <hyperedge id="3">
+      <data key="terminal">true</data>
+      <data key="label">a</data>
+      <endpoint node="4"></endpoint>
+      <endpoint node="5"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="6">
+      <data key="x">190.0705306110603</data>
+      <data key="y">75.64403801944957</data>
+    </node>
+    <node id="7">
+      <data key="external">1</data>
+      <data key="x">73.30890941951594</data>
+      <data key="y">298.8123243216159</data>
+    </node>
+    <node id="8">
+      <data key="external">0</data>
+      <data key="x">77.66719258081855</data>
+      <data key="y">56.13706938161215</data>
+    </node>
+    <node id="9">
+      <data key="x">186.32966694670796</data>
+      <data key="y">299.7759522309945</data>
+    </node>
+    <hyperedge id="4">
+      <data key="terminal">true</data>
+      <data key="label">b</data>
+      <endpoint node="9"></endpoint>
+      <endpoint node="7"></endpoint>
+    </hyperedge>
+    <hyperedge id="5">
+      <data key="terminal">true</data>
+      <data key="label">a</data>
+      <endpoint node="8"></endpoint>
+      <endpoint node="6"></endpoint>
+    </hyperedge>
+    <hyperedge id="6">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="6"></endpoint>
+      <endpoint node="9"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="10">
+      <data key="external">0</data>
+      <data key="x">114.86412004930378</data>
+      <data key="y">154.1039624359424</data>
+    </node>
+    <node id="11">
+      <data key="external">1</data>
+      <data key="x">95.65319799885992</data>
+      <data key="y">396.4280044577803</data>
+    </node>
+    <node id="12">
+      <data key="x">264.9426321357637</data>
+      <data key="y">269.27153514636217</data>
+    </node>
+    <hyperedge id="7">
+      <data key="terminal">true</data>
+      <data key="label">b</data>
+      <endpoint node="10"></endpoint>
+      <endpoint node="12"></endpoint>
+    </hyperedge>
+    <hyperedge id="8">
+      <data key="terminal">true</data>
+      <data key="label">a</data>
+      <endpoint node="12"></endpoint>
+      <endpoint node="11"></endpoint>
+    </hyperedge>
+  </graph>
+  <graph edgedefault="undirected">
+    <data key="label">C</data>
+    <node id="13">
+      <data key="x">176.52728138356167</data>
+      <data key="y">290.1951600337946</data>
+    </node>
+    <node id="14">
+      <data key="x">175.24805575478877</data>
+      <data key="y">39.4818394233053</data>
+    </node>
+    <node id="15">
+      <data key="external">1</data>
+      <data key="x">9.316069733122958</data>
+      <data key="y">282.6560074165781</data>
+    </node>
+    <node id="16">
+      <data key="external">0</data>
+      <data key="x">4.556412844202273</data>
+      <data key="y">33.70010162180065</data>
+    </node>
+    <hyperedge id="9">
+      <data key="terminal">false</data>
+      <data key="label">C</data>
+      <endpoint node="14"></endpoint>
+      <endpoint node="13"></endpoint>
+    </hyperedge>
+    <hyperedge id="10">
+      <data key="terminal">true</data>
+      <data key="label">b</data>
+      <endpoint node="16"></endpoint>
+      <endpoint node="14"></endpoint>
+    </hyperedge>
+    <hyperedge id="11">
+      <data key="terminal">true</data>
+      <data key="label">a</data>
+      <endpoint node="13"></endpoint>
+      <endpoint node="15"></endpoint>
+    </hyperedge>
+  </graph>
+</graphml>

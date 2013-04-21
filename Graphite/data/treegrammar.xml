@@ -49,15 +49,14 @@
       <data key="y">245.15430326237913</data>
     </node>
     <hyperedge id="2">
+      <data key="terminal">true</data>
+      <endpoint node="2"></endpoint>
+      <endpoint node="4"></endpoint>
+    </hyperedge>
+    <hyperedge id="3">
       <data key="terminal">false</data>
       <data key="label">A</data>
       <endpoint node="3"></endpoint>
-    </hyperedge>
-    <hyperedge id="3">
-      <data key="terminal">true</data>
-      <data key="label"></data>
-      <endpoint node="4"></endpoint>
-      <endpoint node="2"></endpoint>
     </hyperedge>
     <hyperedge id="4">
       <data key="terminal">false</data>
@@ -66,32 +65,30 @@
     </hyperedge>
     <hyperedge id="5">
       <data key="terminal">true</data>
-      <data key="label"></data>
-      <endpoint node="3"></endpoint>
       <endpoint node="2"></endpoint>
+      <endpoint node="3"></endpoint>
     </hyperedge>
   </graph>
   <graph edgedefault="undirected">
     <data key="label">A</data>
     <node id="5">
+      <data key="x">457.36830824122194</data>
+      <data key="y">285.54955967505737</data>
+    </node>
+    <node id="6">
       <data key="external">0</data>
       <data key="x">456.049766440397</data>
       <data key="y">146.46525809733006</data>
     </node>
-    <node id="6">
-      <data key="x">457.36830824122194</data>
-      <data key="y">285.54955967505737</data>
-    </node>
     <hyperedge id="6">
-      <data key="terminal">true</data>
-      <data key="label"></data>
-      <endpoint node="5"></endpoint>
-      <endpoint node="6"></endpoint>
-    </hyperedge>
-    <hyperedge id="7">
       <data key="terminal">false</data>
       <data key="label">A</data>
+      <endpoint node="5"></endpoint>
+    </hyperedge>
+    <hyperedge id="7">
+      <data key="terminal">true</data>
       <endpoint node="6"></endpoint>
+      <endpoint node="5"></endpoint>
     </hyperedge>
   </graph>
   <graph edgedefault="undirected">
