@@ -60,7 +60,7 @@ class VertexMergePlugin extends MouseDropPlugin[Vertex, Hyperedge] {
         vv.getPickedVertexState().pick(fake, true)
         vv.getHoverVertexState().pick(fake, true)
         vv.getPickedVertexState().pick(drag, false)
-        vv.getHoverVertexState().pick(drag, false)
+        vv.getHoverVertexState().pick(drag, true)
         vv.getPickedEdgeState().pick(edge, true)
       }
     }

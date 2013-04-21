@@ -20,7 +20,7 @@ class GraphFrame(devPaths : Seq[Derivation.Path[HypergraphProduction]]) extends 
   type Model = DefaultVisualizationModel[Vertex, Hyperedge]
   val genGraphs = devPaths.map(new GeneratableGraph(_))
   
-  val graphpanel = new GraphPanel(genGraphs.head.model)
+  val graphpanel = new GraphPanel(genGraphs.head.model, editable=false)
 
   val graphButtons = new BoxPanel(Orientation.Vertical) {
     

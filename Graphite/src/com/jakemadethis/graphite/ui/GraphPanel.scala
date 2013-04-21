@@ -19,13 +19,13 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.EdgeLabel
 import edu.uci.ics.jung.visualization.RenderContext
 import edu.uci.ics.jung.algorithms.layout.Layout
 
-class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge]) 
+class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge], editable : Boolean = true) 
     extends VisualizationViewer[Vertex, Hyperedge](model_, new Dimension(500, 500)) 
     with HoverSupport[Vertex, Hyperedge] {
 
   val vv = this
   
-  setGraphMouse(new GraphMouseHandler())
+  setGraphMouse(new GraphMouseHandler(editable))
   
   getRenderContext().setEdgeLabelTransformer(new Transformer[Hyperedge, String]() {
     def transform(e : Hyperedge) = e.label
@@ -56,7 +56,8 @@ class GraphPanel(model_ : VisualizationModel[Vertex, Hyperedge])
     
   })
   
-  addPostRenderPaintable(new FakeVertexRenderer(vv))
+  if (editable)
+    addPostRenderPaintable(new FakeVertexRenderer(vv))
     
     
   setBorder(Swing.BeveledBorder(Swing.Lowered))

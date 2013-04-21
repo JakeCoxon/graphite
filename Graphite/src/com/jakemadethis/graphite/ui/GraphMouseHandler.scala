@@ -14,14 +14,15 @@ import com.jakemadethis.graphite.visualization.HoverSupport
 import com.jakemadethis.graphite.visualization.PickerMousePlugin
 import com.jakemadethis.graphite.visualization.DraggingMousePlugin
 
-class GraphMouseHandler() extends PluggableGraphMouse {
+class GraphMouseHandler(editable : Boolean = true) extends PluggableGraphMouse {
   val in = 1.1f;
   val out = 1/1.1f;
   
   add(new HoverMousePlugin())
   add(new PickerMousePlugin())
   
-  add(new VertexMergePlugin())
+  if (editable)
+    add(new VertexMergePlugin())
   add(new DraggingMousePlugin())
 //    
 //  add(new SinglePickingGraphMousePlugin[Vertex, Hyperedge]
