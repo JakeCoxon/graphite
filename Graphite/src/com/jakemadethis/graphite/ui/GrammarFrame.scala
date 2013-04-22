@@ -20,6 +20,7 @@ import scala.swing.Separator
 class GrammarFrame(loadedGrammar : GuiGrammar, file : Option[File]) extends MainFrame {
   
   val frame = this
+  title = file.map { f => f.getName() }.getOrElse("Untitled Grammar")
   
   // Create graph panel with first model
   val graphpanel = new DerivationPanel(loadedGrammar.initialGraph)
