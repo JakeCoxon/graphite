@@ -73,7 +73,8 @@ object App {
     val enumerator = new GrammarEnumerator(grammar)
     
     val (paths, time) = Time.get {
-      enumerator.precompute(size)
+      val (_, precomptime) = Time.get { enumerator.precompute(size) }
+      logger ! Precompute(precomptime)
       
       val count = enumerator.count(grammar.initial, size)
       if (count == 0) {
@@ -117,6 +118,9 @@ object App {
   }
   case class NoDerivations(size : Int) {
     override def toString = "No available derivations at size %,d".format(size)
+  }
+  case class Precompute(time : Long) {
+    override def toString = "Precomputing took %,d ms".format(time/1000)
   }
   
 }

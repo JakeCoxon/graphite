@@ -64,10 +64,10 @@ object ConsoleApp {
     val rangePattern = """([0-9]+)\.\.([0-9]+)""".r
     val sizeStr = opts.get('size).get
     
-    logger ! "Loading file: %s".format(filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     if (loader.grammar.isEmpty) 
       return logger @! "Grammar is invalid"
+    logger ! "Loaded file: %s".format(filename)
     
     val grammar = PrepareGrammar(loader.grammar.get)
     val enumerator = new GrammarEnumerator(grammar)
@@ -108,34 +108,43 @@ object ConsoleApp {
     val printDistinct = opts.getBool('distinct).getOrElse(false)
     val gui = opts.getBool('open).getOrElse(false)
     
-    logger ! "Loading file: %s".format(filename)
     val loader = new GrammarLoader(new FileReader(new File(filename)))
     if (loader.grammar.isEmpty) 
       return logger @! "Grammar is invalid"
+    logger ! "Loaded file: %s".format(filename)
     
     val grammar = PrepareGrammar(loader.grammar.get)
     
+    logger ! "Running algorithm..."
     val paths = App.runAlgorithm(grammar, size, number)
     
-    if (printDistinct && paths.isDefined) {
-      logger ! "Distinct graphs:"
-      val map = grammar.productions.zipWithIndex.map { case (p, i) => p._2 -> i }.toMap
-      val distinctMap = collection.mutable.Map[Seq[HypergraphProduction], Int]()
+    if (paths.isDefined) {
+      if (printDistinct) {
+        logger ! "Distinct graphs:"
+        val map = grammar.productions.zipWithIndex.toMap
+        val distinctMap = collection.mutable.Map[Derivation.Path[HypergraphProduction], Int]()
+        
+        paths.get.foreach { p =>
+          val v = p.tail
+          val num = distinctMap.getOrElse(v, 0) + 1
+          distinctMap(v) = num
+        }
+        distinctMap.toList.zipWithIndex.foreach {case ((k, v), id) =>
+          // k.map(map(_)).mkString(",")
+          logger ! "%,d -> %,d".format(id, v)
+        }
+        if (gui) {
+          GuiApp.setup
+          GuiApp.openGraphs(distinctMap.keys.toSeq)
+          return
+        }
+      }
       
-      paths.get.foreach { p =>
-        val v = p.tail.map(_._2)
-        val num = distinctMap.getOrElse(v, 0) + 1
-        distinctMap(v) = num
+      
+      if (gui) {
+        GuiApp.setup
+        GuiApp.openGraphs(paths.get)
       }
-      distinctMap.toList.zipWithIndex.foreach {case ((k, v), id) =>
-        // k.map(map(_)).mkString(",")
-        logger ! "%,d -> %,d".format(id, v)
-      }
-    }
-    
-    if (gui && paths.isDefined) {
-      GuiApp.setup
-      GuiApp.openGraphs(paths.get)
     }
     
   }
@@ -166,11 +175,12 @@ object ConsoleApp {
     override def receive = verboseReceive orElse super.receive
     
     def verboseReceive : PartialFunction[Any,Unit] = {
-      case Done(size, number, time) => println("Time to compute: %,d milliseconds".format(time/1000))
+      case Done(size, number, time) => println(); println("Time to compute: %,d milliseconds".format(time/1000))
       case msg @ GraphData(_,_)   => println(msg)
       case msg @ TotalGraphs(_)   => println(msg)
-      case msg @ Generating(_, _) => println(msg)
+      case msg @ Generating(_, _) => print("\r"+msg)
       case msg @ NoDerivations(_) => println(msg)
+      case msg @ Precompute(_)   => println(msg)
       case msg : String => println(msg)
     }
   }
