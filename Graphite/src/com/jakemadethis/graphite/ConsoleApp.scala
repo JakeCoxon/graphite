@@ -120,33 +120,34 @@ object ConsoleApp {
     
     if (paths.isDefined) {
       if (printDistinct) {
-        logger ! "Distinct graphs:"
-        val map = grammar.productions.zipWithIndex.toMap
-        val distinctMap = collection.mutable.Map[Derivation.Path[HypergraphProduction], Int]()
-        
-        paths.get.foreach { p =>
-          val v = p.tail
-          val num = distinctMap.getOrElse(v, 0) + 1
-          distinctMap(v) = num
-        }
-        distinctMap.toList.zipWithIndex.foreach {case ((k, v), id) =>
-          // k.map(map(_)).mkString(",")
-          logger ! "%,d -> %,d".format(id, v)
-        }
-        if (gui) {
-          GuiApp.setup
-          GuiApp.openGraphs(distinctMap.keys.toSeq)
-          return
-        }
+        outputDistinct(grammar, paths.get, gui)
       }
-      
-      
-      if (gui) {
+      else if (gui) {
         GuiApp.setup
         GuiApp.openGraphs(paths.get)
       }
     }
     
+  }
+  
+  private def outputDistinct(grammar : HypergraphGrammar.HG, paths : Seq[App.Path], gui : Boolean)(implicit logger : Logger) {
+    logger ! "Distinct graphs:"
+    val map = grammar.productions.zipWithIndex.toMap
+    val distinctMap = collection.mutable.Map[Derivation.Path[HypergraphProduction], Int]()
+    
+    paths.foreach { p =>
+      val v = p.tail
+      val num = distinctMap.getOrElse(v, 0) + 1
+      distinctMap(v) = num
+    }
+    distinctMap.toList.zipWithIndex.foreach {case ((k, v), id) =>
+      // k.map(map(_)).mkString(",")
+      logger ! "%,d -> %,d".format(id, v)
+    }
+    if (gui) {
+      GuiApp.setup
+      GuiApp.openGraphs(distinctMap.keys.toSeq)
+    }
   }
   
   def benchmark(fileOption : Option[String], opts : App.Options)(implicit logger : Logger) {
@@ -204,8 +205,12 @@ object ConsoleApp {
     
     override def receive = benchReceive orElse super.receive
     
+    var precompTime : Long = 0
     def benchReceive : PartialFunction[Any,Unit] = {
-      case Done(size, number, time) => println("Size %s: %,d milliseconds".format(size, time/1000))
+      case Precompute(time)         => precompTime = time
+      case Done(size, number, time) => 
+        val mainTime = time - precompTime
+        println("Size %s. Time %,d ms + %,d ms (%,d ms)".format(size, precompTime/1000, mainTime/1000, time/1000))
     }
   }
   
