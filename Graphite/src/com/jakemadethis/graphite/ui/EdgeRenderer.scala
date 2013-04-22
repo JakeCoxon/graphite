@@ -110,7 +110,7 @@ class EdgeRenderer(vv: VisualizationViewer[Vertex, Hyperedge] with HoverSupport[
     //gd.drawLine(edgeLoc.getX().toInt, edgeLoc.getY().toInt, p.getX().toInt, p.getY().toInt)
           
 
-    if (edge.label == null || edge.label.size == 0 && points.toSet.size == 2) {
+    if (points.size == 2) {
 
       val d = points(1).distance(points(0))
       val dx = (points(1).getX - points(0).getX) / d
@@ -129,7 +129,7 @@ class EdgeRenderer(vv: VisualizationViewer[Vertex, Hyperedge] with HoverSupport[
       gd.drawLine(p1.getX.toInt, p1.getY.toInt, arrowp1.getX.toInt, arrowp1.getY.toInt)
 
     }
-    else {
+    if (edge.label != null && edge.label.size > 0) {
 
       // Label
 
