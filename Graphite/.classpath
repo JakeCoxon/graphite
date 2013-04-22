@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="lib/scalatest_2.9.0-1.9.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="/Applications/eclipse-juno/configuration/org.eclipse.osgi/bundles/440/1/.cp/lib/scala-library.jar"/>
 	<classpathentry exported="true" kind="lib" path="/Applications/eclipse-juno/configuration/org.eclipse.osgi/bundles/440/1/.cp/lib/scala-swing.jar"/>
+	<classpathentry kind="lib" path="lib/org.abego.treelayout.core.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

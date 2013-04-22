@@ -14,6 +14,8 @@ import scala.swing._
 import com.jakemadethis.graphite.algorithm.{Derivation,HypergraphProduction}
 import com.jakemadethis.graphite.algorithm.HypergraphGenerator
 import java.awt.Color
+import edu.uci.ics.jung.algorithms.layout.Layout
+import collection.JavaConversions._
 
 class GraphFrame(devPaths : Seq[Derivation.Path[HypergraphProduction]]) extends MainFrame {
   
@@ -70,6 +72,18 @@ class GraphFrame(devPaths : Seq[Derivation.Path[HypergraphProduction]]) extends 
     
   }
   
+  menuBar = new MenuBar() {
+    def menuItem(text: String)(op: => Unit) = {
+      new MenuItem(Action(text)(op))
+    }
+    contents += new Menu("Layout") {
+      contents += menuItem("Tree") { 
+        PerformTreeLayout(graphpanel.getGraphLayout) 
+        graphpanel.repaint()
+      }
+      contents += menuItem("Force Directed") {}
+    }
+  }
   
   contents = new BorderPanel() {
     layout(sidebar) = BorderPanel.Position.West
@@ -94,5 +108,83 @@ class GeneratableGraph(path : Derivation.Path[HypergraphProduction]) {
     
     println("Generated")
     new DefaultVisualizationModel(glayout)
+  }
+}
+
+object PerformTreeLayout {
+  import org.abego.treelayout._
+  import org.abego.treelayout.util._
+  import java.awt.geom.Point2D
+  
+  def apply[V,E](layout : Layout[V,E]) {
+    val graph = layout.getGraph().asInstanceOf[Hypergraph[V,E]]
+    if (graph.getVertexCount() <= 1) return
+    
+    try {
+      
+      val tree = makeTree(graph)
+      val config = new DefaultConfiguration[V](100, 100, Configuration.Location.Top)
+      val ext = new NodeExtentProvider[V]() {
+        def getWidth(v : V) = 10
+        def getHeight(v : V) = 10
+      }
+      val treelayout = new TreeLayout(tree, ext, config)
+      
+      graph.getVertices().foreach { v => 
+        val x = treelayout.getNodeBounds()(v).getCenterX()
+        val y = treelayout.getNodeBounds()(v).getCenterY()
+        layout.setLocation(v, new Point2D.Double(x, y))
+      }
+    
+    } catch {
+      case ex : TreeError => println("Not a tree")
+    }
+  }
+  
+  class TreeError extends Exception
+  
+  private def makeTree[V,E](graph : Hypergraph[V,E]) : TreeForTreeLayout[V] = {
+    
+    // Edges can be type 0, 1 or 2 but nothing larger
+    if (graph.getEdges().exists(edge => graph.getIncidentCount(edge) > 2))
+      throw new TreeError
+    
+    // Get the parent vertex of a given vertex
+    def getParent(v : V) = {
+      val parents = graph.getIncidentEdges(v).flatMap { edge => 
+        val incv = graph.getIncidentVertices(edge)
+        if (incv.size() == 2 && incv.tail.head == v) Some(incv.head) else None
+      }
+      if (parents.size > 1) throw new TreeError 
+      parents.headOption
+    }
+
+    // Get the children vertices of a given vertex
+    def getChildren(v : V) = graph.getIncidentEdges(v).flatMap { edge => 
+      val incv = graph.getIncidentVertices(edge)
+      if (incv.size() == 2 && incv.head == v) Some(incv.tail.head) else None
+    }
+    
+    // Get the top-most vertex of a given vertex
+    def getRoot(v : V) : V = {
+      getParent(v).map { getRoot(_) }.getOrElse(v)
+    }
+    
+    val root = getRoot(graph.getVertices().head)
+    var addedVertices = 1
+    val tree = new DefaultTreeForTreeLayout[V](root)
+    
+    def addChildrenOf(v : V) {
+      val children = getChildren(v).toSeq
+      if (children.exists(tree.hasNode(_))) throw new TreeError
+      tree.addChildren(v, children:_*)
+      addedVertices += children.size
+      children.foreach(addChildrenOf(_))
+    }
+    
+    addChildrenOf(root)
+    if (addedVertices != graph.getVertexCount()) throw new TreeError
+    
+    tree
   }
 }
