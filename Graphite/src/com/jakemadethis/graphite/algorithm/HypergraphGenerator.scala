@@ -10,7 +10,7 @@ object HypergraphGenerator {
   def apply(graph : Hypergraph[Vertex, Hyperedge], path : Derivation.Path[HypergraphProduction]) = {
     val startGraph = applyToGraph(graph, path.head._2, Seq())
     
-    path.tail.foldLeft(graph) { case (graph, (label, derivation)) => 
+    path.tail.foldLeft(graph) { case (graph, (label, prod)) => 
   
       val edge = getNonTerminalEdge(graph, label).getOrElse {
         val nts = graph.getEdges.filter(_.isNonTerminal).map(_.label).optionIf(_.size > 0).
@@ -22,9 +22,9 @@ object HypergraphGenerator {
       val incidents = new IterableWrapper(graph.getIncidentVertices(edge))
       
       val vs = graph.getIncidentVertices(edge)
-      if (vs.size != derivation.deriveType) throw new Error("Hypergraph type does not match hyperedge type")
+      if (vs.size != prod.deriveType) throw new Error("Hypergraph type does not match hyperedge type (edge %s:%d, deriv %s:%d)".format(edge.label, vs.size, label, prod.deriveType))
       graph.removeEdge(edge)
-      applyToGraph(graph, derivation, incidents)
+      applyToGraph(graph, prod, incidents)
     }
   }
   

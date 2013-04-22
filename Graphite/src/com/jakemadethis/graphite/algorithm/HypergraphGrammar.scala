@@ -21,6 +21,8 @@ class HypergraphProduction(val graph : Hypergraph[Vertex, Hyperedge],
   extends Production(edgeSymbolMap.keys.toList, terminalSize) {
   
   def deriveType = externalNodes.size
+  override def isSingleton = super.isSingleton && 
+    graph.getIncidentVertices(graph.getEdges().head).size == graph.getVertexCount()
   
   def map(sym : Grammar.Symbol) = edgeSymbolMap(sym)
 }

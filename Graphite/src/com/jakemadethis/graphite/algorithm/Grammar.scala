@@ -60,6 +60,8 @@ object Derivation {
 abstract class Production(nonTerminals: List[Grammar.Symbol], terminalSize: Int) 
   extends Derivation.State(nonTerminals, terminalSize){
   
+  def isSingleton  = nonTerminals.size == 1 && terminalSize == 0
+  
   //def map(sym : Symbol) : Any
 }
 

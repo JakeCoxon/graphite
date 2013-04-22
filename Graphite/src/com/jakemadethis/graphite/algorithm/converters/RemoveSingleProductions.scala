@@ -15,11 +15,8 @@ object RemoveSingleProductions extends Function[Grammar[HypergraphProduction], G
       production.nonTerminalLabels.forall { nonTerminals.contains(_) }
     }
   
-    def isSingleProduction(production : D) = 
-      production.terminalSize == 0 && production.nonTerminals.size == 1
-      
     def isSingleProductionTo(production : D, nts : Set[String]) = 
-      isSingleProduction(production) &&
+      production.isSingleton &&
         nts.contains(production.nonTerminalLabels.head)
     
     
@@ -38,7 +35,7 @@ object RemoveSingleProductions extends Function[Grammar[HypergraphProduction], G
     }.toMap
     
     val prods = grammar.productions.toList.flatMap { case(label, prod) =>
-      if (isSingleProduction(prod))
+      if (prod.isSingleton)
         Nil
       else {
         ntMap(label).map { nt => nt -> prod }
