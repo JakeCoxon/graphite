@@ -34,7 +34,7 @@ class GrammarSaver(file : File, grammar : Grammar[HypergraphProduction]) {
       
   
   writer.addGraphData("label", "The grammar label", "?") { g => derivationMap(g)._1 }
-  writer.addEdgeData("label", "The edge label", "?") { (_, e) => e.label }
+  writer.addEdgeData("label", "The edge label", "") { (_, e) => e.label }
   writer.addEdgeData("terminal", "If the edge is terminal", "true") { (_, e) => e.isTerminal.toString }
   
 //  writer.addVertexData("x", "The x coordinate", "?") { (g, v) =>
