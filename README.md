@@ -2,9 +2,7 @@
 
 Generates random graphs with a uniform distribution from a context-free hypergraph grammar.
 
-# Examples
-
-Use graphite with the following: `java -jar graphite-1.1.jar ...`
+Use graphite with the following: `graphite=java -jar graphite-1.1.jar`
 
 ```
 graphite
