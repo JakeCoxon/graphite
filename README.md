@@ -2,6 +2,8 @@
 
 Generates random graphs with a uniform distribution from a context-free hypergraph grammar.
 
+# Examples
+
 Use graphite with the following: `java -jar graphite-1.1.jar ...`
 
 ```
@@ -38,4 +40,3 @@ graphite benchmark --size=int [--number=int] filename
 `graphite enumerate --size=5 --number=640 --verbose examples/flowgrammar.xml`
 
 `graphite benchmark --size=100 --number=1000 examples/treegrammar.xml`
-
