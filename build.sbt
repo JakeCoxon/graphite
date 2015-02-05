@@ -1,6 +1,6 @@
 organization  := "com.jakemadethis"
 
-version       := "1.0"
+version       := "1.1"
 
 scalaVersion  := "2.10.4"
 
@@ -14,5 +14,6 @@ libraryDependencies ++=
     "net.sf.jung" % "jung-algorithms" % "2.0.1",
     "net.sf.jung" % "jung-io" % "2.0.1",
     "net.sf.jung" % "jung-visualization" % "2.0.1",
-    "org.abego.treelayout" % "org.abego.treelayout.core" % "1.0.1"
+    "org.abego.treelayout" % "org.abego.treelayout.core" % "1.0.1",
+    "org.scalatest" % "scalatest_2.10" % "2.2.4"
   )

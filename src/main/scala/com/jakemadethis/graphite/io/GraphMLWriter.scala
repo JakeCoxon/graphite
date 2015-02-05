@@ -1,12 +1,13 @@
 package com.jakemadethis.graphite.io
 
+import java.io.File
+
+import com.jmcejuela.scala.xml.XMLPrettyPrinter
 import edu.uci.ics.jung.graph.Hypergraph
 import edu.uci.ics.jung.io.GraphMLMetadata
 import org.apache.commons.collections15.Transformer
-import collection.JavaConversions._
-import java.io.File
-import com.jmcejuela.scala.xml.XMLPrettyPrinter
-import scala.collection.TraversableOnce.wrapTraversableOnce
+
+import scala.collection.JavaConversions._
 import scala.collection.TraversableOnce
 
 class GraphMLWriter[V,E](
@@ -43,7 +44,7 @@ class GraphMLWriter[V,E](
 
     val graphsxml = graphs.map { graph =>
           
-      <graph edgedefault="undirected">
+      <graph edgedefault="directed">
         {data(graph_data, graph)}
         {vertexData(graph)}
         {edgeData(graph)}
@@ -68,15 +69,21 @@ class GraphMLWriter[V,E](
     g.getEdges().map { edge =>
       val incidents = g.getIncidentVertices(edge)
       val id = edge_ids(g, edge)
-      
-      val endpoints = incidents.map { v =>
-        <endpoint node={vertex_ids(g, v)} />
+
+      if (incidents.size == 2) {
+        val incidentsSeq = incidents.toIndexedSeq
+        val source = {vertex_ids(g, incidentsSeq(0))}
+        val target = {vertex_ids(g, incidentsSeq(1))}
+        <edge id={id} source={source} target={target}/>
+      } else {
+        val endpoints = incidents.map { v =>
+            <endpoint node={vertex_ids(g, v)}/>
+        }
+
+        <hyperedge id={id}>
+          {data(edge_data, (g, edge))}{endpoints}
+        </hyperedge>
       }
-      
-      <hyperedge id={id}>
-        {data(edge_data, (g, edge))}
-        {endpoints}
-      </hyperedge>
     }
   }
   

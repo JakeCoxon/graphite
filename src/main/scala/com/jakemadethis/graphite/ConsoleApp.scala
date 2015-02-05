@@ -1,18 +1,13 @@
 package com.jakemadethis.graphite
 
-import java.io.FileReader
-import java.io.File
-import com.jakemadethis.graphite.io.GrammarLoader
-import com.jakemadethis.graphite.graph.OrderedHypergraph
-import com.jakemadethis.graphite.algorithm.{HypergraphGenerator,GrammarRandomizer,GrammarEnumerator}
-import com.jakemadethis.util.Time
-import collection.JavaConversions._
+import java.io.{File, FileReader}
+
+import com.jakemadethis.graphite.algorithm._
 import com.jakemadethis.graphite.algorithm.converters.PrepareGrammar
-import com.jakemadethis.graphite.algorithm.HypergraphGrammar
-import com.jakemadethis.graphite.algorithm.HypergraphProduction
-import com.jakemadethis.graphite.algorithm.Derivation
-import com.jakemadethis.util.Logger
+import com.jakemadethis.graphite.graph.OrderedHypergraph
+import com.jakemadethis.graphite.io.{GraphSaver, GrammarLoader}
 import com.jakemadethis.util.NumUtil._
+import com.jakemadethis.util.{Logger, Time}
 
 object ConsoleApp {
   
@@ -40,13 +35,15 @@ object ConsoleApp {
       println("  Opens the graphite gui")
       println("graphite gui filename")
       println("  Opens the graphite gui with a specified file")
-      println("graphite generate --size=int [--number=int] [--verbose] [--distinct] [--open] filename")
+      println("graphite generate --size=int [--number=int] [--verbose] [--distinct] [--output=path] [--open] filename")
       println("  Generates a number of graphs with a specified size")
       println("    size       : The size of graph to generate, optionally use a range eg 1..10")
       println("    number     : The number of graphs to generate. Default 1")
-      println("    verbose    : Output detailed infomation. Default false")
-      println("    distinct   : Print the distinct graphs when it's finished.")
+      println("    verbose    : Output detailed information. Default false")
+      println("    distinct   : Whether to print the distinct graphs when it's finished.")
+      println("    output     : Optionally a directory to output the generated graphs to.")
       println("    open       : Whether to open the graphs after generated.")
+      println("    filename   : The input grammar to use.")
       println("graphite enumerate --size=int filename")
       println("  Counts the number of graphs with a specified size")
       println("    size       : The size of graph to count")
@@ -55,8 +52,7 @@ object ConsoleApp {
       println("    size       : The maximum size graph to generate")
       println("    number     : Each iteration should generate this number of graphs. Default 1")
     }
-    
-    
+
   }
   
   def enumerate(fileOption : Option[String], opts : App.Options)(implicit logger : Logger) {
@@ -65,8 +61,10 @@ object ConsoleApp {
     val sizeStr = opts.get('size).get
     
     val loader = new GrammarLoader(new FileReader(new File(filename)))
-    if (loader.grammar.isEmpty) 
-      return logger @! "Grammar is invalid"
+    if (loader.grammar.isEmpty) {
+      logger @! "Grammar is invalid"
+      return
+    }
     logger ! "Loaded file: %s".format(filename)
     
     val grammar = PrepareGrammar(loader.grammar.get)
@@ -107,10 +105,13 @@ object ConsoleApp {
     val number = opts.get('number).map{_.toInt}.getOrElse(1)
     val printDistinct = opts.getBool('distinct).getOrElse(false)
     val gui = opts.getBool('open).getOrElse(false)
+    val output = opts.get('output)
     
     val loader = new GrammarLoader(new FileReader(new File(filename)))
-    if (loader.grammar.isEmpty) 
-      return logger @! "Grammar is invalid"
+    if (loader.grammar.isEmpty) {
+      logger @! "Grammar is invalid"
+      return
+    }
     logger ! "Loaded file: %s".format(filename)
     
     val grammar = PrepareGrammar(loader.grammar.get)
@@ -122,14 +123,40 @@ object ConsoleApp {
       if (printDistinct) {
         outputDistinct(grammar, paths.get, gui)
       }
-      else if (gui) {
+      if (output.isDefined) {
+        outputGraphs(paths.get, output.get)
+      }
+      if (gui) {
         GuiApp.setup
         GuiApp.openGraphs(paths.get)
       }
     }
     
   }
-  
+
+  private def outputGraphs(paths: Seq[Derivation.Path[HypergraphProduction]], filePath: String)(implicit logger : Logger) {
+
+    val dir = new File(filePath)
+    if (!dir.exists()) {
+      logger ! "Creating folder structure..."
+      dir.mkdirs()
+    }
+
+    logger ! "Generating files..."
+
+    paths.zipWithIndex.foreach { case (path, idx) =>
+      val graph = HypergraphGenerator(new OrderedHypergraph(), path)
+
+      val file = new File(s"$filePath/graph$idx.xml")
+
+      GraphSaver.save(file, graph)
+
+    }
+
+    logger ! "Finished generating files..."
+
+  }
+
   private def outputDistinct(grammar : HypergraphGrammar.HG, paths : Seq[App.Path], gui : Boolean)(implicit logger : Logger) {
     logger ! "Distinct graphs:"
     val map = grammar.productions.zipWithIndex.toMap
@@ -171,7 +198,7 @@ object ConsoleApp {
   case class VerboseMessage(msg : String)
   
   object VerboseLogger extends Logger {
-    import App._
+    import com.jakemadethis.graphite.App._
   
     override def receive = verboseReceive orElse super.receive
     
@@ -187,7 +214,7 @@ object ConsoleApp {
   }
   
   object BasicLogger extends Logger {
-    import App._
+    import com.jakemadethis.graphite.App._
     
     override def receive = basicReceive orElse super.receive
     
@@ -201,7 +228,7 @@ object ConsoleApp {
   
   
   object BenchmarkLogger extends Logger {
-    import App._
+    import com.jakemadethis.graphite.App._
     
     override def receive = benchReceive orElse super.receive
     

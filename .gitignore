@@ -8,3 +8,6 @@ literature/*
 *-src.zip
 .cache
 target/
+project/
+.idea/
+output/
