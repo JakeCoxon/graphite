@@ -7,3 +7,4 @@ writeup/project.pdf
 literature/*
 *-src.zip
 .cache
+target/
